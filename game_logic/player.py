@@ -1,6 +1,8 @@
 import ctypes
 import os
 import random
+from math import radians
+
 from pico2d import load_image, get_time, get_canvas_height, get_canvas_width
 from sdl2 import (SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT, SDL_GetMouseState,
                   SDLK_a, SDLK_d, SDLK_w, SDLK_s)
@@ -100,7 +102,7 @@ class Run:
             # 플레이어 발밑에 파티클 생성 (y좌표 오프셋 조절)
             particle_x = self.player.x + random.uniform(-10, 10)
             particle_y = self.player.y - 40 + random.uniform(-5, 5)
-            new_particle = VFX_Particle(particle_x, particle_y, self.particle_frames, 0.05, 2.0)
+            new_particle = VFX_Run_Particle(particle_x, particle_y, self.particle_frames, 0.05, 2.0)
             self.player.particles.append(new_particle)
 
 
@@ -221,6 +223,7 @@ class Player:
         self.keys_down = {'w': False, 'a': False, 's': False, 'd': False}
         self.moving = False # 이동 상태 플래그
         self.particles = [] # 파티클 리스트를 Player로 이동
+        self.attack_effects = [] # 공격 이펙트 리스트
 
         # 장비 매니저 초기화
         self.equipment_manager = EquipmentManager(self)
@@ -247,9 +250,6 @@ class Player:
             }
         )
 
-
-
-
     def update(self):
         self.state_machine.update()
 
@@ -258,6 +258,11 @@ class Player:
             p.update()
         self.particles = [p for p in self.particles if p.life > 0]
 
+        # 공격 이펙트 업데이트
+        for effect in self.attack_effects:
+            effect.update()
+        self.attack_effects = [e for e in self.attack_effects if e.life > 0]
+
         # 장비 업데이트
         self.equipment_manager.update()
 
@@ -265,6 +270,10 @@ class Player:
         # 파티클 먼저 그리기 (캐릭터 뒤에 나타나도록)
         for p in self.particles:
             p.draw()
+
+        # 공격 이펙트 그리기 (검 뒤에)
+        for effect in self.attack_effects:
+            effect.draw()
 
         # 뒤에 그려질 장비 (검)
         self.equipment_manager.draw_back()
@@ -276,6 +285,9 @@ class Player:
         self.equipment_manager.draw_front()
 
     def handle_event(self, event):
+        # 장비 이벤트 먼저 처리 (공격 등)
+        self.equipment_manager.handle_event(event)
+
         # 키보드 입력 처리
         if event.type == SDL_KEYDOWN:
             if event.key == SDLK_w: self.keys_down['w'] = True; self.dir[1] += 1
@@ -297,7 +309,7 @@ class Player:
             self.state_machine.handle_state_event(('STOP', event))
             self.moving = False
 
-class VFX_Particle:
+class VFX_Run_Particle:
     def __init__(self, x, y, frames, frame_duration, scale):
         self.x, self.y = x, y
         self.frames = frames
@@ -323,3 +335,63 @@ class VFX_Particle:
         if self.frame < len(self.frames):
             image = self.frames[self.frame]
             image.draw(self.x, self.y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
+
+
+class VFX_Tier1_Sword_Swing:
+    """검 공격 이펙트 VFX"""
+    def __init__(self, x, y, angle, flip, scale=4.5, range_factor=60):
+        import math
+
+        # 받은 위치에서 angle 방향으로 range_factor만큼 떨어진 위치 계산
+        temp_x = range_factor * math.cos(angle)
+        temp_y = range_factor * math.sin(angle)
+
+        self.x = x + temp_x
+        self.y = y + temp_y
+        
+        # 각도 조정: 마우스가 오른쪽(0도~90도, 270도~360도)일 때 -90도, 왼쪽일 때 +90도
+        angle_deg = math.degrees(angle) % 360
+        if 90 < angle_deg < 270:  # 왼쪽
+            self.angle = angle + math.radians(90)
+        else:  # 오른쪽
+            self.angle = angle - math.radians(90)
+        
+        self.flip = flip
+        self.scale_factor = scale
+
+        # 이펙트 이미지 로드
+        fx_folder = os.path.join('resources', 'Texture_organize', 'Weapon', 'SwordANDShield', 'Swing_FX')
+        self.frames = [
+            load_image(os.path.join(fx_folder, 'Sword0_Swing0.png')),
+            load_image(os.path.join(fx_folder, 'Sword0_Swing1.png'))
+        ]
+
+        self.frame = 0
+        self.frame_time_acc = 0.0
+        self.frame_duration = 0.05  # 각 프레임당 0.05초
+        self.life = len(self.frames) * self.frame_duration  # 총 수명
+
+    def update(self):
+        dt = framework.get_delta_time()
+        self.life -= dt
+        if self.life <= 0:
+            return False  # 수명이 다하면 False 반환
+
+        self.frame_time_acc += dt
+        if self.frame_time_acc >= self.frame_duration:
+            self.frame_time_acc -= self.frame_duration
+            self.frame += 1
+            if self.frame >= len(self.frames):
+                self.frame = len(self.frames) - 1  # 마지막 프레임 유지
+        return True
+
+    def draw(self):
+        if self.frame < len(self.frames):
+            image = self.frames[self.frame]
+            image.clip_composite_draw(
+                0, 0, image.w, image.h,
+                self.angle, self.flip,
+                self.x, self.y,
+                image.w * self.scale_factor,
+                image.h * self.scale_factor
+            )
