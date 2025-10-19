@@ -5,6 +5,7 @@ from pico2d import load_image, get_time, get_canvas_height, get_canvas_width
 from sdl2 import (SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT, SDL_GetMouseState,
                   SDLK_a, SDLK_d, SDLK_w, SDLK_s)
 
+from .equipment import EquipmentManager, Sword, Shield
 from .state_machine import StateMachine
 from . import framework
 
@@ -32,41 +33,14 @@ def move_event(e):
 def stop_event(e):
     return e[0] == 'STOP'
 
-class VFX_Particle:
-    def __init__(self, x, y, frames, frame_duration, scale):
-        self.x, self.y = x, y
-        self.frames = frames
-        self.frame = 0
-        self.frame_time_acc = 0.0
-        self.frame_duration = frame_duration
-        self.scale_factor = scale
-        self.life = len(frames) * frame_duration
-
-    def update(self):
-        dt = framework.get_delta_time()
-        self.life -= dt
-        if self.life < 0:
-            return False  # 수명이 다하면 False 반환
-
-        self.frame_time_acc += dt
-        if self.frame_time_acc >= self.frame_duration:
-            self.frame_time_acc -= self.frame_duration
-            self.frame = (self.frame + 1)
-        return True
-
-    def draw(self):
-        if self.frame < len(self.frames):
-            image = self.frames[self.frame]
-            image.draw(self.x, self.y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
-
 class Run:
     def __init__(self, player):
         self.player = player
         folder = os.path.join('resources', 'Texture_organize', 'Player_character', 'Adventurer')
 
         def load_seq(prefix, path):
-            files = sorted(f for f in os.listdir(path)
-                           if f.startswith(prefix) and f.lower().endswith('.png'))
+            files = sorted([f for f in os.listdir(path)
+                           if isinstance(f, str) and f.startswith(prefix) and f.lower().endswith('.png')])
             return [load_image(os.path.join(path, f)) for f in files]
 
         self.lower_frames = load_seq('Player_Adventurer_Move_Lower', folder)
@@ -107,8 +81,17 @@ class Run:
         if dir_magnitude > 0:
             norm_dir_x = self.player.dir[0] / dir_magnitude
             norm_dir_y = self.player.dir[1] / dir_magnitude
-            self.player.x += norm_dir_x * self.moving_speed * dt
-            self.player.y += norm_dir_y * self.moving_speed * dt
+            if self.player.x + norm_dir_x * self.moving_speed * dt > get_canvas_width():
+                self.player.x = get_canvas_width()
+            elif self.player.x + norm_dir_x * self.moving_speed * dt < 0:
+                self.player.x = 0
+            else: self.player.x += norm_dir_x * self.moving_speed * dt
+            if self.player.y + norm_dir_y * self.moving_speed * dt > get_canvas_height():
+                self.player.y = get_canvas_height()
+            elif self.player.y + norm_dir_y * self.moving_speed * dt < 0:
+                self.player.y = 0
+            else: self.player.y += norm_dir_y * self.moving_speed * dt
+
 
         # 파티클 생성
         self.particle_spawn_timer += dt
@@ -164,8 +147,8 @@ class Idle:
         folder = os.path.join('resources', 'Texture_organize', 'Player_character', 'Adventurer')
 
         def load_seq(prefix):
-            files = sorted(f for f in os.listdir(folder)
-                           if f.startswith(prefix) and f.lower().endswith('.png'))
+            files = sorted([f for f in os.listdir(folder)
+                           if isinstance(f, str) and f.startswith(prefix) and f.lower().endswith('.png')])
             return [load_image(os.path.join(folder, f)) for f in files]
 
         self.lower_frames = load_seq('Player_Adventurer_Idle_Lower')
@@ -239,6 +222,18 @@ class Player:
         self.moving = False # 이동 상태 플래그
         self.particles = [] # 파티클 리스트를 Player로 이동
 
+        # 장비 매니저 초기화
+        self.equipment_manager = EquipmentManager(self)
+
+        # 기본 무기 장착 (Tier1 검과 방패)
+        sword_path = os.path.join('resources', 'Texture_organize', 'Weapon', 'SwordANDShield', 'Tier1', 'Sword_Tier1.png')
+        shield_path = os.path.join('resources', 'Texture_organize', 'Weapon', 'SwordANDShield', 'Tier1', 'Shield_Tier1.png')
+
+        self.sword = Sword(self, sword_path, scale=3.0)
+        self.shield = Shield(self, shield_path, scale=3.0)
+
+        self.equipment_manager.equip(self.sword)
+        self.equipment_manager.equip(self.shield)
 
         # 상태 정의
         self.IDLE = Idle(self)
@@ -263,13 +258,22 @@ class Player:
             p.update()
         self.particles = [p for p in self.particles if p.life > 0]
 
+        # 장비 업데이트
+        self.equipment_manager.update()
+
     def draw(self):
         # 파티클 먼저 그리기 (캐릭터 뒤에 나타나도록)
         for p in self.particles:
             p.draw()
 
+        # 뒤에 그려질 장비 (검)
+        self.equipment_manager.draw_back()
+
         # 그 다음 캐릭터 그리기
         self.state_machine.draw()
+
+        # 앞에 그려질 장비 (방패)
+        self.equipment_manager.draw_front()
 
     def handle_event(self, event):
         # 키보드 입력 처리
@@ -292,3 +296,30 @@ class Player:
         elif not is_moving and self.moving:
             self.state_machine.handle_state_event(('STOP', event))
             self.moving = False
+
+class VFX_Particle:
+    def __init__(self, x, y, frames, frame_duration, scale):
+        self.x, self.y = x, y
+        self.frames = frames
+        self.frame = 0
+        self.frame_time_acc = 0.0
+        self.frame_duration = frame_duration
+        self.scale_factor = scale
+        self.life = len(frames) * frame_duration
+
+    def update(self):
+        dt = framework.get_delta_time()
+        self.life -= dt
+        if self.life < 0:
+            return False  # 수명이 다하면 False 반환
+
+        self.frame_time_acc += dt
+        if self.frame_time_acc >= self.frame_duration:
+            self.frame_time_acc -= self.frame_duration
+            self.frame = (self.frame + 1)
+        return True
+
+    def draw(self):
+        if self.frame < len(self.frames):
+            image = self.frames[self.frame]
+            image.draw(self.x, self.y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
