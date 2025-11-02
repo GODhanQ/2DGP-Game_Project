@@ -1,6 +1,5 @@
 import ctypes
 import math
-import os
 from pico2d import load_image, get_canvas_height
 from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT
 from . import framework
@@ -132,9 +131,22 @@ class Sword(Weapon):
         super().__init__(player, 'sword', image_path, render_layer='back', scale=scale)
         self.offset_x = 15  # 검은 좀 더 멀리
         self.offset_y = 8 # 검의 기본 Y 오프셋
-        self.attack_duration = 0.1  # 공격 모션 시간
-        self.attack_recovery = 0.3  # 공격 후 후딜레이
-        self.total_attack_time = self.attack_duration + self.attack_recovery  # 총 공격 시간
+
+        # 스테이지별(콤보) 시간 설정 (스테이지1 = 기본, 스테이지2 = 콤보)
+        self.stage = 1
+        self.stage1_attack_duration = 0.2  # 공격 모션 시간 (1스테이지)
+        self.stage1_attack_recovery = 0.3  # 후딜 (1스테이지)
+        self.stage2_attack_duration = 0.18  # 공격 모션 시간 (콤보)
+        self.stage2_attack_recovery = 0.35  # 후딜 (콤보)
+        # 3스테이지(헤비 스윙) 시간 설정
+        self.stage3_attack_duration = 0.28  # 3스테이지 모션 시간
+        self.stage3_attack_recovery = 0.4   # 3스테이지 후딜
+
+        # 현재 활성화된 공격 시간 값 (초기값은 1스테이지)
+        self.attack_duration = self.stage1_attack_duration
+        self.attack_recovery = self.stage1_attack_recovery
+        self.total_attack_time = self.attack_duration + self.attack_recovery
+
         self.base_angle_offset = math.radians(25)  # 기본 각도 오프셋
 
         # 공격 모션 관련 변수
@@ -145,6 +157,9 @@ class Sword(Weapon):
         # 자전 및 공전 각도 범위 추가
         self.rotation_angle_range = -math.radians(270)  # 자전: 0도 ~ 270도
         self.orbit_angle_range = -math.radians(205)  # 공전: 0도 ~ 205도
+
+        # 콤보 관련 플래그
+        self.combo_queued = False  # 후딜 중에 콤보 입력이 들어왔는지
 
     def update(self):
         """마우스 위치를 기준으로 무기 각도 계산"""
@@ -173,42 +188,144 @@ class Sword(Weapon):
             else:
                 self.attack_progress = 1.0
 
+            # 스테이지별 종료 처리
             if self.attack_timer >= self.total_attack_time:
-                self.is_attacking = False
-                self.attack_timer = 0.0
-                self.attack_progress = 0.0
+                # 3스테이지 종료 처리
+                if self.stage == 3:
+                    self.is_attacking = False
+                    self.attack_timer = 0.0
+                    self.attack_progress = 0.0
+                    self.stage = 1
+                    # 기본 스테이지 시간 복원
+                    self.attack_duration = self.stage1_attack_duration
+                    self.attack_recovery = self.stage1_attack_recovery
+                    self.total_attack_time = self.attack_duration + self.attack_recovery
+                    self.combo_queued = False
+                # 2스테이지 종료 처리
+                elif self.stage == 2:
+                    self.is_attacking = False
+                    self.attack_timer = 0.0
+                    self.attack_progress = 0.0
+                    self.stage = 1
+                    self.attack_duration = self.stage1_attack_duration
+                    self.attack_recovery = self.stage1_attack_recovery
+                    self.total_attack_time = self.attack_duration + self.attack_recovery
+                    self.combo_queued = False
+                else:
+                    # 1스테이지 종료
+                    self.is_attacking = False
+                    self.attack_timer = 0.0
+                    self.attack_progress = 0.0
+                    self.combo_queued = False
 
     def attack(self):
-        """공격 시작"""
+        """공격 시작
+
+        동작 요약:
+        - 비공격 중이면 1스테이지 공격 시작
+        - 공격 중(후딜 영역)에 클릭하면 즉시 2스테이지(콤보) 공격으로 전환
+        """
+        # 비공격 상태에서 시작
         if not self.is_attacking:
             self.is_attacking = True
             self.attack_timer = 0.0
             self.attack_progress = 0.0
-            print(f"{self.weapon_type} 공격!")
+            self.stage = 1
+            # 현재 시간값은 스테이지1 기준
+            self.attack_duration = self.stage1_attack_duration
+            self.attack_recovery = self.stage1_attack_recovery
+            self.total_attack_time = self.attack_duration + self.attack_recovery
+            print(f"{self.weapon_type} 공격! (stage 1)")
 
             # 공격 이펙트 생성
             from .player import VFX_Tier1_Sword_Swing
 
-            # 마우스 방향 각도 계산
             angle_deg = math.degrees(self.angle) % 360
             if 90 < angle_deg < 270:  # 왼쪽 영역
                 flip = 'vh'
             else:
                 flip = 'h'
 
-            # 공격 이펙트 생성 - VFX 내부에서 각도 조정 및 거리 계산
             attack_vfx = VFX_Tier1_Sword_Swing(
                 self.player.x,
                 self.player.y,
-                self.angle,  # 원본 각도 전달, VFX 내부에서 ±90도 조정
+                self.angle,
                 flip,
                 scale=4.5,
-                range_factor=60  # 캐릭터로부터 60픽셀 떨어진 위치에 이펙트 생성
+                range_factor=60,
+                variant=1
             )
             self.player.attack_effects.append(attack_vfx)
 
             return True
-        return False
+
+        # 공격 중일 때: 후딜 중에 콤보 입력을 받아 단계별 전환
+        else:
+            # 1스테이지 후딜에서 클릭 -> 2스테이지
+            if self.attack_timer >= self.attack_duration and self.stage == 1:
+                # 즉시 콤보(2스테이지)로 전환
+                self.stage = 2
+                self.attack_timer = 0.0
+                self.attack_progress = 0.0
+                # 스테이지2 시간 적용
+                self.attack_duration = self.stage2_attack_duration
+                self.attack_recovery = self.stage2_attack_recovery
+                self.total_attack_time = self.attack_duration + self.attack_recovery
+                self.combo_queued = True
+                print(f"{self.weapon_type} 콤보! (stage 2)")
+
+                # 콤보용 이펙트 생성
+                from .player import VFX_Tier1_Sword_Swing
+
+                angle_deg = math.degrees(self.angle) % 360
+                flip = 'vh' if 90 < angle_deg < 270 else 'h'
+
+                attack_vfx = VFX_Tier1_Sword_Swing(
+                    self.player.x,
+                    self.player.y,
+                    self.angle,
+                    flip,
+                    scale=5.5,
+                    range_factor=70,
+                    variant=2
+                )
+                self.player.attack_effects.append(attack_vfx)
+
+                return True
+
+            # 2스테이지 후딜에서 클릭 -> 3스테이지 (헤비 스윙)
+            if self.attack_timer >= self.attack_duration and self.stage == 2:
+                self.stage = 3
+                self.attack_timer = 0.0
+                self.attack_progress = 0.0
+                # 스테이지3 시간 적용
+                self.attack_duration = self.stage3_attack_duration
+                self.attack_recovery = self.stage3_attack_recovery
+                self.total_attack_time = self.attack_duration + self.attack_recovery
+                self.combo_queued = True
+                print(f"{self.weapon_type} 헤비 스윙! (stage 3)")
+
+                # 3스테이지 전용 이펙트 생성 (variant=3)
+                from .player import VFX_Tier1_Sword_Swing
+
+                angle_deg = math.degrees(self.angle) % 360
+                flip = 'vh' if 90 < angle_deg < 270 else 'h'
+
+                attack_vfx = VFX_Tier1_Sword_Swing(
+                    self.player.x,
+                    self.player.y,
+                    self.angle,
+                    flip,
+                    scale=6.0,
+                    range_factor=90,
+                    variant=3
+                )
+                self.player.attack_effects.append(attack_vfx)
+
+                return True
+
+            # 그 외(공격 중이지만 아직 공격 모션 중이거나 이미 최고 단계면 무시)
+            return False
 
     def draw(self):
         """검을 회전시켜서 그리기 - 검 자체를 중심으로 회전 + 캐릭터 중심으로 공전"""
@@ -233,27 +350,47 @@ class Sword(Weapon):
                 # Y축 오프셋: 후딜레이 동안 최대 아래 위치 유지 (후딜레이 끝나면 자동으로 0으로)
                 y_offset_modifier = -3 * self.offset_y
 
+        # 2스테이지(콤보)일 때는 회전 각도를 반대 방향으로 돌림
+        # 반전 적용 조건: 현재 스테이지가 2이고 (공격 모션 구간)일 때만 자전 반전 적용
+        invert_rotation = (getattr(self, 'stage', 1) == 2 and self.attack_timer < self.attack_duration)
+        if invert_rotation:
+            # 자전만 반전하면 검의 회전 방향만 역전되어 자연스러운 콤보 느낌을 줍니다.
+            sword_rotation = -sword_rotation
+
+        # base_angle_offset은 항상 동일하게 사용하여 위치 변화 발생을 막음
+        base_offset = self.base_angle_offset
+
         # 마우스가 왼쪽에 있을 때 (각도가 90도 ~ 270도 범위)
         angle_deg = math.degrees(self.angle) % 360
 
+        # position_angle(orbit) 먼저 계산
         if 90 < angle_deg < 270:  # 왼쪽 영역
             flip = 'v'  # 수직 반전
-            # 왼쪽일 때는 검 회전을 반대로
-            final_angle = self.angle - sword_rotation
-            position_angle = self.angle - orbit_angle_offset  # 왼쪽일 때는 - 방향으로 공전
+            # position은 orbit 기반으로 계산 (self.angle - orbit_angle_offset)
+            position_angle = self.angle - orbit_angle_offset
         else:  # 오른쪽 영역
             flip = ''
-            final_angle = self.angle + sword_rotation
-            position_angle = self.angle + orbit_angle_offset  # 오른쪽일 때는 + 방향으로 공전
+            # position은 orbit 기반으로 계산 (self.angle + orbit_angle_offset)
+            position_angle = self.angle + orbit_angle_offset
+
+        # final_angle은 position_angle을 기준으로 검 자체의 자전(sword_rotation)을 더/빼서 계산
+        # direction에 따라 검의 자전 방향을 더하거나 뺍니다.
+        if 90 < angle_deg < 270:
+            # 왼쪽
+            final_angle = position_angle - sword_rotation
+        else:
+            # 오른쪽
+            final_angle = position_angle + sword_rotation
 
         # 검의 위치 계산 (캐릭터 중심으로 공전하도록 position_angle 사용)
+        # 공전 반경은 offset_x(거리)를 사용하고, position_angle(orbit 기반)을 사용합니다.
         weapon_x = self.player.x + self.offset_x * math.cos(position_angle)
-        weapon_y = self.player.y + self.offset_y + self.offset_y * math.sin(position_angle) + y_offset_modifier
+        weapon_y = self.player.y + self.offset_y + self.offset_x * math.sin(position_angle) + y_offset_modifier
 
         # 회전된 무기 그리기 (검 자체 중심으로 회전)
         self.image.clip_composite_draw(
             0, 0, self.image.w, self.image.h,
-            final_angle + self.base_angle_offset, flip,
+            final_angle + base_offset, flip,
             weapon_x, weapon_y,
             self.image.w * self.scale_factor,
             self.image.h * self.scale_factor

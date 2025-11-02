@@ -1,11 +1,9 @@
 import ctypes
 import os
 import random
-from math import radians
 
-from pico2d import load_image, get_time, get_canvas_height, get_canvas_width
-from sdl2 import (SDL_KEYDOWN, SDLK_SPACE, SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT, SDL_GetMouseState,
-                  SDLK_a, SDLK_d, SDLK_w, SDLK_s)
+from pico2d import load_image, get_canvas_height, get_canvas_width
+from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDL_GetMouseState)
 
 from .equipment import EquipmentManager, Sword, Shield
 from .state_machine import StateMachine
@@ -337,10 +335,18 @@ class VFX_Run_Particle:
             image.draw(self.x, self.y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
 
 
+# VFX 전역 배율 설정: 전체 이펙트 크기와 거리(범위)를 일괄 조정
+VFX_GLOBAL_SCALE_MULT = 0.7   # 이펙트 크기 0.7배
+VFX_GLOBAL_RANGE_MULT = 0.8   # 이펙트 거리 0.8배
+
 class VFX_Tier1_Sword_Swing:
     """검 공격 이펙트 VFX"""
-    def __init__(self, x, y, angle, flip, scale=4.5, range_factor=60):
+    def __init__(self, x, y, angle, flip, scale=4.5, range_factor=60, variant=1):
         import math
+
+        # 전역 배율을 적용한 range_factor/scale 사용
+        range_factor = range_factor * VFX_GLOBAL_RANGE_MULT
+        scale = scale * VFX_GLOBAL_SCALE_MULT
 
         # 받은 위치에서 angle 방향으로 range_factor만큼 떨어진 위치 계산
         temp_x = range_factor * math.cos(angle)
@@ -361,10 +367,31 @@ class VFX_Tier1_Sword_Swing:
 
         # 이펙트 이미지 로드
         fx_folder = os.path.join('resources', 'Texture_organize', 'Weapon', 'SwordANDShield', 'Swing_FX')
-        self.frames = [
-            load_image(os.path.join(fx_folder, 'Sword0_Swing0.png')),
-            load_image(os.path.join(fx_folder, 'Sword0_Swing1.png'))
-        ]
+        if variant == 1:
+            self.frames = [
+                load_image(os.path.join(fx_folder, 'Sword0_Swing0.png')),
+                load_image(os.path.join(fx_folder, 'Sword0_Swing1.png'))
+            ]
+        elif variant == 2:
+            # 콤보 전용 스프라이트
+            self.frames = [
+                load_image(os.path.join(fx_folder, 'Sword0_Swing2_0.png')),
+                load_image(os.path.join(fx_folder, 'Sword0_Swing2_1.png'))
+            ]
+        elif variant == 3:
+            # Heavy swing (3스테이지) - 여러 프레임
+            self.frames = [
+                load_image(os.path.join(fx_folder, 'Sword0_HeavySwingN_0.png')),
+                load_image(os.path.join(fx_folder, 'Sword0_HeavySwingN_1.png')),
+                load_image(os.path.join(fx_folder, 'Sword0_HeavySwingN_2.png')),
+                load_image(os.path.join(fx_folder, 'Sword0_HeavySwingN_3.png'))
+            ]
+        else:
+            # 안전망: 기본으로 variant 1 사용
+            self.frames = [
+                load_image(os.path.join(fx_folder, 'Sword0_Swing0.png')),
+                load_image(os.path.join(fx_folder, 'Sword0_Swing1.png'))
+            ]
 
         self.frame = 0
         self.frame_time_acc = 0.0

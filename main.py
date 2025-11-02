@@ -63,6 +63,6 @@ while running:
     render_world()
 
     # 프레임 레이트 제한 (약 60 FPS)
-    delay(0.01)
+    # delay(0.01)
 # finalization code
 close_canvas()
