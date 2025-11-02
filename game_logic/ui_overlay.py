@@ -1,7 +1,7 @@
 import os
 import ctypes
 from pico2d import load_image, get_canvas_width, get_canvas_height, load_font
-from sdl2 import SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT, SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP, SDL_GetMouseState, SDL_KEYDOWN, SDLK_F5, SDLK_F6
+from sdl2 import SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP, SDL_GetMouseState, SDL_KEYDOWN, SDLK_F5, SDLK_F6
 from .inventory import Item
 
 class InventoryOverlay:
@@ -104,16 +104,37 @@ class InventoryOverlay:
                     # 포션 5개 스택으로 추가
                     potion = Item.from_filename('Potion/Item_RedPotion0.png', '빨간 포션')
                     leftover = potion.append_to(self.player.inventory, qty=5, prefer_stack=True)
+                    # 패시브 재적용
+                    if hasattr(self.player, 'rebuild_inventory_passives'):
+                        self.player.rebuild_inventory_passives()
                     print(f"[InventoryOverlay] F5: 포션 5개 추가 (남은 {leftover})")
                     return
                 if event.key == SDLK_F6:
                     # 일반 아이템 3개 빈 슬롯 분할로 추가(당근: 비스택)
                     carrot = Item.from_filename('Carrot.png', '당근')
                     leftover = carrot.append_to(self.player.inventory, qty=3, prefer_stack=False)
+                    # 패시브 재적용
+                    if hasattr(self.player, 'rebuild_inventory_passives'):
+                        self.player.rebuild_inventory_passives()
                     print(f"[InventoryOverlay] F6: 당근 3개 추가 (남은 {leftover})")
                     return
             except Exception as ex:
                 print('[InventoryOverlay] 디버그 append 실패:', ex)
+        # 우클릭: 소비 아이템 사용
+        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT:
+            hit = self._hit_test(event.x, event.y)
+            if hit is not None and hasattr(self.player, 'consume_item_at'):
+                r, c = hit
+                used = self.player.consume_item_at(r, c)
+                if not used:
+                    # 소비 불가 아이템 정보 출력
+                    try:
+                        slot = self.player.inventory.get_slot(r, c)
+                        if slot.is_empty() or not getattr(slot.item, 'consumable', None):
+                            print(f"[InventoryOverlay] 소비 불가: ({r}, {c})")
+                    except Exception:
+                        pass
+            return
         # 좌클릭 다운: 드래그 시작 또는 슬롯 정보 출력
         if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
             hit = self._hit_test(event.x, event.y)
@@ -145,6 +166,9 @@ class InventoryOverlay:
                 if dst is not None and dst != self.drag_from:
                     try:
                         self.player.inventory.move(self.drag_from, dst)
+                        # 위치 변경 후 패시브 재적용(슬롯 기반 식별자 변경 대응)
+                        if hasattr(self.player, 'rebuild_inventory_passives'):
+                            self.player.rebuild_inventory_passives()
                     except Exception as ex:
                         print('[InventoryOverlay] 드롭 실패:', ex)
                 # 드래그 종료

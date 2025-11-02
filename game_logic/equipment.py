@@ -208,17 +208,17 @@ class Sword(Weapon):
 
         # 스테이지별(콤보) 시간 설정 (스테이지1 = 기본, 스테이지2 = 콤보)
         self.stage = 1
-        self.stage1_attack_duration = 0.2  # 공격 모션 시간 (1스테이지)
-        self.stage1_attack_recovery = 0.3  # 후딜 (1스테이지)
-        self.stage2_attack_duration = 0.18  # 공격 모션 시간 (콤보)
-        self.stage2_attack_recovery = 0.35  # 후딜 (콤보)
-        # 3스테이지(헤비 스윙) 시간 설정
-        self.stage3_attack_duration = 0.28  # 3스테이지 모션 시간
-        self.stage3_attack_recovery = 0.4   # 3스테이지 후딜
+        # 기본(보정 전) 시간값 저장
+        self.stage1_attack_duration_base = 0.2  # 공격 모션 시간 (1스테이지)
+        self.stage1_attack_recovery_base = 0.3  # 후딜 (1스테이지)
+        self.stage2_attack_duration_base = 0.18  # 공격 모션 시간 (콤보)
+        self.stage2_attack_recovery_base = 0.35  # 후딜 (콤보)
+        self.stage3_attack_duration_base = 0.28  # 3스테이지 모션 시간
+        self.stage3_attack_recovery_base = 0.4   # 3스테이지 후딜
 
-        # 현재 활성화된 공격 시간 값 (초기값은 1스테이지)
-        self.attack_duration = self.stage1_attack_duration
-        self.attack_recovery = self.stage1_attack_recovery
+        # 현재 활성화된 공격 시간 값 (초기값은 1스테이지 보정 적용)
+        self.attack_duration = self.stage1_attack_duration_base
+        self.attack_recovery = self.stage1_attack_recovery_base
         self.total_attack_time = self.attack_duration + self.attack_recovery
 
         self.base_angle_offset = math.radians(25)  # 기본 각도 오프셋
@@ -234,6 +234,27 @@ class Sword(Weapon):
 
         # 콤보 관련 플래그
         self.combo_queued = False  # 후딜 중에 콤보 입력이 들어왔는지
+
+    def _apply_speed(self, stage: int):
+        """플레이어 stats.attack_speed로 해당 스테이지 시간값을 보정한다."""
+        speed = 1.0
+        try:
+            if hasattr(self.player, 'stats'):
+                speed = max(0.1, float(self.player.stats.get('attack_speed')))
+        except Exception:
+            speed = 1.0
+        if stage == 1:
+            self.attack_duration = self.stage1_attack_duration_base / speed
+            self.attack_recovery = self.stage1_attack_recovery_base / speed
+        elif stage == 2:
+            self.attack_duration = self.stage2_attack_duration_base / speed
+            self.attack_recovery = self.stage2_attack_recovery_base / speed
+        elif stage == 3:
+            self.attack_duration = self.stage3_attack_duration_base / speed
+            self.attack_recovery = self.stage3_attack_recovery_base / speed
+        else:
+            pass
+        self.total_attack_time = self.attack_duration + self.attack_recovery
 
     def update(self):
         """마우스 위치를 기준으로 무기 각도 계산"""
@@ -271,8 +292,8 @@ class Sword(Weapon):
                     self.attack_progress = 0.0
                     self.stage = 1
                     # 기본 스테이지 시간 복원
-                    self.attack_duration = self.stage1_attack_duration
-                    self.attack_recovery = self.stage1_attack_recovery
+                    self.attack_duration = self.stage1_attack_duration_base
+                    self.attack_recovery = self.stage1_attack_recovery_base
                     self.total_attack_time = self.attack_duration + self.attack_recovery
                     self.combo_queued = False
                 # 2스테이지 종료 처리
@@ -281,8 +302,8 @@ class Sword(Weapon):
                     self.attack_timer = 0.0
                     self.attack_progress = 0.0
                     self.stage = 1
-                    self.attack_duration = self.stage1_attack_duration
-                    self.attack_recovery = self.stage1_attack_recovery
+                    self.attack_duration = self.stage1_attack_duration_base
+                    self.attack_recovery = self.stage1_attack_recovery_base
                     self.total_attack_time = self.attack_duration + self.attack_recovery
                     self.combo_queued = False
                 else:
@@ -305,10 +326,8 @@ class Sword(Weapon):
             self.attack_timer = 0.0
             self.attack_progress = 0.0
             self.stage = 1
-            # 현재 시간값은 스테이지1 기준
-            self.attack_duration = self.stage1_attack_duration
-            self.attack_recovery = self.stage1_attack_recovery
-            self.total_attack_time = self.attack_duration + self.attack_recovery
+            # 스탯 보정 적용
+            self._apply_speed(1)
             print(f"{self.weapon_type} 공격! (stage 1)")
 
             # 공격 이펙트 생성
@@ -341,10 +360,8 @@ class Sword(Weapon):
                 self.stage = 2
                 self.attack_timer = 0.0
                 self.attack_progress = 0.0
-                # 스테이지2 시간 적용
-                self.attack_duration = self.stage2_attack_duration
-                self.attack_recovery = self.stage2_attack_recovery
-                self.total_attack_time = self.attack_duration + self.attack_recovery
+                # 스탯 보정 적용
+                self._apply_speed(2)
                 self.combo_queued = True
                 print(f"{self.weapon_type} 콤보! (stage 2)")
 
@@ -372,10 +389,8 @@ class Sword(Weapon):
                 self.stage = 3
                 self.attack_timer = 0.0
                 self.attack_progress = 0.0
-                # 스테이지3 시간 적용
-                self.attack_duration = self.stage3_attack_duration
-                self.attack_recovery = self.stage3_attack_recovery
-                self.total_attack_time = self.attack_duration + self.attack_recovery
+                # 스탯 보정 적용
+                self._apply_speed(3)
                 self.combo_queued = True
                 print(f"{self.weapon_type} 헤비 스윙! (stage 3)")
 

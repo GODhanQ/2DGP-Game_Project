@@ -7,6 +7,7 @@ if __name__ == "__main__" and (__package__ is None or __package__ == ""):
 import ctypes
 import os
 import random
+import time
 
 from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDL_GetMouseState,
@@ -17,6 +18,7 @@ from .state_machine import StateMachine
 from . import framework
 # 인벤토리 데이터 모델 import
 from .inventory import InventoryData, seed_debug_inventory
+from .stats import PlayerStats, StatModifier
 
 def Akey_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
@@ -91,20 +93,22 @@ class Run:
             self.frame_time_acc -= self.frame_duration
             self.frame = (self.frame + 1) % len(self.lower_frames)
 
+        # 현재 스탯 기반 이동 속도 사용
+        moving_speed = self.player.stats.get('move_speed') if hasattr(self.player, 'stats') else self.moving_speed
         dir_magnitude = (self.player.dir[0] ** 2 + self.player.dir[1] ** 2) ** 0.5
         if dir_magnitude > 0:
             norm_dir_x = self.player.dir[0] / dir_magnitude
             norm_dir_y = self.player.dir[1] / dir_magnitude
-            if self.player.x + norm_dir_x * self.moving_speed * dt > get_canvas_width():
+            if self.player.x + norm_dir_x * moving_speed * dt > get_canvas_width():
                 self.player.x = get_canvas_width()
-            elif self.player.x + norm_dir_x * self.moving_speed * dt < 0:
+            elif self.player.x + norm_dir_x * moving_speed * dt < 0:
                 self.player.x = 0
-            else: self.player.x += norm_dir_x * self.moving_speed * dt
-            if self.player.y + norm_dir_y * self.moving_speed * dt > get_canvas_height():
+            else: self.player.x += norm_dir_x * moving_speed * dt
+            if self.player.y + norm_dir_y * moving_speed * dt > get_canvas_height():
                 self.player.y = get_canvas_height()
-            elif self.player.y + norm_dir_y * self.moving_speed * dt < 0:
+            elif self.player.y + norm_dir_y * moving_speed * dt < 0:
                 self.player.y = 0
-            else: self.player.y += norm_dir_y * self.moving_speed * dt
+            else: self.player.y += norm_dir_y * moving_speed * dt
 
 
         # 파티클 생성
@@ -285,6 +289,14 @@ class Player:
         except Exception as ex:
             print('[Player] 디버그 인벤토리 시드 실패:', ex)
 
+        # 스탯 시스템
+        self.stats = PlayerStats()
+        # 인벤토리 패시브 적용
+        try:
+            self.rebuild_inventory_passives()
+        except Exception as ex:
+            print('[Player] 패시브 재구성 실패:', ex)
+
         # 장비 매니저 초기화
         self.equipment_manager = EquipmentManager(self)
 
@@ -303,22 +315,26 @@ class Player:
         self.RUN = Run(self)
         self.INVENTORY = Inventory(self)
 
-        # 전투 플래그(전투중일 때 인벤토리 열지 않음)
+        # 전투 플래그(전투중엔 인벤토리 안 염)
         self.in_combat = False
         self.inventory_open = False
 
-        # 상태 변환에 대한 매핑
+        # 상태 전환에 대한 매핑
         self.state_machine = StateMachine(
             self.IDLE,
             {
                 self.IDLE: {move_event: self.RUN, Tab_down: self.INVENTORY},
                 self.RUN: {stop_event: self.IDLE, Tab_down: self.INVENTORY},
-                self.INVENTORY: {Tab_down: None},  # Tab_down은 특수 처리 필요
+                self.INVENTORY: {Tab_down: None},
             }
         )
 
     def update(self):
         self.state_machine.update()
+
+        # 스탯 버프 업데이트(소비형 지속시간 관리)
+        if hasattr(self, 'stats'):
+            self.stats.update()
 
         # 파티클 업데이트 (상태와 무관하게 항상 실행)
         for p in self.particles:
@@ -333,74 +349,148 @@ class Player:
         # 장비 업데이트
         self.equipment_manager.update()
 
-    def draw(self):
-        # 파티클 먼저 그리기 (캐릭터 뒤에 나타나도록)
-        for p in self.particles:
-            p.draw()
+    # 인벤토리 패시브 재적용
+    def rebuild_inventory_passives(self):
+        prefix = 'passive:'
+        self.stats.clear_by_prefix(prefix)
+        # 모든 슬롯 순회
+        try:
+            for r in range(self.inventory.rows):
+                for c in range(self.inventory.cols):
+                    slot = self.inventory.get_slot(r, c)
+                    if slot.is_empty():
+                        continue
+                    item = slot.item
+                    if getattr(item, 'passive', None):
+                        # 수량만큼 배수 적용(스택형 패시브 고려)
+                        qty = max(1, slot.quantity)
+                        values = {k: v * qty for k, v in item.passive.items()}
+                        mod_id = f'{prefix}{item.id}:{r},{c}'
+                        self.stats.add_modifier(StatModifier(mod_id, values, duration=None))
+        except Exception as ex:
+            print('[Player] 패시브 적용 중 오류:', ex)
 
-        # 공격 이펙트 그리기 (검 뒤에)
-        for effect in self.attack_effects:
-            effect.draw()
+    # 소비형 아이템 사용 처리
+    def consume_item_at(self, r: int, c: int):
+        try:
+            slot = self.inventory.get_slot(r, c)
+        except Exception as ex:
+            print('[Player] 소비 실패: 잘못된 슬롯', ex)
+            return False
+        if slot.is_empty() or not getattr(slot.item, 'consumable', None):
+            return False
+        item = slot.item
+        values = dict(item.consumable)
+        duration = item.consume_duration
+        mod_id = f'consumable:{item.id}:{r},{c}:{int(time.time()*1000)%100000}'
+        self.stats.add_modifier(StatModifier(mod_id, values, duration=duration))
+        # 1개 소모
+        self.inventory.remove_from(r, c, 1)
+        # 패시브 재적용(수량 변화로 인한 패시브 변경 가능성 고려)
+        self.rebuild_inventory_passives()
+        print(f"[Player] 소비: {item.name} -> {values} ({duration}s)")
+        return True
 
-        # 뒤에 그려질 장비 (검)
-        self.equipment_manager.draw_back()
-
-        # 그 다음 캐릭터 그리기
-        self.state_machine.draw()
-
-        # 앞에 그려질 장비 (방패)
-        self.equipment_manager.draw_front()
-
+    # 신규: 입력 처리 - 상태머신과 장비 매니저로 이벤트 전달, 이동 벡터 관리
     def handle_event(self, event):
-        # Tab 키 입력 처리 (인벤토리 열기/닫기)
-        if event.type == SDL_KEYDOWN and event.key == SDLK_TAB:
-            # 인벤토리 닫기 직전, 현재 키 상태에 맞춰 복귀 상태 설정
-            if self.inventory_open:
-                self.INVENTORY.prev_state = self.RUN if any(self.keys_down.values()) else self.IDLE
-            self.state_machine.handle_state_event(('INPUT', event))
-            return
+        try:
+            from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_w, SDLK_a, SDLK_s, SDLK_d
+        except Exception:
+            SDL_KEYDOWN = SDL_KEYUP = None
+            SDLK_w = SDLK_a = SDLK_s = SDLK_d = None
 
-        # 인벤토리 열려 있는 동안: 마우스 입력 차단(공격/방어 방지), WASD만 처리
-        if self.inventory_open:
-            # 마우스 버튼 입력은 무시
-            if event.type in (SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP):
-                return
-            # 키 입력 처리(WASD만)
-            if event.type == SDL_KEYDOWN:
-                if event.key == SDLK_w: self.keys_down['w'] = True; self.dir[1] += 1
-                elif event.key == SDLK_a: self.keys_down['a'] = True; self.dir[0] -= 1
-                elif event.key == SDLK_s: self.keys_down['s'] = True; self.dir[1] -= 1
-                elif event.key == SDLK_d: self.keys_down['d'] = True; self.dir[0] += 1
-            elif event.type == SDL_KEYUP:
-                if event.key == SDLK_w: self.keys_down['w'] = False; self.dir[1] -= 1
-                elif event.key == SDLK_a: self.keys_down['a'] = False; self.dir[0] += 1
-                elif event.key == SDLK_s: self.keys_down['s'] = False; self.dir[1] += 1
-                elif event.key == SDLK_d: self.keys_down['d'] = False; self.dir[0] -= 1
-            return
+        # 1) 장비 매니저에 항상 전달(매니저 내부에서 인벤토리 오픈시 무시 처리)
+        try:
+            if hasattr(self, 'equipment_manager') and hasattr(self.equipment_manager, 'handle_event'):
+                self.equipment_manager.handle_event(event)
+        except Exception as ex:
+            print('[Player] equipment_manager.handle_event 오류:', ex)
 
-        # 일반 상태: 먼저 장비 입력 처리(공격/방어), 그 다음 이동키 처리
-        self.equipment_manager.handle_event(event)
+        # 2) 상태머신으로 원본 입력 이벤트 전달(Tab 매핑 등 predicates가 처리)
+        try:
+            if hasattr(self, 'state_machine') and hasattr(self.state_machine, 'handle_state_event'):
+                self.state_machine.handle_state_event(('INPUT', event))
+        except Exception as ex:
+            print('[Player] state_machine 입력 이벤트 처리 오류:', ex)
 
-        # 키보드 입력 처리(일반 상태)
-        if event.type == SDL_KEYDOWN:
-            if event.key == SDLK_w: self.keys_down['w'] = True; self.dir[1] += 1
-            elif event.key == SDLK_a: self.keys_down['a'] = True; self.dir[0] -= 1
-            elif event.key == SDLK_s: self.keys_down['s'] = True; self.dir[1] -= 1
-            elif event.key == SDLK_d: self.keys_down['d'] = True; self.dir[0] += 1
-        elif event.type == SDL_KEYUP:
-            if event.key == SDLK_w: self.keys_down['w'] = False; self.dir[1] -= 1
-            elif event.key == SDLK_a: self.keys_down['a'] = False; self.dir[0] += 1
-            elif event.key == SDLK_s: self.keys_down['s'] = False; self.dir[1] += 1
-            elif event.key == SDLK_d: self.keys_down['d'] = False; self.dir[0] -= 1
+        # 3) WASD 이동 상태 관리 -> MOVE/STOP 이벤트 생성
+        moved_before = any(self.keys_down.values())
+        try:
+            if SDL_KEYDOWN is not None and event.type == SDL_KEYDOWN:
+                if event.key == SDLK_w:
+                    self.keys_down['w'] = True
+                    self.dir[1] = 1
+                elif event.key == SDLK_s:
+                    self.keys_down['s'] = True
+                    self.dir[1] = -1
+                elif event.key == SDLK_a:
+                    self.keys_down['a'] = True
+                    self.dir[0] = -1
+                elif event.key == SDLK_d:
+                    self.keys_down['d'] = True
+                    self.dir[0] = 1
+            elif SDL_KEYUP is not None and event.type == SDL_KEYUP:
+                if event.key == SDLK_w:
+                    self.keys_down['w'] = False
+                    self.dir[1] = 1 if self.keys_down['w'] else ( -1 if self.keys_down['s'] else 0)
+                elif event.key == SDLK_s:
+                    self.keys_down['s'] = False
+                    self.dir[1] = -1 if self.keys_down['s'] else ( 1 if self.keys_down['w'] else 0)
+                elif event.key == SDLK_a:
+                    self.keys_down['a'] = False
+                    self.dir[0] = -1 if self.keys_down['a'] else ( 1 if self.keys_down['d'] else 0)
+                elif event.key == SDLK_d:
+                    self.keys_down['d'] = False
+                    self.dir[0] = 1 if self.keys_down['d'] else ( -1 if self.keys_down['a'] else 0)
+        except Exception:
+            pass
 
-        # 상태 전환 이벤트 생성 (일반 상태에서만)
-        is_moving = any(self.keys_down.values())
-        if is_moving and not self.moving:
-            self.state_machine.handle_state_event(('MOVE', event))
-            self.moving = True
-        elif not is_moving and self.moving:
-            self.state_machine.handle_state_event(('STOP', event))
-            self.moving = False
+        moved_after = any(self.keys_down.values())
+        try:
+            if not moved_before and moved_after:
+                # 시작 이동
+                if hasattr(self, 'state_machine'):
+                    self.state_machine.handle_state_event(('MOVE', None))
+            elif moved_before and not moved_after:
+                # 이동 종료
+                if hasattr(self, 'state_machine'):
+                    self.state_machine.handle_state_event(('STOP', None))
+        except Exception as ex:
+            print('[Player] MOVE/STOP 이벤트 처리 오류:', ex)
+
+    # 신규: 렌더링 - 장비/플레이어/이펙트 순서대로 그리기
+    def draw(self):
+        # 1) 캐릭터 뒤 장비
+        try:
+            if hasattr(self, 'equipment_manager'):
+                self.equipment_manager.draw_back()
+        except Exception:
+            pass
+
+        # 2) 현재 상태 스프라이트(Idle/Run/Inventory)
+        try:
+            if hasattr(self, 'state_machine'):
+                self.state_machine.draw()
+        except Exception:
+            pass
+
+        # 3) 캐릭터 앞 장비(방패 등)
+        try:
+            if hasattr(self, 'equipment_manager'):
+                self.equipment_manager.draw_front()
+        except Exception:
+            pass
+
+        # 4) 파티클/공격 이펙트
+        try:
+            for p in getattr(self, 'particles', []):
+                if hasattr(p, 'draw'):
+                    p.draw()
+            for e in getattr(self, 'attack_effects', []):
+                if hasattr(e, 'draw'):
+                    e.draw()
+        except Exception:
+            pass
 
 class VFX_Run_Particle:
     def __init__(self, x, y, frames, frame_duration, scale):

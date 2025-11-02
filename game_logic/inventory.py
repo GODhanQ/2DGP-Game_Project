@@ -18,13 +18,23 @@ class Item:
     - icon_path: 아이콘 png 경로
     - stackable: 스택 가능 여부
     - max_stack: 한 슬롯 최대 수량
+    - passive: 인벤토리에 존재하는 동안 적용되는 스탯 가산값(dict)
+    - consumable: 소비 시 일시적으로 적용되는 스탯 가산값(dict)
+    - consume_duration: 소비 버프 지속 시간(초); None이면 영구 적용
     """
-    def __init__(self, id: str, name: str, icon_path: str, stackable: bool = True, max_stack: int = 99):
+    def __init__(self, id: str, name: str, icon_path: str,
+                 stackable: bool = True, max_stack: int = 99,
+                 passive: Optional[dict] = None,
+                 consumable: Optional[dict] = None,
+                 consume_duration: Optional[float] = None):
         self.id = id
         self.name = name
         self.icon_path = icon_path
         self.stackable = stackable
         self.max_stack = max_stack
+        self.passive = dict(passive) if passive else None
+        self.consumable = dict(consumable) if consumable else None
+        self.consume_duration = consume_duration
         self._icon_image = None  # 지연 로드
 
     def get_icon(self):
@@ -37,7 +47,8 @@ class Item:
         return self._icon_image
 
     @classmethod
-    def from_filename(cls, filename: str, name: Optional[str] = None, stackable: bool = True, max_stack: int = 99):
+    def from_filename(cls, filename: str, name: Optional[str] = None, stackable: bool = True, max_stack: int = 99,
+                      passive: Optional[dict] = None, consumable: Optional[dict] = None, consume_duration: Optional[float] = None):
         path = os.path.join(ITEMS_BASE, filename)
         item_id = os.path.splitext(os.path.basename(filename))[0]
         # 규칙: Potion 폴더 내부만 스택 가능(최대 99), 그 외는 1개 제한
@@ -49,7 +60,9 @@ class Item:
         else:
             eff_stackable = False
             eff_max_stack = 1
-        return cls(item_id, name or item_id, path, stackable=eff_stackable, max_stack=eff_max_stack)
+        return cls(item_id, name or item_id, path,
+                   stackable=eff_stackable, max_stack=eff_max_stack,
+                   passive=passive, consumable=consumable, consume_duration=consume_duration)
 
     def append_to(self, inventory: 'InventoryData', qty: int = 1, prefer_stack: bool = True) -> int:
         """해당 아이템을 주어진 인벤토리에 추가한다.
@@ -199,32 +212,47 @@ class InventoryData:
                 remaining -= take
         return remaining
 
+    def input(self, pairs: List[tuple], prefer_stack: bool = True):
+        """[(item_or_filename, qty), ...] 형태로 일괄 입력.
+        - item_or_filename: Item 인스턴스 또는 Item 폴더 기준 파일 경로 문자열('Carrot.png' 또는 'Potion/Item_RedPotion0.png')
+        - prefer_stack=True: 스택 우선(add_item), False: 빈 슬롯 분할(append_item with prefer_stack=False)
+        반환값: [(Item, leftover), ...] 각 항목별 남은 수량 목록
+        """
+        results = []
+        for spec, qty in pairs:
+            if qty is None or qty <= 0:
+                continue
+            if isinstance(spec, Item):
+                item = spec
+            elif isinstance(spec, str):
+                try:
+                    item = Item.from_filename(spec)
+                except Exception as ex:
+                    print('[InventoryData.input] 잘못된 파일명:', spec, ex)
+                    continue
+            else:
+                print('[InventoryData.input] 지원하지 않는 스펙 타입:', type(spec))
+                continue
+            leftover = self.add_item(item, qty) if prefer_stack else self.append_item(item, qty, prefer_stack=False)
+            results.append((item, leftover))
+        return results
+
 
 # 디버그용 아이템 채우기 도우미
 
 def seed_debug_inventory(inventory: InventoryData):
-    """리소스 폴더의 존재하는 파일명 위주로 샘플 아이템 채우기 (Potion만 다중 스택)"""
+    """리소스 폴더의 존재하는 파일명 위주로 샘플 아이템 채우기 (Potion만 다중 스택)
+    items.py의 팩토리/샘플을 사용하여 구성
+    """
     from random import randint
+    from . import items
 
-    def mk(filename: str, name: Optional[str] = None) -> Item:
-        return Item.from_filename(filename, name=name)
+    samples = items.sample_debug_list()
 
-    samples = [
-        (mk('Lantern.png', '랜턴'), 1),
-        (mk('MagicGlasses.png', '마법 안경'), 1),
-        (mk('RabbitGuardHelm.png', '토끼 수호자 투구'), 1),
-        (mk('Carrot.png', '당근'), 3),  # 포션 아님 -> 각 1개씩 여러 슬롯 차지
-        (mk('Amber.png', '호박보석'), 2),
-        (mk('Ruby.png', '루비'), 2),
-        (mk('WhiteCrustedBread.png', '하얀 빵'), 1),
-        # 포션: 스택 가능 (한 슬롯에 누적)
-        (mk('Potion/Item_RedPotion0.png', '빨간 포션'), 15),
-    ]
-
-    for item, qty in samples:
-        leftover = inventory.add_item(item, qty)
+    results = inventory.input(samples, prefer_stack=True)
+    for item, leftover in results:
         if leftover > 0:
-            print(f"[Inventory] {item.name} {qty} 중 {leftover}개는 인벤토리에 공간이 없어 버려졌습니다.")
+            print(f"[Inventory] {item.name} {leftover}개는 인벤토리에 공간이 없어 버려졌습니다.")
 
     # 포션 추가로 스택 합쳐지는지 확인
-    inventory.add_item(mk('Potion/Item_RedPotion0.png', '빨간 포션'), randint(3, 8))
+    inventory.add_item(items.potion_red0(), randint(3, 8))
