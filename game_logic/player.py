@@ -9,11 +9,14 @@ import os
 import random
 
 from pico2d import load_image, get_canvas_height, get_canvas_width
-from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDL_GetMouseState)
+from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDL_GetMouseState,
+                   SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT)
 
 from .equipment import EquipmentManager, Sword, Shield
 from .state_machine import StateMachine
 from . import framework
+# 인벤토리 데이터 모델 import
+from .inventory import InventoryData, seed_debug_inventory
 
 def Akey_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
@@ -275,6 +278,13 @@ class Player:
         self.particles = [] # 파티클 리스트를 Player로 이동
         self.attack_effects = [] # 공격 이펙트 리스트
 
+        # 인벤토리 데이터 생성 및 디버그 아이템 채우기
+        self.inventory = InventoryData(cols=6, rows=5)
+        try:
+            seed_debug_inventory(self.inventory)
+        except Exception as ex:
+            print('[Player] 디버그 인벤토리 시드 실패:', ex)
+
         # 장비 매니저 초기화
         self.equipment_manager = EquipmentManager(self)
 
@@ -342,8 +352,6 @@ class Player:
         self.equipment_manager.draw_front()
 
     def handle_event(self, event):
-        self.equipment_manager.handle_event(event)
-
         # Tab 키 입력 처리 (인벤토리 열기/닫기)
         if event.type == SDL_KEYDOWN and event.key == SDLK_TAB:
             # 인벤토리 닫기 직전, 현재 키 상태에 맞춰 복귀 상태 설정
@@ -352,9 +360,12 @@ class Player:
             self.state_machine.handle_state_event(('INPUT', event))
             return
 
-        # 인벤토리 열려 있으면: WASD 입력으로 dir을 정상 업데이트(이동 허용),
-        # 다만 상태 이벤트(MOVE/STOP)는 발생시키지 않음
+        # 인벤토리 열려 있는 동안: 마우스 입력 차단(공격/방어 방지), WASD만 처리
         if self.inventory_open:
+            # 마우스 버튼 입력은 무시
+            if event.type in (SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP):
+                return
+            # 키 입력 처리(WASD만)
             if event.type == SDL_KEYDOWN:
                 if event.key == SDLK_w: self.keys_down['w'] = True; self.dir[1] += 1
                 elif event.key == SDLK_a: self.keys_down['a'] = True; self.dir[0] -= 1
@@ -366,6 +377,9 @@ class Player:
                 elif event.key == SDLK_s: self.keys_down['s'] = False; self.dir[1] += 1
                 elif event.key == SDLK_d: self.keys_down['d'] = False; self.dir[0] -= 1
             return
+
+        # 일반 상태: 먼저 장비 입력 처리(공격/방어), 그 다음 이동키 처리
+        self.equipment_manager.handle_event(event)
 
         # 키보드 입력 처리(일반 상태)
         if event.type == SDL_KEYDOWN:

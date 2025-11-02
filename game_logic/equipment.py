@@ -117,6 +117,19 @@ class Shield(Weapon):
 
     def update(self):
         """방패: 우클릭 유지 시 각도를 커서 방향으로 갱신"""
+        # 인벤토리가 열려 있으면 방패 입력/전개 무시
+        if getattr(self.player, 'inventory_open', False):
+            # 각도는 업데이트하지 않아도 되지만, 유지하고 싶으면 아래 부분을 남길 수 있음
+            self.blocking = False
+            # 기존 공격 타이머 로직 필요 시 유지
+            if self.is_attacking:
+                dt = framework.get_delta_time()
+                self.attack_timer += dt
+                if self.attack_timer >= self.attack_duration:
+                    self.is_attacking = False
+                    self.attack_timer = 0.0
+            return
+
         # 각도는 항상 계산해둠 (범위 이미지를 위한 값)
         mx = ctypes.c_int(0)
         my = ctypes.c_int(0)

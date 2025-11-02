@@ -29,6 +29,12 @@ class Cursor:
                 self.inv_frames = []
                 break
 
+        # 인벤토리 커서 핫스팟(앵커) 비율: (ax, ay) in [0,1]
+        # - ax=0은 이미지의 가장 왼쪽, ax=1은 가장 오른쪽
+        # - ay=0은 이미지의 가장 아래, ay=1은 가장 위쪽
+        # 팁이 좌측 상단 쪽에 있을 것으로 가정하여 기본 (0.10, 0.90)으로 설정
+        self.inv_anchor = (0.10, 0.90)
+
         # 방패 범위 이미지 (최상단 오버레이로 그리기)
         try:
             self.shield_range_image = load_image('resources/Texture_organize/Weapon/shieldRange.png')
@@ -138,10 +144,17 @@ class Cursor:
                 self.shield_range_image.h * self.shield_range_scale
             )
 
-        # 인벤토리 열림 + 프레임 로드 성공 시 전용 커서 사용
+        # 인벤토리 열림 + 프레임 로드 성공 시 전용 커서 사용 (팁 위치를 마우스 좌표에 정렬)
         if self.player and getattr(self.player, 'inventory_open', False) and self.inv_frames:
             img = self.inv_frames[self.frame_idx]
-            img.draw(self.x, self.y, img.w * self.scale_factor, img.h * self.scale_factor)
+            w = img.w * self.scale_factor
+            h = img.h * self.scale_factor
+            ax, ay = self.inv_anchor
+            # center_x = mouse_x + (0.5 - ax) * width
+            # center_y = mouse_y + (0.5 - ay) * height
+            cx = self.x + (0.5 - ax) * w
+            cy = self.y + (0.5 - ay) * h
+            img.draw(cx, cy, w, h)
         else:
             self.image.draw(self.x, self.y, self.image.w * self.scale_factor, self.image.h * self.scale_factor)
 

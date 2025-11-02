@@ -1,8 +1,11 @@
 import os
-from pico2d import load_image, get_canvas_width, get_canvas_height
+import ctypes
+from pico2d import load_image, get_canvas_width, get_canvas_height, load_font
+from sdl2 import SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT, SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP, SDL_GetMouseState, SDL_KEYDOWN, SDLK_F5, SDLK_F6
+from .inventory import Item
 
 class InventoryOverlay:
-    """UI 레이어에서 그려지는 인벤토리 오버레이 (배경 + 슬롯 그리드)"""
+    """UI 레이어에서 그려지는 인벤토리 오버레이 (배경 + 슬롯 그리드 + 아이템 아이콘 + 드래그)"""
     def __init__(self, player):
         self.player = player
         # 배경 이미지
@@ -22,9 +25,14 @@ class InventoryOverlay:
             print('Failed to load inventory slot image:', slot_path, ex)
             self.slot_image = None
 
-        # 그리드 설정 (cols x rows)
-        self.cols = 6
-        self.rows = 5
+        # 수량 텍스트용 폰트 (동적 크기 캐시)
+        self._font = None
+        self._font_size = None
+        self._font_loaded = False
+
+        # 그리드 설정 (플레이어 인벤토리 크기에 동기화)
+        self.cols = getattr(self.player.inventory, 'cols', 6)
+        self.rows = getattr(self.player.inventory, 'rows', 5)
         # 내부 패딩과 슬롯 간격(기본 px, 배율 적용) - 슬롯을 크게 보이도록 패딩 축소, 간격 제거
         self.pad_x = 8
         self.pad_y = 12
@@ -38,16 +46,113 @@ class InventoryOverlay:
         self.grid_offset_x = 0
         self.grid_offset_y = -5
 
+        # 드래그 상태
+        self.dragging = False
+        self.drag_from = None  # (r,c)
+        self.drag_icon = None
+        self.drag_qty = 0
+        self.drag_mouse = (0, 0)
+
         # 계산 캐시
         self._last_layout = None  # (canvas_w, canvas_h, scale) -> layout dict
 
+    def _ensure_font(self, slot_h):
+        """슬롯 높이에 맞춰 폰트를 로드/캐시한다. 실패 시 _font=None 유지."""
+        # 대략적인 폰트 크기 산정 (슬롯 높이의 35%)
+        target_size = max(12, int(slot_h * 0.35))
+        if self._font_loaded and self._font is not None and abs((self._font_size or 0) - target_size) <= 2:
+            return
+        # 폰트 경로 후보: 리소스 내 존재하면 우선, 없으면 Windows 기본 폰트 경로 사용
+        candidates = [
+            os.path.join('resources', 'Fonts', 'Arial.ttf'),
+            os.path.join('resources', 'Fonts', 'NanumGothic.ttf'),
+            'C:/Windows/Fonts/arial.ttf',
+            'C:/Windows/Fonts/malgun.ttf',  # 한글 폰트
+        ]
+        for path in candidates:
+            try:
+                self._font = load_font(path, target_size)
+                self._font_size = target_size
+                self._font_loaded = True
+                return
+            except Exception:
+                continue
+        # 실패 시 폰트 사용하지 않음
+        self._font = None
+        self._font_size = None
+        self._font_loaded = True
+
     def update(self):
-        # 오버레이는 별도 업데이트 없음
-        pass
+        # 플레이어 인벤토리 크기 변경 시 동기화
+        self.cols = getattr(self.player.inventory, 'cols', self.cols)
+        self.rows = getattr(self.player.inventory, 'rows', self.rows)
+        # 인벤토리 닫힐 때 드래그 상태 초기화
+        if not getattr(self.player, 'inventory_open', False) and self.dragging:
+            self.dragging = False
+            self.drag_from = None
+            self.drag_icon = None
+            self.drag_qty = 0
 
     def handle_event(self, event):
-        # UI 입력 별도 처리 필요 시 확장 (예: 슬롯 클릭 등)
-        pass
+        # 인벤토리가 열려있을 때만 입력 처리
+        if not getattr(self.player, 'inventory_open', False):
+            return
+        # 디버그: F5/F6로 아이템 추가 테스트
+        if event.type == SDL_KEYDOWN:
+            try:
+                if event.key == SDLK_F5:
+                    # 포션 5개 스택으로 추가
+                    potion = Item.from_filename('Potion/Item_RedPotion0.png', '빨간 포션')
+                    leftover = potion.append_to(self.player.inventory, qty=5, prefer_stack=True)
+                    print(f"[InventoryOverlay] F5: 포션 5개 추가 (남은 {leftover})")
+                    return
+                if event.key == SDLK_F6:
+                    # 일반 아이템 3개 빈 슬롯 분할로 추가(당근: 비스택)
+                    carrot = Item.from_filename('Carrot.png', '당근')
+                    leftover = carrot.append_to(self.player.inventory, qty=3, prefer_stack=False)
+                    print(f"[InventoryOverlay] F6: 당근 3개 추가 (남은 {leftover})")
+                    return
+            except Exception as ex:
+                print('[InventoryOverlay] 디버그 append 실패:', ex)
+        # 좌클릭 다운: 드래그 시작 또는 슬롯 정보 출력
+        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
+            hit = self._hit_test(event.x, event.y)
+            if hit is not None:
+                r, c = hit
+                try:
+                    slot = self.player.inventory.get_slot(r, c)
+                    if not slot.is_empty():
+                        # 드래그 시작 (소스 슬롯 상태는 유지, 드래그 고스트만 표시)
+                        self.dragging = True
+                        self.drag_from = (r, c)
+                        self.drag_icon = slot.item.get_icon()
+                        self.drag_qty = slot.quantity
+                        self.drag_mouse = (event.x, event.y)
+                    else:
+                        print(f"[InventoryOverlay] 클릭: ({r}, {c}) 빈 슬롯")
+                except Exception as ex:
+                    print('[InventoryOverlay] 슬롯 접근 오류:', ex)
+            return
+        # 마우스 모션: 드래그 중이면 위치 갱신
+        if event.type == SDL_MOUSEMOTION:
+            if self.dragging:
+                self.drag_mouse = (event.x, event.y)
+            return
+        # 좌클릭 업: 드롭 처리
+        if event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_LEFT:
+            if self.dragging and self.drag_from is not None:
+                dst = self._hit_test(event.x, event.y)
+                if dst is not None and dst != self.drag_from:
+                    try:
+                        self.player.inventory.move(self.drag_from, dst)
+                    except Exception as ex:
+                        print('[InventoryOverlay] 드롭 실패:', ex)
+                # 드래그 종료
+                self.dragging = False
+                self.drag_from = None
+                self.drag_icon = None
+                self.drag_qty = 0
+            return
 
     def _compute_layout(self, canvas_w, canvas_h):
         # 배경 목표 위치/배율 계산 (player 인벤토리 열렸을 때와 동일 로직)
@@ -87,19 +192,60 @@ class InventoryOverlay:
         slot_scale_y = slot_size / (self.slot_image.h if self.slot_image else slot_size)
         slot_scale = min(slot_scale_x, slot_scale_y)
 
+        # 배경 중심 기준 + 오프셋 적용된 그리드 좌표계 계산
+        base_slot_draw_w = (self.slot_image.w * slot_scale) if self.slot_image else slot_size
+        base_slot_draw_h = (self.slot_image.h * slot_scale) if self.slot_image else slot_size
+        slot_draw_w = base_slot_draw_w * getattr(self, 'slot_scale_mult_x', 1.0)
+        slot_draw_h = base_slot_draw_h * getattr(self, 'slot_scale_mult_y', 1.0)
+        total_w = self.cols * slot_draw_w
+        total_h = self.rows * slot_draw_h
+        grid_left_centered = target_x - total_w / 2 + self.grid_offset_x * scale
+        grid_bottom_centered = target_y - total_h / 2 + self.grid_offset_y * scale
+
         return {
             'target_x': target_x,
             'target_y': target_y,
             'scale': scale,
             'bg_w': bg_w,
             'bg_h': bg_h,
-            'grid_left': grid_left,
-            'grid_bottom': grid_bottom,
-            'slot_size': slot_size,
-            'gap_x': gap_x,
-            'gap_y': gap_y,
-            'slot_scale': slot_scale
+            'grid_left_centered': grid_left_centered,
+            'grid_bottom_centered': grid_bottom_centered,
+            'slot_draw_w': slot_draw_w,
+            'slot_draw_h': slot_draw_h,
         }
+
+    def _hit_test(self, mx, my):
+        """윈도우 좌표(mx,my)를 게임 좌표로 변환 후 슬롯 인덱스(r,c)를 반환. 없으면 None"""
+        if self.image is None:
+            return None
+        canvas_w = get_canvas_width()
+        canvas_h = get_canvas_height()
+        # y 뒤집기
+        gy = canvas_h - my
+        layout = self._compute_layout(canvas_w, canvas_h)
+        left = layout['grid_left_centered']
+        bottom = layout['grid_bottom_centered']
+        w = layout['slot_draw_w']
+        h = layout['slot_draw_h']
+        # 전체 그리드 박스 안인지 빠른 체크
+        if not (left <= mx <= left + w * self.cols and bottom <= gy <= bottom + h * self.rows):
+            return None
+        # 인덱스 계산
+        c = int((mx - left) // w)
+        r = int((gy - bottom) // h)
+        if 0 <= r < self.rows and 0 <= c < self.cols:
+            return (r, c)
+        return None
+
+    def _get_mouse_pos(self):
+        mx = ctypes.c_int(0)
+        my = ctypes.c_int(0)
+        try:
+            SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
+            return mx.value, my.value
+        except Exception:
+            # 모션 이벤트 기반 위치 사용
+            return self.drag_mouse
 
     def draw(self):
         # 플레이어 인벤토리가 열려 있을 때만 그리기
@@ -125,24 +271,90 @@ class InventoryOverlay:
         # 슬롯 그리드 그리기
         if self.slot_image is None:
             return
-        # 기본 계산된 슬롯 크기
-        base_slot_draw_w = self.slot_image.w * layout['slot_scale']
-        base_slot_draw_h = self.slot_image.h * layout['slot_scale']
-        # 가로/세로 배율 각각 적용 (Y축 압축은 slot_scale_mult_y < 1.0)
-        slot_draw_w = base_slot_draw_w * getattr(self, 'slot_scale_mult_x', 1.0)
-        slot_draw_h = base_slot_draw_h * getattr(self, 'slot_scale_mult_y', 1.0)
-
-        # 배경 중심 기준 + 오프셋 적용
-        total_w = self.cols * slot_draw_w
-        total_h = self.rows * slot_draw_h
-        grid_left_centered = layout['target_x'] - total_w / 2
-        grid_bottom_centered = layout['target_y'] - total_h / 2
-        # 오프셋(px)을 배경 스케일에 맞춰 적용
-        grid_left_centered += self.grid_offset_x * layout['scale']
-        grid_bottom_centered += self.grid_offset_y * layout['scale']
+        slot_draw_w = layout['slot_draw_w']
+        slot_draw_h = layout['slot_draw_h']
+        grid_left = layout['grid_left_centered']
+        grid_bottom = layout['grid_bottom_centered']
 
         for r in range(self.rows):
             for c in range(self.cols):
-                cx = grid_left_centered + c * slot_draw_w + slot_draw_w / 2
-                cy = grid_bottom_centered + r * slot_draw_h + slot_draw_h / 2
+                cx = grid_left + c * slot_draw_w + slot_draw_w / 2
+                cy = grid_bottom + r * slot_draw_h + slot_draw_h / 2
                 self.slot_image.draw(cx, cy, slot_draw_w, slot_draw_h)
+
+        # 아이템 아이콘 그리기 (슬롯 중앙, 여백 10~20%) + 수량 텍스트
+        inv = getattr(self.player, 'inventory', None)
+        if inv is None:
+            return
+        margin_ratio = 0.18
+        icon_box_w = slot_draw_w * (1.0 - margin_ratio)
+        icon_box_h = slot_draw_h * (1.0 - margin_ratio)
+        self._ensure_font(slot_draw_h)
+
+        # 드래그 중이면 현재 마우스가 가리키는 슬롯(호버)을 계산하여 임시 비표시 처리
+        hover_rc = None
+        if self.dragging:
+            mx, my = self._get_mouse_pos()
+            hover_rc = self._hit_test(mx, my)
+
+        for r in range(self.rows):
+            for c in range(self.cols):
+                try:
+                    slot = inv.get_slot(r, c)
+                except Exception:
+                    continue
+                # 드래그 중 원본 또는 호버 슬롯은 표시하지 않음(고스트가 더 잘 보이도록)
+                if self.dragging and (self.drag_from == (r, c) or (hover_rc is not None and hover_rc == (r, c))):
+                    continue
+                if slot.is_empty():
+                    continue
+                icon = slot.item.get_icon()
+                if icon is None:
+                    continue
+                # 아이콘을 슬롯 박스에 맞춰 비율 유지 스케일
+                scale = min(icon_box_w / icon.w, icon_box_h / icon.h)
+                draw_w = icon.w * scale
+                draw_h = icon.h * scale
+                cx = grid_left + c * slot_draw_w + slot_draw_w / 2
+                cy = grid_bottom + r * slot_draw_h + slot_draw_h / 2
+                icon.draw(cx, cy, draw_w, draw_h)
+                # 수량 텍스트(2 이상일 때만)
+                if getattr(slot, 'quantity', 1) > 1 and self._font is not None:
+                    txt = str(slot.quantity)
+                    # 우하단 여백 약간 띄워서 그림
+                    tx = cx + (slot_draw_w * 0.5) - 4
+                    ty = cy - (slot_draw_h * 0.5) + 4
+                    # 그림자
+                    try:
+                        self._font.draw(tx - 1, ty - 1, txt, (0, 0, 0))
+                        self._font.draw(tx, ty, txt, (255, 255, 255))
+                    except Exception:
+                        pass
+
+        # 드래그 고스트 아이콘 (최상단)
+        if self.dragging and self.drag_icon is not None:
+            mx, my = self._get_mouse_pos()
+            scale = min(icon_box_w / self.drag_icon.w, icon_box_h / self.drag_icon.h) * 0.85
+            dw = self.drag_icon.w * scale
+            dh = self.drag_icon.h * scale
+            # 오프셋: x는 -, y는 + 방향으로 슬롯 크기 비율만큼 이동 (되돌림: 0.2)
+            offset_x = -slot_draw_w * 0.2
+            offset_y =  slot_draw_h * 0.2
+            try:
+                self.drag_icon.opacify(0.7)
+                gy = get_canvas_height() - my
+                self.drag_icon.draw(mx + offset_x, gy + offset_y, dw, dh)
+            finally:
+                try:
+                    self.drag_icon.opacify(1.0)
+                except Exception:
+                    pass
+            # 수량 표시
+            if self.drag_qty > 1 and self._font is not None:
+                tx = (mx + offset_x) + (dw * 0.5) - 4
+                ty = (get_canvas_height() - my + offset_y) - (dh * 0.5) + 4
+                try:
+                    self._font.draw(tx - 1, ty - 1, str(self.drag_qty), (0, 0, 0))
+                    self._font.draw(tx, ty, str(self.drag_qty), (255, 255, 255))
+                except Exception:
+                    pass

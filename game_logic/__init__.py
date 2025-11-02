@@ -5,3 +5,5 @@ from .cursor import Cursor
 from .equipment import EquipmentManager, Weapon, Sword, Shield
 from . import framework
 from .ui_overlay import InventoryOverlay
+# 인벤토리/아이템 공개 export
+from .inventory import Item, InventoryData, seed_debug_inventory
