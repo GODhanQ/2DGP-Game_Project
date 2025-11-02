@@ -1,9 +1,15 @@
+# 패키지 내부 모듈을 직접 실행할 경우 친절한 안내 후 종료
+if __name__ == "__main__" and (__package__ is None or __package__ == ""):
+    import sys
+    print("이 모듈은 game_logic 패키지 내부 모듈입니다. 프로젝트 루트에서 main.py를 실행하세요.")
+    sys.exit(1)
+
 import ctypes
 import os
 import random
 
 from pico2d import load_image, get_canvas_height, get_canvas_width
-from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDL_GetMouseState)
+from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDL_GetMouseState)
 
 from .equipment import EquipmentManager, Sword, Shield
 from .state_machine import StateMachine
@@ -26,12 +32,17 @@ def Skey_down(e):
 def Skey_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_s
 
+
 # 커스텀 이벤트 정의
 def move_event(e):
     return e[0] == 'MOVE'
 
 def stop_event(e):
     return e[0] == 'STOP'
+
+# Tab 키 입력 검사용 predicate (StateMachine 매핑용)
+def Tab_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_TAB
 
 class Run:
     def __init__(self, player):
@@ -210,6 +221,47 @@ class Idle:
             lower.clip_composite_draw(0, 0, lw, lh, 0, flip,self.player.x, self.player.y,
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
 
+
+class Inventory:
+    """인벤토리 상태: enter에서 이미지 로드, draw에서 중앙 오른쪽에 표시 (시뮬레이션 정지 없음)"""
+    def __init__(self, player):
+        self.player = player
+        self.image = None
+        self.scale = 1.0
+        self.prev_state = None  # 이전 상태 저장용
+
+    def enter(self, e):
+        # 현재 상태를 이전 상태로 저장 (복귀용)
+        self.prev_state = self.player.state_machine.cur_state
+
+        # 이미지 지연 로드(오버레이에서도 사용 가능하도록 유지하되, 여기서는 그리지 않음)
+        if self.image is None:
+            img_path = os.path.join('resources', 'Texture_organize', 'UI', 'Inventory', 'InventoryBase_New1.png')
+            try:
+                self.image = load_image(img_path)
+            except Exception as ex:
+                print('Failed to load inventory image:', img_path, ex)
+                self.image = None
+
+        # 인벤토리 표시 플래그만 설정 (이동은 유지)
+        self.player.inventory_open = True
+
+    def exit(self, e):
+        # 표시 플래그만 해제
+        self.player.inventory_open = False
+
+    def do(self):
+        # 현재 키 상태에 따라 Idle/Run의 do를 동적으로 실행
+        active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
+        active_state.do()
+
+    def draw(self):
+        # 현재 키 상태에 따라 Idle/Run의 draw를 먼저 실행
+        active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
+        active_state.draw()
+        # 인벤토리 이미지는 별도의 UI 레이어(InventoryOverlay)에서 최상단으로 그림
+
+
 class Player:
     def __init__(self):
         self.x = get_canvas_width() // 2
@@ -239,12 +291,19 @@ class Player:
         # 상태 정의
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.INVENTORY = Inventory(self)
+
+        # 전투 플래그(전투중일 때 인벤토리 열지 않음)
+        self.in_combat = False
+        self.inventory_open = False
+
         # 상태 변환에 대한 매핑
         self.state_machine = StateMachine(
             self.IDLE,
-        {
-                self.IDLE: {move_event: self.RUN},
-                self.RUN: {stop_event: self.IDLE},
+            {
+                self.IDLE: {move_event: self.RUN, Tab_down: self.INVENTORY},
+                self.RUN: {stop_event: self.IDLE, Tab_down: self.INVENTORY},
+                self.INVENTORY: {Tab_down: None},  # Tab_down은 특수 처리 필요
             }
         )
 
@@ -283,10 +342,32 @@ class Player:
         self.equipment_manager.draw_front()
 
     def handle_event(self, event):
-        # 장비 이벤트 먼저 처리 (공격 등)
         self.equipment_manager.handle_event(event)
 
-        # 키보드 입력 처리
+        # Tab 키 입력 처리 (인벤토리 열기/닫기)
+        if event.type == SDL_KEYDOWN and event.key == SDLK_TAB:
+            # 인벤토리 닫기 직전, 현재 키 상태에 맞춰 복귀 상태 설정
+            if self.inventory_open:
+                self.INVENTORY.prev_state = self.RUN if any(self.keys_down.values()) else self.IDLE
+            self.state_machine.handle_state_event(('INPUT', event))
+            return
+
+        # 인벤토리 열려 있으면: WASD 입력으로 dir을 정상 업데이트(이동 허용),
+        # 다만 상태 이벤트(MOVE/STOP)는 발생시키지 않음
+        if self.inventory_open:
+            if event.type == SDL_KEYDOWN:
+                if event.key == SDLK_w: self.keys_down['w'] = True; self.dir[1] += 1
+                elif event.key == SDLK_a: self.keys_down['a'] = True; self.dir[0] -= 1
+                elif event.key == SDLK_s: self.keys_down['s'] = True; self.dir[1] -= 1
+                elif event.key == SDLK_d: self.keys_down['d'] = True; self.dir[0] += 1
+            elif event.type == SDL_KEYUP:
+                if event.key == SDLK_w: self.keys_down['w'] = False; self.dir[1] -= 1
+                elif event.key == SDLK_a: self.keys_down['a'] = False; self.dir[0] += 1
+                elif event.key == SDLK_s: self.keys_down['s'] = False; self.dir[1] += 1
+                elif event.key == SDLK_d: self.keys_down['d'] = False; self.dir[0] -= 1
+            return
+
+        # 키보드 입력 처리(일반 상태)
         if event.type == SDL_KEYDOWN:
             if event.key == SDLK_w: self.keys_down['w'] = True; self.dir[1] += 1
             elif event.key == SDLK_a: self.keys_down['a'] = True; self.dir[0] -= 1
@@ -298,7 +379,7 @@ class Player:
             elif event.key == SDLK_s: self.keys_down['s'] = False; self.dir[1] += 1
             elif event.key == SDLK_d: self.keys_down['d'] = False; self.dir[0] -= 1
 
-        # 상태 전환 이벤트 생성
+        # 상태 전환 이벤트 생성 (일반 상태에서만)
         is_moving = any(self.keys_down.values())
         if is_moving and not self.moving:
             self.state_machine.handle_state_event(('MOVE', event))

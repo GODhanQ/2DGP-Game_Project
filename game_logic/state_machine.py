@@ -18,6 +18,11 @@ class StateMachine:
         for check_event in self.rules[self.cur_state].keys():
             if check_event(state_event):
                 next_state = self.rules[self.cur_state][check_event]
+
+                # 특수 처리: INVENTORY 상태에서 Tab_down이면 prev_state로 복귀
+                if next_state is None and hasattr(self.cur_state, 'prev_state') and self.cur_state.prev_state is not None:
+                    next_state = self.cur_state.prev_state
+
                 self.cur_state.exit(state_event)
                 next_state.enter(state_event)
 

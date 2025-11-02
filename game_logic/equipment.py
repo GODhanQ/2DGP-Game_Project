@@ -1,7 +1,8 @@
 import ctypes
 import math
+import os
 from pico2d import load_image, get_canvas_height
-from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT
+from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
 from . import framework
 
 
@@ -86,11 +87,55 @@ class Shield(Weapon):
     """방패 클래스 (항상 캐릭터 앞에 그려짐)"""
     def __init__(self, player, image_path, scale=3.0):
         super().__init__(player, 'shield', image_path, render_layer='front', scale=scale)
-        self.offset_x = -10  # 방패는 좀 더 가까이
-        self.offset_y = -10 # 방패는 약간 아래쪽
+        self.offset_x = -10  # 기본 X 오프셋(사용 안 함)
+        self.offset_y = -10  # Y 오프셋 유지
+
+        # 우클릭 방패 전개 상태
+        self.blocking = False
+        self.range_angle = 0.0
+
+        # 방패 범위 이미지 로드 (회전 표시용)
+        range_path = os.path.join('resources', 'Texture_organize', 'Weapon', 'shieldRange.png')
+        try:
+            self.range_image = load_image(range_path)
+        except Exception as ex:
+            print('Failed to load shield range image:', range_path, ex)
+            self.range_image = None
+        # 범위 이미지 배율은 방패와 별도로 유지 (5.0 -> 4.0로 약간 축소)
+        self.range_scale = 4.0
+        # 엔티티 레이어에서 범위 이미지를 그릴지 여부(이제 True로 활성화)
+        self.draw_range_in_entity = True
+
+        # 바라보는 방향으로 방패를 살짝 앞으로 이동시키는 오프셋(픽셀)
+        self.forward_offset = 18
+
+    def start_block(self):
+        self.blocking = True
+
+    def end_block(self):
+        self.blocking = False
 
     def update(self):
-        """방패는 회전하지 않음 (공격 타이머만 업데이트)"""
+        """방패: 우클릭 유지 시 각도를 커서 방향으로 갱신"""
+        # 각도는 항상 계산해둠 (범위 이미지를 위한 값)
+        mx = ctypes.c_int(0)
+        my = ctypes.c_int(0)
+        state = SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
+        canvas_h = get_canvas_height()
+        mouse_game_y = canvas_h - my.value
+        dx = mx.value - self.player.x
+        dy = mouse_game_y - self.player.y
+        self.range_angle = math.atan2(dy, dx)
+
+        # 프레임별 우클릭 유지 여부를 직접 폴링하여 blocking 동기화 (이벤트 누락 대비)
+        try:
+            right_mask = 1 << (SDL_BUTTON_RIGHT - 1)
+            self.blocking = bool(state & right_mask)
+        except Exception:
+            # 만약 상수 계산이 실패해도 기존 이벤트 방식 유지
+            pass
+
+        # 기존 공격 타이머 로직 유지(필요 시)
         if self.is_attacking:
             dt = framework.get_delta_time()
             self.attack_timer += dt
@@ -99,26 +144,42 @@ class Shield(Weapon):
                 self.attack_timer = 0.0
 
     def attack(self):
-        """방패는 막기 동작"""
+        """방패는 막기 동작 (현재는 사용하지 않음)"""
         if not self.is_attacking:
             self.is_attacking = True
             self.attack_timer = 0.0
             print(f"방패로 막기!")
 
     def draw(self):
-        """방패는 회전 없이 플레이어 앞에 고정"""
-        # 방패 위치는 플레이어 중심에 고정
-        weapon_x = self.player.x + self.offset_x
+        """방패 본체 + (옵션) 범위 이미지 회전 표시"""
+        # 1) 범위 이미지: 우클릭 동안 캐릭터 중심에서 커서 방향으로 회전 (엔티티 레이어에서는 기본 비활성화)
+        if self.draw_range_in_entity and self.blocking and self.range_image is not None:
+            base_offset = -math.pi / 2
+            theta = self.range_angle + base_offset
+            half_h_scaled = (self.range_image.h * self.range_scale) * 0.5
+            draw_x = self.player.x - half_h_scaled * math.sin(theta)
+            draw_y = self.player.y + half_h_scaled * math.cos(theta)
+            self.range_image.clip_composite_draw(
+                0, 0, self.range_image.w, self.range_image.h,
+                theta, '',
+                draw_x, draw_y,
+                self.range_image.w * self.range_scale,
+                self.range_image.h * self.range_scale
+            )
+
+        # 2) 방패 본체는 회전 없이 플레이어 앞에 고정
+        flip = 'h' if self.player.face_dir == -1 else ''
+        # 전개 중일 때만 앞으로 이동, 아니면 기존의 작은 좌우 오프셋 유지
+        if self.blocking:
+            local_offset_x = self.forward_offset if self.player.face_dir == 1 else -self.forward_offset
+        else:
+            local_offset_x = 10 if self.player.face_dir == -1 else -10
+        weapon_x = self.player.x + local_offset_x
         weapon_y = self.player.y + self.offset_y
 
-        # 좌우 반전만 적용 (회전 없음)
-        flip = 'h' if self.player.face_dir == -1 else ''
-        self.offset_x = 10 if self.player.face_dir == -1 else 0 -10
-
-        # 회전 없이 방패 그리기 (각도는 0)
         self.image.clip_composite_draw(
             0, 0, self.image.w, self.image.h,
-            0, flip,  # 회전 각도를 0으로 고정
+            0, flip,
             weapon_x, weapon_y,
             self.image.w * self.scale_factor,
             self.image.h * self.scale_factor
@@ -429,15 +490,31 @@ class EquipmentManager:
             equipment.update()
 
     def handle_event(self, event):
-        """장비 이벤트 처리 (주로 공격)"""
-        # 마우스 좌클릭 시 공격
+        """장비 이벤트 처리 (좌클릭: 공격, 우클릭: 방패 전개 표시)"""
+        # 마우스 좌클릭 시 공격(검)
         if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
-            # 현재 장착된 모든 무기가 공격
             for equipment in self.back_equipment:
                 equipment.attack()
-            # 방패는 공격하지 않음 (필요시 막기 등 다른 동작 가능)
-            # for equipment in self.front_equipment:
-            #     equipment.attack()
+
+        # 마우스 우클릭: 방패 범위 표시 시작/종료
+        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT:
+            # 디버그: 우클릭 다운 수신
+            try:
+                print('[Shield] RIGHT DOWN')
+            except Exception:
+                pass
+            for equipment in self.front_equipment:
+                if isinstance(equipment, Shield):
+                    equipment.start_block()
+        elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT:
+            # 디버그: 우클릭 업 수신
+            try:
+                print('[Shield] RIGHT UP')
+            except Exception:
+                pass
+            for equipment in self.front_equipment:
+                if isinstance(equipment, Shield):
+                    equipment.end_block()
 
     def draw_back(self):
         """캐릭터 뒤에 그려질 장비들"""
