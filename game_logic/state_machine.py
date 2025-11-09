@@ -1,5 +1,7 @@
 from .event_to_string import event_to_string
 from . import framework
+from .inventory import InventoryData
+
 
 class StateMachine:
     def __init__(self, start_state, rules):
@@ -33,4 +35,8 @@ class StateMachine:
                 processed_event = True
                 return
         if not processed_event:
-            print('Refused Event:', self.cur_state.__class__.__name__, 'Input : ', event_to_string(state_event))
+            event_str = event_to_string(state_event)
+            es = event_str.upper() if isinstance(event_str, str) else ''
+            is_mouse_motion = ('MOUSE' in es and 'MOTION' in es) or ('MOUSEMOTION' in es)
+            if not is_mouse_motion:
+                print('Refused Event:', self.cur_state.__class__.__name__, 'Input : ', event_to_string(state_event))

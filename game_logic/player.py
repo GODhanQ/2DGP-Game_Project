@@ -386,6 +386,16 @@ class Player:
         self.stats.add_modifier(StatModifier(mod_id, values, duration=duration))
         # 1개 소모
         self.inventory.remove_from(r, c, 1)
+        # 아이템의 이펙트 재생(있다면)
+        vfx_fn = (getattr(item, 'on_consume_vfx', None)
+                  or getattr(item, '_play_consume_vfx', None)
+                  or getattr(item, 'consume_effect', None))
+        if callable(vfx_fn):
+            try:
+                # consumer(self), world/x/y 인자를 전달 (없어도 함수가 처리하도록)
+                vfx_fn(self, world=None, x=getattr(self, 'x', None), y=getattr(self, 'y', None))
+            except Exception as ex:
+                print(f'[Player] 아이템 소비 이펙트 오류 ({item.name}):', ex)
         # 패시브 재적용(수량 변화로 인한 패시브 변경 가능성 고려)
         self.rebuild_inventory_passives()
         print(f"[Player] 소비: {item.name} -> {values} ({duration}s)")

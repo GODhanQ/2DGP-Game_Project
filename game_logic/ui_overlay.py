@@ -5,9 +5,14 @@ from sdl2 import SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_MOU
 from .inventory import Item
 
 class InventoryOverlay:
-    """UI 레이어에서 그려지는 인벤토리 오버레이 (배경 + 슬롯 그리드 + 아이템 아이콘 + 드래그)"""
-    def __init__(self, player):
+    """UI 레이어에서 그려지는 인벤토리 오버레이 (배경 + 슬롯 그리드 + 아이템 아이콘 + 드래그)
+    이제 main에서 생성할 때 world 레퍼런스를 전달하도록 권장합니다: InventoryOverlay(player, world)
+    """
+    def __init__(self, player, world=None):
         self.player = player
+        # 외부에서 주입된 world 딕셔너리(권장)
+        self.world = world
+
         # 배경 이미지
         img_path = os.path.join('resources', 'Texture_organize', 'UI', 'Inventory', 'InventoryBase_New1.png')
         try:
@@ -171,6 +176,52 @@ class InventoryOverlay:
                             self.player.rebuild_inventory_passives()
                     except Exception as ex:
                         print('[InventoryOverlay] 드롭 실패:', ex)
+                else:
+                    # 슬롯 외부에 드롭한 경우: 아이템을 버리고 월드에 생성
+                    try:
+                        # drag_from 소스 슬롯 정보
+                        sr, sc = self.drag_from
+                        slot = self.player.inventory.get_slot(sr, sc)
+                        if slot.is_empty():
+                            # 이미 비어있다면 아무것도 하지 않음
+                            pass
+                        else:
+                            # 제거할 수량(드래그 시 보였던 수량 사용)
+                            qty_to_remove = int(self.drag_qty) if self.drag_qty else slot.quantity
+                            # 저장: 제거 전에 아이템 레퍼런스를 확보
+                            item_ref = slot.item
+                            # 안전한 제거
+                            removed = self.player.inventory.remove_from(sr, sc, qty_to_remove)
+                            if removed > 0:
+                                # 월드에 놓기: main.world['entities']에 WorldItem 추가
+                                try:
+                                    import sys
+                                    _main = sys.modules.get('__main__') or sys.modules.get('main')
+                                    world = getattr(_main, 'world', None) if _main is not None else None
+                                except Exception:
+                                    world = None
+                                if world is not None and 'entities' in world:
+                                    try:
+                                        from .item_entity import WorldItem
+                                        # 플레이어 위치 근처에 스폰(조금 오른쪽으로 오프셋)
+                                        spawn_x = getattr(self.player, 'x', 0) + (30 * getattr(self.player, 'face_dir', 1))
+                                        spawn_y = getattr(self.player, 'y', 0)
+                                        # prefer injected world reference
+                                        wi = WorldItem(item_ref, removed, spawn_x, spawn_y, scale=0.5 * getattr(self.player, 'scale_factor', 1.0), world=self.world or world)
+                                        world['entities'].append(wi)
+                                        print(f"[InventoryOverlay] 아이템 버림: {getattr(item_ref, 'name', 'Unknown')} x{removed} -> world.entities")
+                                    except Exception as ex:
+                                        print('[InventoryOverlay] 월드 아이템 생성 실패:', ex)
+                                else:
+                                    print('[InventoryOverlay] 월드에 접근할 수 없어 아이템을 버리지 못했습니다.')
+                                # 패시브 재적용
+                                if hasattr(self.player, 'rebuild_inventory_passives'):
+                                    try:
+                                        self.player.rebuild_inventory_passives()
+                                    except Exception:
+                                        pass
+                    except Exception as ex:
+                        print('[InventoryOverlay] 슬롯 외부 드롭 처리 실패:', ex)
                 # 드래그 종료
                 self.dragging = False
                 self.drag_from = None
