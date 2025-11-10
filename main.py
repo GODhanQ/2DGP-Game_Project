@@ -5,13 +5,17 @@ import game_logic.framework as framework
 
 # 레이어 기반 월드: 배경, 이펙트(뒤), 엔티티, 이펙트(앞), UI, 커서(최상단)
 world = {
-    'bg': [],        # 배경 레이어
+    'ground': [],        # 배경 레이어
+    'upper_ground': [], # 배경 위 레이어 (예: 나무 위)
+    'walls': [],       # 벽 레이어 (충돌 처리용)
     'effects_back': [], # 뒤쪽 이펙트 레이어 (배경 위, 엔티티 아래)
     'entities': [],  # 플레이어/몬스터 등 엔티티 레이어
     'effects_front': [], # 앞쪽 이펙트 레이어 (엔티티 위, UI 아래)
     'ui': [],        # 인벤토리 등 UI 레이어
     'cursor': []     # 커서 레이어 (항상 최상단)
 }
+# alias 'bg' to 'ground' for compatibility with existing update/render loops
+world['bg'] = world['ground']
 
 running = True
 current_time = time.time()
@@ -51,7 +55,7 @@ def reset_world():
 
     # 배경 오브젝트가 있다면 world['bg'].append(Background()) 형태로 추가
 
-    # 엔티티: 플레이어
+
     player = Player()
     world['entities'].append(player)
 

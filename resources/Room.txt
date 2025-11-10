@@ -1,0 +1,120 @@
+// Sample Room.txt for 2DGP project
+// Format: sections [ground], [upper_ground], [walls], [cliff], [props]
+// Rows use comma-separated integers; 0 = empty
+
+[ground]
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X 7 7 7 7 5 5 5 5 X X X X X X X X X X X X
+X X X X X 5 7 7 7 7 5 5 5 5 5 5 5 5 5 X X X X X X X
+X X X X X 5 5 7 7 7 5 5 6 5 5 5 5 5 5 X X X X X X X
+X X X X X 5 5 7 5 5 5 6 6 5 5 5 5 5 5 5 X X X X X X
+X X X X X 5 5 5 5 5 6 6 5 5 5 5 5 5 5 5 X X X X X X
+X X X X X 5 5 5 5 5 6 5 6 5 5 5 5 5 5 5 5 X X X X X
+X X X X X 5 5 5 5 5 94 94 6 5 5 5 5 5 5 5 5 5 X X X X
+X X X X X 5 5 5 5 94 94 94 94 6 5 5 5 5 5 5 5 5 X X X X
+X X X X X X 5 5 5 94 94 94 94 6 X X X X X X X X X X X X
+X X X X 94 94 94 94 94 94 94 94 94 94 94 94 X X X X X X X X X X
+X X X X 94 94 94 94 94 94 94 94 94 94 94 94 5 5 X X X X X X X X
+X X X 94 94 94 94 94 94 94 94 94 94 94 94 94 5 5 X X X X X X X X
+X X X 94 94 94 94 94 94 94 94 94 94 94 94 94 5 5 5 X X X X X X X
+X X X 94 94 94 94 94 94 94 94 94 94 94 94 94 5 5 5 5 5 5 X X X X
+X X X 94 94 94 94 94 94 94 94 94 94 94 94 94 5 5 5 5 5 X X X X X
+X X 5 X 94 94 94 94 94 94 94 94 94 94 94 5 6 5 5 5 5 X X X X X
+X X 5 X X X X 94 94 94 94 94 94 X X X X 5 5 5 X X X X X X
+X X 5 5 6 6 6 94 94 6 94 94 94 5 5 5 6 5 5 X X X X X X X
+X X 5 5 5 5 6 6 6 6 6 6 6 5 5 5 6 5 X X X X X X X X
+X X X 5 5 5 5 5 5 6 6 5 6 6 6 6 X X X X X 5 X X X X
+X X X X 5 5 5 5 5 5 5 5 5 5 X X X X X X X X X X X X
+X X X X 5 5 5 5 5 5 5 5 X X X X X X X X X X X X X X
+X X X X X 5 5 5 5 5 5 5 5 5 5 X X X X X X X X X X X
+X X X X 5 5 5 5 5 5 5 5 5 5 5 5 X 5 5 5 X X X X X X
+X X X 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 X X X X X
+X X X X 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 X X X X X
+X X X 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 X X X X X
+X X X X 5 5 5 5 5 5 5 5 5 X X 5 5 5 5 5 5 X X X X X
+X X X X X 5 5 5 5 5 5 5 X X X 5 5 5 5 5 5 X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+
+[upper_ground]
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X 85 85 X X X X X X X X X X X X X
+X X X X X X X X X X X 85 85 X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X 85 85 X X X X X X X X X
+X X X X X X X X X X X X X X X 85 85 85 X X X X X X X X
+X X X X X X X 85 85 85 X X X X X 85 85 85 X X X X X X X X
+X X X X X X X 85 X X X X X X X 85 85 X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X 85 85 X X X X X X X X X X X X X X X X X X
+X X X X X X 85 85 X X X X X X X X X X X X X X X X X X
+X X X X 97 98 X X X X X X X X 98 99 X X X X X X X X X X
+X X X X 100 X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X 85 85 X X X X X X X
+X X X X X X X X X X X X X X X X 85 85 85 85 X X X X X X
+X X X X X X X X X X X X X X X X X X 85 X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X 85 85 X X X X X X X X X X X X X X X X X
+X X X X X X X 85 85 85 85 X X X X X X X X X X X X X X X
+X X X X X X X X 85 85 85 X X 23 X X X X X X X X X X X X
+X X X X X X X X X 22 X X X X X X X X X X X X X X X X
+X X X X X X 20 X X X X X X X X X X X X X X X X X X X
+X X X X 85 85 X X X X 21 X X X X X 20 X X X X X X X X X
+X X X X 85 85 X 23 X X X X X 85 85 X X X X X X X X X X X
+X X X X X 85 85 X X X X X X 85 85 X X X X X 22 X X X X X
+X X X X X X X X X X X X X X 85 X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+X X X X X X X X X X X X X X X X X X X X X X X X X X
+
+[walls]
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 3 X X X X X X X X 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X 3 3 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X 3 3 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X X 3 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X X 3 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X X X X 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X X X X X X X X 3 3 3 3
+3 3 3 27 27 27 X X X X X X X X 27 27 27 3 3 3 3 3 3 3 3 3
+3 3 3 27 X X X X X X X X X X X X 27 3 3 3 3 3 3 3 3 3
+3 3 3 27 X X X X X X X X X X X X X X 3 3 3 3 3 3 3 3
+3 3 3 X X X X X X X X X X X X X X X 3 3 3 3 3 3 3 3
+3 3 3 X X X X X X X X X X X X X X X X 3 3 3 3 3 3 3
+3 3 3 X X X X X X X X X X X X X X X X X X X 3 3 3 3
+3 3 3 X X X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 X 27 X X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 X 27 27 27 27 X X X X X X 27 27 27 27 X X X 3 3 3 3 3 3
+3 3 X X X X X X X X X X X X X X X X X 3 3 3 3 3 3 3
+3 3 X X X X X X X X X X X X X X X X 3 3 3 3 3 3 3 3
+3 3 3 X X X X X X X X X X X X X 3 3 3 3 3 X 3 3 3 3
+3 3 3 3 X X X X X X X X X X 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 X X X X X X X X 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 X X X X X X X X X X 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 X X X X X X X X X X X X 3 X X X 3 3 3 3 3 3
+3 3 3 X X X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 3 3 X X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 3 X X X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 3 3 X X X X X X X X X X X X X X X X X 3 3 3 3 3
+3 3 3 3 3 X X X X X X X 3 3 X X X X X X X 3 3 3 3 3
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+
+// [props] is intentionally omitted/ignored for now
+
