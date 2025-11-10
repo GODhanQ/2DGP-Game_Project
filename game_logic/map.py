@@ -206,6 +206,7 @@ class Map:
         ts = int(new_tile_size)
         x0, y0 = origin
         layers = ['ground', 'upper_ground', 'walls']
+        updated = 0
         for layer in layers:
             for ent in list(world.get(layer, [])):
                 # ent가 grid 정보(_grid_col/_grid_row/_map_height)를 가지고 있으면 위치 재계산
@@ -218,9 +219,14 @@ class Map:
                     ent.y = y0 + (map_h - 1 - row) * ts
                     # update stored origin too
                     ent._origin = (x0, y0)
+                    updated += 1
                 else:
                     # grid 정보가 없으면 이 엔티티는 무시 (재빌드를 권장)
                     continue
+        try:
+            print(f"apply_tile_size_to_world: applied new_tile_size={ts}, updated_entities={updated}")
+        except Exception:
+            pass
 
     def set_tile_size(self, new_tile_size: int, world: Optional[Dict[str, list]] = None, origin: Tuple[int, int] = (0, 0)) -> None:
         """
@@ -232,18 +238,28 @@ class Map:
             # 먼저 시도: in-place 적용 (grid 좌표가 있는 경우)
             # 검사: 모든 엔티티들이 grid 좌표를 가지고 있는지 확인
             ok = True
+            total = 0
             for layer in ['ground', 'upper_ground', 'walls']:
                 for ent in world.get(layer, []):
+                    total += 1
                     if not (hasattr(ent, '_grid_col') and hasattr(ent, '_grid_row') and hasattr(ent, '_map_height')):
                         ok = False
                         break
                 if not ok:
                     break
             if ok:
-                self.apply_tile_size_to_world(world, self.tile_size, origin)
+                try:
+                    self.apply_tile_size_to_world(world, self.tile_size, origin)
+                    print(f"set_tile_size: in-place applied to {total} entities, new_tile_size={self.tile_size}")
+                except Exception as e:
+                    print('set_tile_size: in-place apply failed:', e)
             else:
                 # 일부 엔티티에 grid 정보가 없으면 안전하게 재빌드
-                self.rebuild_into_world(world, tile_size=self.tile_size, origin=origin)
+                try:
+                    self.rebuild_into_world(world, tile_size=self.tile_size, origin=origin)
+                    print(f"set_tile_size: rebuilt world with new_tile_size={self.tile_size}")
+                except Exception as e:
+                    print('set_tile_size: rebuild failed:', e)
 
 
 # 간단한 자기검증 스크립트

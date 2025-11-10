@@ -392,8 +392,14 @@ class Player:
                   or getattr(item, 'consume_effect', None))
         if callable(vfx_fn):
             try:
-                # consumer(self), world/x/y 인자를 전달 (없어도 함수가 처리하도록)
-                vfx_fn(self, world=None, x=getattr(self, 'x', None), y=getattr(self, 'y', None))
+                # prefer self.world (assigned by play_mode) so VFX are appended to the correct world dict
+                vfx_world = getattr(self, 'world', None)
+                # debug log
+                try:
+                    print(f"[Player] triggering vfx for {getattr(item, 'name', item.id if hasattr(item,'id') else 'Unknown')} world={'set' if vfx_world is not None else 'None'})")
+                except Exception:
+                    pass
+                vfx_fn(self, world=vfx_world, x=getattr(self, 'x', None), y=getattr(self, 'y', None))
             except Exception as ex:
                 print(f'[Player] 아이템 소비 이펙트 오류 ({item.name}):', ex)
         # 패시브 재적용(수량 변화로 인한 패시브 변경 가능성 고려)

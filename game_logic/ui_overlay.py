@@ -193,22 +193,24 @@ class InventoryOverlay:
                             # 안전한 제거
                             removed = self.player.inventory.remove_from(sr, sc, qty_to_remove)
                             if removed > 0:
-                                # 월드에 놓기: main.world['entities']에 WorldItem 추가
+                                # determine the preferred target world: injected world (self.world) takes precedence,
+                                # fallback to __main__.world if available (for backwards compatibility)
                                 try:
-                                    import sys
-                                    _main = sys.modules.get('__main__') or sys.modules.get('main')
-                                    world = getattr(_main, 'world', None) if _main is not None else None
+                                    target_world = self.world if self.world is not None else None
+                                    if target_world is None:
+                                        import sys
+                                        _main = sys.modules.get('__main__') or sys.modules.get('main')
+                                        target_world = getattr(_main, 'world', None) if _main is not None else None
                                 except Exception:
-                                    world = None
-                                if world is not None and 'entities' in world:
+                                    target_world = None
+
+                                if target_world is not None and isinstance(target_world.get('entities', None), list):
                                     try:
                                         from .item_entity import WorldItem
-                                        # 플레이어 위치 근처에 스폰(조금 오른쪽으로 오프셋)
                                         spawn_x = getattr(self.player, 'x', 0) + (30 * getattr(self.player, 'face_dir', 1))
                                         spawn_y = getattr(self.player, 'y', 0)
-                                        # prefer injected world reference
-                                        wi = WorldItem(item_ref, removed, spawn_x, spawn_y, scale=0.5 * getattr(self.player, 'scale_factor', 1.0), world=self.world or world)
-                                        world['entities'].append(wi)
+                                        wi = WorldItem(item_ref, removed, spawn_x, spawn_y, scale=0.5 * getattr(self.player, 'scale_factor', 1.0), world=target_world)
+                                        target_world['entities'].append(wi)
                                         print(f"[InventoryOverlay] 아이템 버림: {getattr(item_ref, 'name', 'Unknown')} x{removed} -> world.entities")
                                     except Exception as ex:
                                         print('[InventoryOverlay] 월드 아이템 생성 실패:', ex)

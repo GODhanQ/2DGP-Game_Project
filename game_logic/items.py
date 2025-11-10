@@ -53,6 +53,12 @@ class potion_red0:
             import sys
             import os
 
+            # debug
+            try:
+                print(f"[items._play_consume_vfx] called for item {getattr(item,'name', getattr(item,'id', 'Unknown'))}, world_set={bool(world)}")
+            except Exception:
+                pass
+
             # 안전한 world 조회 (폴백)
             w = world
             if w is None:
@@ -60,6 +66,7 @@ class potion_red0:
                 if main_mod:
                     w = getattr(main_mod, 'world', None)
             if not w:
+                print('[items._play_consume_vfx] no world available, aborting VFX')
                 return
 
             # 위치 결정
@@ -69,9 +76,12 @@ class potion_red0:
             # 경로 확인
             vfx_folder = getattr(item, 'consume_vfx_path', None)
             if not vfx_folder:
+                print('[items._play_consume_vfx] item has no consume_vfx_path')
                 return
             # normalize folder path
             vfx_folder = os.path.normpath(vfx_folder)
+
+            print(f"[items._play_consume_vfx] vfx_folder={vfx_folder} px={px} py={py}")
 
             # 기본 옵션
             frame_time = getattr(item, 'consume_vfx_frame_time', 0.06)
@@ -85,18 +95,28 @@ class potion_red0:
             # 우선 world.spawn_vfx API가 있다면 사용 (지원하면 더 간단)
             spawn = getattr(w, 'spawn_vfx', None)
             if callable(spawn):
+                print('[items._play_consume_vfx] using world.spawn_vfx API')
                 try:
                     # spawn a back effect (if files exist)
                     for bp in back_prefixes:
-                        # try with zero-padded pattern
-                        spawn(os.path.join(vfx_folder, bp), px, py, frames=back_frames, frame_time=frame_time, layer='effects_back', loop=False)
-                        break
+                        try:
+                            spawn(os.path.join(vfx_folder, bp), px, py, frames=back_frames, frame_time=frame_time, layer='effects_back', loop=False)
+                            print(f'[items._play_consume_vfx] spawned back with prefix {bp}')
+                            break
+                        except Exception:
+                            print(f'[items._play_consume_vfx] spawn back failed for prefix {bp}')
+                            continue
                 except Exception:
                     pass
                 try:
                     for fp in front_prefixes:
-                        spawn(os.path.join(vfx_folder, fp), px, py, frames=front_frames, frame_time=frame_time, layer='effects_front', loop=False)
-                        break
+                        try:
+                            spawn(os.path.join(vfx_folder, fp), px, py, frames=front_frames, frame_time=frame_time, layer='effects_front', loop=False)
+                            print(f'[items._play_consume_vfx] spawned front with prefix {fp}')
+                            break
+                        except Exception:
+                            print(f'[items._play_consume_vfx] spawn front failed for prefix {fp}')
+                            continue
                 except Exception:
                     pass
                 return
@@ -134,11 +154,15 @@ class potion_red0:
                     try:
                         # pass bp unchanged; AnimatedVFX will look for bp00, bp01 ...
                         vfx = AnimatedVFX(vfx_folder, bp, back_frames, frame_time, px, py, scale=getattr(item, 'consume_vfx_scale', 1.0), life=back_frames*frame_time)
+                        # debug
+                        print(f'[items._play_consume_vfx] created AnimatedVFX for back prefix {bp} frames_loaded={getattr(vfx, "frames_count", 0)}')
                         # only append if frames loaded
                         if getattr(vfx, 'frames_count', 0) > 0:
                             w[back_layer].append(vfx)
+                            print(f'[items._play_consume_vfx] appended back vfx to layer {back_layer}')
                             break
-                    except Exception:
+                    except Exception as ex:
+                        print(f'[items._play_consume_vfx] back prefix {bp} failed:', ex)
                         continue
 
             # create and append front VFX
@@ -146,10 +170,13 @@ class potion_red0:
                 for fp in front_prefixes:
                     try:
                         vfx = AnimatedVFX(vfx_folder, fp, front_frames, frame_time, px, py, scale=getattr(item, 'consume_vfx_scale', 1.0), life=front_frames*frame_time)
+                        print(f'[items._play_consume_vfx] created AnimatedVFX for front prefix {fp} frames_loaded={getattr(vfx, "frames_count", 0)}')
                         if getattr(vfx, 'frames_count', 0) > 0:
                             w[front_layer].append(vfx)
+                            print(f'[items._play_consume_vfx] appended front vfx to layer {front_layer}')
                             break
-                    except Exception:
+                    except Exception as ex:
+                        print(f'[items._play_consume_vfx] front prefix {fp} failed:', ex)
                         continue
 
             # 마지막 폴백: world에 'vfx' 리스트 추가
@@ -162,6 +189,7 @@ class potion_red0:
                         v = AnimatedVFX(vfx_folder, front_prefixes[0], front_frames, frame_time, px, py, scale=getattr(item, 'consume_vfx_scale', 1.0))
                         if getattr(v, 'frames_count', 0) > 0:
                             w['vfx'].append(v)
+                            print('[items._play_consume_vfx] appended fallback vfx to w[vfx]')
                     except Exception:
                         pass
             except Exception:
