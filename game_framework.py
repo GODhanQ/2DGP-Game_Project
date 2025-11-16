@@ -15,11 +15,12 @@ def change_state(new_state):
         pass
     current_state = new_state
     # enter new state
-    try:
-        if current_state and hasattr(current_state, 'enter'):
-            current_state.enter()
-    except Exception:
-        pass
+    run(current_state)
+    # try:
+    #     if current_state and hasattr(current_state, 'enter'):
+    #         current_state.enter()
+    # except Exception:
+    #     pass
 
 
 def run(start_state):

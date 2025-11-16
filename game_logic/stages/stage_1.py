@@ -1,15 +1,13 @@
 # game_logic/stages/stage_1.py
 
-# This stage will use Slime and Goblin monsters
-from ..monsters.slime import Slime
-from ..monsters.goblin import Goblin
+# This stage will use CatAssassin monsters
+from ..monsters.cat_assassin import CatAssassin
 
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        (Slime, 200, 150),
-        (Slime, 600, 150),
-        (Goblin, 400, 400)
+        (CatAssassin, 200, 450),
+        (CatAssassin, 600, 450),
     ],
     'background': {
         # 'image': 'resources/background_stage1.png', # Placeholder
@@ -28,7 +26,8 @@ def load(world):
 
     # Load monsters
     for monster_class, x, y in stage_data['monsters']:
-        world['entities'].append(monster_class(x, y))
+        monster = monster_class(x, y)
+        monster.world = world  # Allow monster to access the world (e.g., to spawn projectiles)
+        world['entities'].append(monster)
 
-    print("Stage 1 loaded.")
-
+    print("Stage 1 with CatAssassin loaded.")

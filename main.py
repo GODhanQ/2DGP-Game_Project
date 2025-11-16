@@ -3,10 +3,18 @@ Minimal launcher: open pico2d canvas, run framework with play_mode, close canvas
 """
 from pico2d import open_canvas, close_canvas
 import game_framework
-import game_logic.play_mode as play_mode
+import game_logic.play_mode as init_play_mode
 
-open_canvas(1600, 900)
+window_width, window_height = 1600, 900
+
+print(f"[main.py] Opening canvas {window_width}x{window_height}...")
+open_canvas(window_width, window_height)
+print("[main.py] Canvas opened successfully")
 try:
-    game_framework.run(play_mode)
+    print("[main.py] Starting game_framework.run()...")
+    game_framework.run(init_play_mode)
+    print("[main.py] game_framework.run() finished")
 finally:
+    print("[main.py] Closing canvas...")
     close_canvas()
+    print("[main.py] Done")

@@ -3,7 +3,7 @@
 import pico2d as p2
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE
 
-from . import game_framework
+import game_framework
 from .player import Player
 from .ui_overlay import InventoryOverlay
 from .cursor import Cursor
@@ -57,6 +57,8 @@ def change_stage(next_stage_index):
 
 def enter():
     global world, current_stage_index, is_stage_cleared
+    print("[play_mode] Starting enter()...")
+
     # clear existing
     for k in list(world.keys()):
         try:
@@ -65,9 +67,11 @@ def enter():
         except Exception:
             pass
 
+    print("[play_mode] Creating player...")
     # create player (use fallback if heavy Player init fails)
     try:
         player = Player()
+        print("[play_mode] Player created successfully")
     except Exception as ex:
         print('[play_mode] Player initialization failed, using lightweight fallback:', ex)
         from .inventory import InventoryData, seed_debug_inventory
@@ -99,6 +103,7 @@ def enter():
 
         player = _FallbackPlayer()
 
+    print("[play_mode] Attaching world reference to player...")
     # attach a reference to the current world so player and callbacks can access/modify it
     try:
         player.world = world
@@ -107,9 +112,11 @@ def enter():
     world['player'] = player # 플레이어를 world에 명시적으로 저장
     world['entities'].append(player)
 
+    print("[play_mode] Creating inventory overlay...")
     # inventory overlay: pass world reference so InventoryOverlay can spawn WorldItem into this world
     try:
         inv = InventoryOverlay(player, world)
+        print("[play_mode] InventoryOverlay created successfully")
     except Exception as ex:
         print('[play_mode] InventoryOverlay init failed, creating minimal stub:', ex)
 
@@ -131,9 +138,11 @@ def enter():
         inv = _InvStub(player, world)
     world['ui'].append(inv)
 
+    print("[play_mode] Creating cursor...")
     # cursor on top (safe fallback)
     try:
         cursor = Cursor(player)
+        print("[play_mode] Cursor created successfully")
     except Exception as ex:
         print('[play_mode] Cursor init failed, using stub cursor:', ex)
 
@@ -161,10 +170,12 @@ def enter():
     except Exception:
         pass
 
+    print("[play_mode] Loading first stage...")
     # 첫 번째 스테이지 로드
     current_stage_index = 0
     is_stage_cleared = False
     stages[current_stage_index].load(world)
+    print(f"[play_mode] Entered play_mode, loaded Stage {current_stage_index + 1}")
 
 
 def exit():
