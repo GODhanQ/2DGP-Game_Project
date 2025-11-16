@@ -5,7 +5,7 @@ from pico2d import open_canvas, close_canvas
 import game_framework
 import game_logic.play_mode as play_mode
 
-open_canvas()
+open_canvas(1600, 900)
 try:
     game_framework.run(play_mode)
 finally:
