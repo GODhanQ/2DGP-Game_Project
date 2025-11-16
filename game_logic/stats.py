@@ -23,11 +23,18 @@ class StatModifier:
 class PlayerStats:
     def __init__(self, base: Optional[Dict[str, float]] = None):
         self.base = base or {
+            'max_health': 100.0,
+            'max_mana': 50.0,
+            'health_regen': 1.0,
+            'mana_regen': 0.5,
+            'health': 100.0,
+            'mana': 50.0,
             'move_speed': 300.0,
             'attack_speed': 1.0,
             'attack_damage': 10.0,
             'defense': 0.0,
             'crit_chance': 0.05,
+            'crit_damage': 1.5,
         }
         self._mods: Dict[str, StatModifier] = {}
 

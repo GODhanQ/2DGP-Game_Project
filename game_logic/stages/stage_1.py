@@ -6,7 +6,7 @@ from ..monsters.cat_assassin import CatAssassin
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        (CatAssassin, 200, 450),
+        # (CatAssassin, 200, 450),
         (CatAssassin, 600, 450),
     ],
     'background': {

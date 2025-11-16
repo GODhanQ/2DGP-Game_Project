@@ -236,6 +236,37 @@ def update():
                     pass
         world[layer_name][:] = new_list
 
+    # 충돌 검사 시스템
+    from .projectile import Projectile
+    player = world.get('player')
+
+    # 1. 플레이어 공격 이펙트와 몬스터 충돌 검사
+    for effect in world['effects_front']:
+        # VFX_Tier1_Sword_Swing 이펙트인지 확인 (플레이어 공격)
+        if hasattr(effect, 'frames') and hasattr(effect, 'scale_factor'):
+            for entity in world['entities']:
+                # 플레이어가 아닌 엔티티 (몬스터)인지 확인
+                if entity != player and hasattr(entity, 'check_collision_with_effect'):
+                    if entity.check_collision_with_effect(effect):
+                        print(f"맞았다! {entity.__class__.__name__} at ({int(entity.x)}, {int(entity.y)})")
+
+    # 2. 투사체와 충돌 검사 (일반화된 Projectile 기반)
+    if player:
+        for projectile in world['effects_front']:
+            # Projectile 클래스를 상속받은 모든 투사체 체크
+            if isinstance(projectile, Projectile):
+                # 몬스터가 쏜 투사체는 플레이어와 충돌 검사
+                if not projectile.from_player:
+                    if hasattr(player, 'check_collision_with_projectile'):
+                        if player.check_collision_with_projectile(projectile):
+                            print(f"플레이어가 맞았다! at ({int(player.x)}, {int(player.y)})")
+                # 플레이어가 쏜 투사체는 몬스터와 충돌 검사
+                else:
+                    for entity in world['entities']:
+                        if entity != player and hasattr(entity, 'check_collision_with_projectile'):
+                            if entity.check_collision_with_projectile(projectile):
+                                print(f"맞았다! {entity.__class__.__name__} at ({int(entity.x)}, {int(entity.y)})")
+
     # 스테이지 클리어 조건 확인 (몬스터가 모두 제거되었는지)
     # 'entities' 레이어에 플레이어만 남아있는지 확인합니다.
     if not is_stage_cleared and len(world['entities']) == 1 and world.get('player') in world['entities']:

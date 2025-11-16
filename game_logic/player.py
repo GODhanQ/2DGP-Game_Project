@@ -508,6 +508,52 @@ class Player:
         except Exception:
             pass
 
+    def check_collision_with_projectile(self, projectile):
+        """몬스터 발사체와의 충돌 감지
+
+        Args:
+            projectile: Projectile을 상속받은 발사체 객체
+
+        Returns:
+            bool: 충돌 여부
+        """
+        # 무적 상태이면 충돌 무시
+        if hasattr(self, 'invincible') and self.invincible:
+            return False
+
+        # 플레이어 충돌 박스 (대략적인 크기)
+        player_collision_width = 40
+        player_collision_height = 60
+
+        # 발사체 크기 (Projectile의 get_collision_box 메서드 사용)
+        if hasattr(projectile, 'get_collision_box'):
+            projectile_width, projectile_height = projectile.get_collision_box()
+        else:
+            projectile_width = 30
+            projectile_height = 30
+
+        # AABB (Axis-Aligned Bounding Box) 충돌 감지
+        player_left = self.x - player_collision_width / 2
+        player_right = self.x + player_collision_width / 2
+        player_bottom = self.y - player_collision_height / 2
+        player_top = self.y + player_collision_height / 2
+
+        proj_left = projectile.x - projectile_width / 2
+        proj_right = projectile.x + projectile_width / 2
+        proj_bottom = projectile.y - projectile_height / 2
+        proj_top = projectile.y + projectile_height / 2
+
+        # 충돌 검사
+        if (player_left < proj_right and player_right > proj_left and
+            player_bottom < proj_top and player_top > proj_bottom):
+            # 충돌 시 무적시간 활성화 (있다면)
+            if hasattr(self, 'invincible_timer') and hasattr(self, 'invincible_duration'):
+                self.invincible = True
+                self.invincible_timer = self.invincible_duration
+            return True
+
+        return False
+
 class VFX_Run_Particle:
     def __init__(self, x, y, frames, frame_duration, scale):
         self.x, self.y = x, y
