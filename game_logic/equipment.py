@@ -6,6 +6,49 @@ from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_
 from . import framework
 
 
+# 방패 범위 이펙트 클래스
+class ShieldRangeEffect:
+    """방패 범위 표시 이펙트 - world['effects_front']에서 관리"""
+    _range_image = None  # 클래스 변수로 이미지 공유
+
+    def __init__(self, player, shield):
+        if ShieldRangeEffect._range_image is None:
+            range_path = os.path.join('resources', 'Texture_organize', 'Weapon', 'shieldRange.png')
+            try:
+                ShieldRangeEffect._range_image = load_image(range_path)
+            except Exception as ex:
+                print('Failed to load shield range image:', ex)
+                ShieldRangeEffect._range_image = None
+
+        self.player = player
+        self.shield = shield
+        self.range_scale = 4.0
+
+    def update(self):
+        # 방패가 blocking 상태가 아니면 제거
+        if not self.shield.blocking:
+            return False
+        return True
+
+    def draw(self):
+        if ShieldRangeEffect._range_image is None:
+            return
+
+        base_offset = -math.pi / 2
+        theta = self.shield.range_angle + base_offset
+        half_h_scaled = (ShieldRangeEffect._range_image.h * self.range_scale) * 0.5
+        draw_x = self.player.x - half_h_scaled * math.sin(theta)
+        draw_y = self.player.y + half_h_scaled * math.cos(theta)
+
+        ShieldRangeEffect._range_image.clip_composite_draw(
+            0, 0, ShieldRangeEffect._range_image.w, ShieldRangeEffect._range_image.h,
+            theta, '',
+            draw_x, draw_y,
+            ShieldRangeEffect._range_image.w * self.range_scale,
+            ShieldRangeEffect._range_image.h * self.range_scale
+        )
+
+
 class Weapon:
     """기본 무기 클래스"""
     def __init__(self, player, weapon_type, image_path, render_layer='back', scale=3.0):
@@ -94,17 +137,8 @@ class Shield(Weapon):
         self.blocking = False
         self.range_angle = 0.0
 
-        # 방패 범위 이미지 로드 (회전 표시용)
-        range_path = os.path.join('resources', 'Texture_organize', 'Weapon', 'shieldRange.png')
-        try:
-            self.range_image = load_image(range_path)
-        except Exception as ex:
-            print('Failed to load shield range image:', range_path, ex)
-            self.range_image = None
-        # 범위 이미지 배율은 방패와 별도로 유지 (5.0 -> 4.0로 약간 축소)
-        self.range_scale = 4.0
-        # 엔티티 레이어에서 범위 이미지를 그릴지 여부(이제 True로 활성화)
-        self.draw_range_in_entity = True
+        # 방패 범위 이펙트 참조 (world['effects_front']에서 관리)
+        self.range_effect = None
 
         # 바라보는 방향으로 방패를 살짝 앞으로 이동시키는 오프셋(픽셀)
         self.forward_offset = 18
@@ -119,9 +153,7 @@ class Shield(Weapon):
         """방패: 우클릭 유지 시 각도를 커서 방향으로 갱신"""
         # 인벤토리가 열려 있으면 방패 입력/전개 무시
         if getattr(self.player, 'inventory_open', False):
-            # 각도는 업데이트하지 않아도 되지만, 유지하고 싶으면 아래 부분을 남길 수 있음
             self.blocking = False
-            # 기존 공격 타이머 로직 필요 시 유지
             if self.is_attacking:
                 dt = framework.get_delta_time()
                 self.attack_timer += dt
@@ -140,13 +172,25 @@ class Shield(Weapon):
         dy = mouse_game_y - self.player.y
         self.range_angle = math.atan2(dy, dx)
 
+        # 이전 blocking 상태 저장
+        was_blocking = self.blocking
+
         # 프레임별 우클릭 유지 여부를 직접 폴링하여 blocking 동기화 (이벤트 누락 대비)
         try:
             right_mask = 1 << (SDL_BUTTON_RIGHT - 1)
             self.blocking = bool(state & right_mask)
         except Exception:
-            # 만약 상수 계산이 실패해도 기존 이벤트 방식 유지
             pass
+
+        # blocking 상태가 변경되었을 때 이펙트 생성/제거
+        if self.blocking and not was_blocking:
+            # blocking 시작: 이펙트 생성
+            if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                self.range_effect = ShieldRangeEffect(self.player, self)
+                self.player.world['effects_front'].append(self.range_effect)
+        elif not self.blocking and was_blocking:
+            # blocking 종료: 이펙트는 자동으로 제거됨 (update에서 False 반환)
+            self.range_effect = None
 
         # 기존 공격 타이머 로직 유지(필요 시)
         if self.is_attacking:
@@ -164,23 +208,8 @@ class Shield(Weapon):
             print(f"방패로 막기!")
 
     def draw(self):
-        """방패 본체 + (옵션) 범위 이미지 회전 표시"""
-        # 1) 범위 이미지: 우클릭 동안 캐릭터 중심에서 커서 방향으로 회전 (엔티티 레이어에서는 기본 비활성화)
-        if self.draw_range_in_entity and self.blocking and self.range_image is not None:
-            base_offset = -math.pi / 2
-            theta = self.range_angle + base_offset
-            half_h_scaled = (self.range_image.h * self.range_scale) * 0.5
-            draw_x = self.player.x - half_h_scaled * math.sin(theta)
-            draw_y = self.player.y + half_h_scaled * math.cos(theta)
-            self.range_image.clip_composite_draw(
-                0, 0, self.range_image.w, self.range_image.h,
-                theta, '',
-                draw_x, draw_y,
-                self.range_image.w * self.range_scale,
-                self.range_image.h * self.range_scale
-            )
-
-        # 2) 방패 본체는 회전 없이 플레이어 앞에 고정
+        """방패 본체 그리기 (범위 이미지는 world['effects_front']에서 관리)"""
+        # 방패 본체는 회전 없이 플레이어 앞에 고정
         flip = 'h' if self.player.face_dir == -1 else ''
         # 전개 중일 때만 앞으로 이동, 아니면 기존의 작은 좌우 오프셋 유지
         if self.blocking:
@@ -348,7 +377,11 @@ class Sword(Weapon):
                 range_factor=60,
                 variant=1
             )
-            self.player.attack_effects.append(attack_vfx)
+            # world['effects_front']에 추가 (없으면 player에 추가)
+            if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                self.player.world['effects_front'].append(attack_vfx)
+            else:
+                self.player.attack_effects.append(attack_vfx)
 
             return True
 
@@ -380,7 +413,11 @@ class Sword(Weapon):
                     range_factor=70,
                     variant=2
                 )
-                self.player.attack_effects.append(attack_vfx)
+                # world['effects_front']에 추가 (없으면 player에 추가)
+                if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                    self.player.world['effects_front'].append(attack_vfx)
+                else:
+                    self.player.attack_effects.append(attack_vfx)
 
                 return True
 
@@ -409,7 +446,11 @@ class Sword(Weapon):
                     range_factor=90,
                     variant=3
                 )
-                self.player.attack_effects.append(attack_vfx)
+                # world['effects_front']에 추가 (없으면 player에 추가)
+                if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                    self.player.world['effects_front'].append(attack_vfx)
+                else:
+                    self.player.attack_effects.append(attack_vfx)
 
                 return True
 
