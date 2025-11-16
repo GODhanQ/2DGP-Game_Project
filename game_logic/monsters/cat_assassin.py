@@ -5,6 +5,7 @@ import math
 from .. import framework
 from ..state_machine import StateMachine
 from ..projectile import Projectile
+from ..stats import CatAssassinStats
 
 # ========== Idle State ==========
 class Idle:
@@ -71,9 +72,18 @@ class Shuriken(Projectile):
     """수리검 발사체 - Projectile을 상속받음"""
     images = None
 
-    def __init__(self, x, y, target_x, target_y):
+    def __init__(self, x, y, target_x, target_y, owner=None):
         # 부모 클래스 초기화 (몬스터가 쏘는 투사체이므로 from_player=False)
         super().__init__(x, y, target_x, target_y, speed=400, from_player=False)
+
+        # 공격자 정보 저장
+        self.owner = owner
+
+        # 데미지 설정 (owner의 스탯에서 가져오거나 기본값 사용)
+        if owner and hasattr(owner, 'stats'):
+            self.damage = owner.stats.get('attack_damage')
+        else:
+            self.damage = 10.0  # 기본 데미지
 
         if Shuriken.images is None:
             Shuriken.images = []
@@ -135,7 +145,10 @@ class CatAssassin:
         # 무적시간 관련 변수
         self.invincible = False  # 무적 상태인지
         self.invincible_timer = 0.0  # 무적 시간 타이머
-        self.invincible_duration = 0.3  # 무적 시간 지속 시간 (1초)
+        self.invincible_duration = 0.3  # 무적 시간 지속 시간 (0.3초)
+
+        # 스탯 시스템
+        self.stats = CatAssassinStats()
 
         # State machine setup with rules
         # Create state instances
@@ -170,7 +183,7 @@ class CatAssassin:
 
     def attack(self, target):
         if self.world:
-            shuriken = Shuriken(self.x, self.y, target.x, target.y)
+            shuriken = Shuriken(self.x, self.y, target.x, target.y, owner=self)
             self.world['effects_front'].append(shuriken)
             print(f"CatAssassin at ({int(self.x)}, {int(self.y)}) attacks!")
 
@@ -215,9 +228,8 @@ class CatAssassin:
         # 충돌 검사
         if (cat_left < effect_right and cat_right > effect_left and
             cat_bottom < effect_top and cat_top > effect_bottom):
-            # 충돌 시 무적시간 활성화
-            self.invincible = True
-            self.invincible_timer = self.invincible_duration
+            # 충돌 시 피격 처리
+            self.on_hit(effect)
             return True
 
         return False
@@ -256,10 +268,84 @@ class CatAssassin:
         # 충돌 검사
         if (cat_left < proj_right and cat_right > proj_left and
             cat_bottom < proj_top and cat_top > proj_bottom):
-            # 충돌 시 무적시간 활성화
-            self.invincible = True
-            self.invincible_timer = self.invincible_duration
+            # 충돌 시 피격 처리
+            self.on_hit(projectile)
             return True
 
         return False
 
+    def on_hit(self, attacker):
+        """피격 시 호출되는 메서드
+
+        Args:
+            attacker: 공격한 객체 (투사체, 이펙트 등)
+        """
+        # 무적 상태라면 무시
+        if self.invincible:
+            print(f"[CatAssassin] 무적 상태로 피격 무시 (남은 무적시간: {self.invincible_timer:.2f}초)")
+            return
+
+        # 무적시간 활성화
+        self.invincible = True
+        self.invincible_timer = self.invincible_duration
+
+        # 데미지 계산
+        damage = 0
+        if hasattr(attacker, 'damage'):
+            damage = attacker.damage
+        elif hasattr(attacker, 'owner') and hasattr(attacker.owner, 'stats'):
+            # 공격자의 스탯에서 데미지 가져오기
+            damage = attacker.owner.stats.get('attack_damage')
+        else:
+            damage = 10.0  # 기본 데미지
+
+        # 방어력 적산
+        defense = self.stats.get('defense')
+        final_damage = max(1.0, damage - defense)
+
+        # 체력 감소
+        current_health = self.stats.get('health')
+        max_health = self.stats.get('max_health')
+        new_health = max(0, current_health - final_damage)
+        self.stats.set_base('health', new_health)
+
+        # 피격 정보 출력
+        attacker_name = attacker.__class__.__name__
+        print(f"\n{'='*60}")
+        print(f"[CatAssassin 피격] at ({int(self.x)}, {int(self.y)})")
+        print(f"  공격자: {attacker_name}")
+        print(f"  원본 데미지: {damage:.1f}")
+        print(f"  방어력: {defense:.1f}")
+        print(f"  최종 데미지: {final_damage:.1f}")
+        print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
+        print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
+        print(f"  무적시간: {self.invincible_duration}초 활성화")
+
+        # 체력이 0 이하면 사망
+        if new_health <= 0:
+            print(f"  >>> CatAssassin 사망! <<<")
+            self.on_death()
+
+        print(f"{'='*60}\n")
+
+        # TODO: 추후 추가 가능
+        # - 피격 이펙트 재생
+        # - 넉백 효과
+        # - 피격 사운드
+        # - AI 반응 (도주, 반격 등)
+
+    def on_death(self):
+        """사망 처리"""
+        print(f"[CatAssassin] 사망! at ({int(self.x)}, {int(self.y)})")
+        # world에서 자신을 제거
+        if self.world and 'entities' in self.world:
+            try:
+                self.world['entities'].remove(self)
+            except ValueError:
+                pass
+
+        # TODO: 추후 추가 가능
+        # - 사망 애니메이션
+        # - 아이템 드롭
+        # - 사망 이펙트
+        # - 경험치 제공

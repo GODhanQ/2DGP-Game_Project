@@ -375,7 +375,8 @@ class Sword(Weapon):
                 flip,
                 scale=4.5,
                 range_factor=60,
-                variant=1
+                variant=1,
+                owner=self.player
             )
             # world['effects_front']에 추가 (없으면 player에 추가)
             if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
@@ -444,7 +445,8 @@ class Sword(Weapon):
                     flip,
                     scale=6.0,
                     range_factor=90,
-                    variant=3
+                    variant=3,
+                    owner=self.player
                 )
                 # world['effects_front']에 추가 (없으면 player에 추가)
                 if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:

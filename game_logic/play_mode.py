@@ -240,6 +240,10 @@ def update():
     from .projectile import Projectile
     player = world.get('player')
 
+    # 충돌한 이펙트와 투사체를 추적하기 위한 집합
+    effects_to_remove = set()
+    projectiles_to_remove = set()
+
     # 1. 플레이어 공격 이펙트와 몬스터 충돌 검사
     for effect in world['effects_front']:
         # VFX_Tier1_Sword_Swing 이펙트인지 확인 (플레이어 공격)
@@ -248,7 +252,14 @@ def update():
                 # 플레이어가 아닌 엔티티 (몬스터)인지 확인
                 if entity != player and hasattr(entity, 'check_collision_with_effect'):
                     if entity.check_collision_with_effect(effect):
-                        print(f"맞았다! {entity.__class__.__name__} at ({int(entity.x)}, {int(entity.y)})")
+                        # 디버그: 충돌 정보 출력
+                        attacker_name = "Player"
+                        if hasattr(effect, 'owner'):
+                            attacker_name = effect.owner.__class__.__name__
+                        target_name = entity.__class__.__name__
+                        print(f"[COLLISION] {attacker_name} 공격 이펙트 -> {target_name} 피격!")
+                        # 충돌 시 이펙트는 유지 (여러 적을 동시에 타격 가능)
+                        pass
 
     # 2. 투사체와 충돌 검사 (일반화된 Projectile 기반)
     if player:
@@ -259,13 +270,26 @@ def update():
                 if not projectile.from_player:
                     if hasattr(player, 'check_collision_with_projectile'):
                         if player.check_collision_with_projectile(projectile):
-                            print(f"플레이어가 맞았다! at ({int(player.x)}, {int(player.y)})")
+                            # 디버그: 충돌 정보 출력
+                            attacker_name = "Unknown"
+                            if hasattr(projectile, 'owner') and projectile.owner:
+                                attacker_name = projectile.owner.__class__.__name__
+                            print(f"[COLLISION] {attacker_name} 투사체 -> Player 피격!")
+                            projectiles_to_remove.add(projectile)
                 # 플레이어가 쏜 투사체는 몬스터와 충돌 검사
                 else:
                     for entity in world['entities']:
                         if entity != player and hasattr(entity, 'check_collision_with_projectile'):
                             if entity.check_collision_with_projectile(projectile):
-                                print(f"맞았다! {entity.__class__.__name__} at ({int(entity.x)}, {int(entity.y)})")
+                                # 디버그: 충돌 정보 출력
+                                target_name = entity.__class__.__name__
+                                print(f"[COLLISION] Player 투사체 -> {target_name} 피격!")
+                                projectiles_to_remove.add(projectile)
+                                break  # 하나의 적과 충돌하면 투사체 제거
+
+    # 충돌한 투사체 제거
+    if projectiles_to_remove:
+        world['effects_front'] = [obj for obj in world['effects_front'] if obj not in projectiles_to_remove]
 
     # 스테이지 클리어 조건 확인 (몬스터가 모두 제거되었는지)
     # 'entities' 레이어에 플레이어만 남아있는지 확인합니다.

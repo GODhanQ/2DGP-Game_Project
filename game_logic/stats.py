@@ -69,3 +69,62 @@ class PlayerStats:
         for k in to_remove:
             del self._mods[k]
 
+
+class MonsterStats:
+    """몬스터용 스탯 시스템"""
+    def __init__(self, base: Optional[Dict[str, float]] = None):
+        self.base = base or {
+            'max_health': 50.0,
+            'health': 50.0,
+            'move_speed': 100.0,
+            'attack_damage': 5.0,
+            'defense': 0.0,
+            'attack_speed': 1.0,
+            'attack_range': 300.0,
+        }
+        self._mods: Dict[str, StatModifier] = {}
+
+    def set_base(self, key: str, value: float):
+        self.base[key] = value
+
+    def add_modifier(self, mod: StatModifier):
+        self._mods[mod.id] = mod
+
+    def remove_modifier(self, mod_id: str):
+        if mod_id in self._mods:
+            del self._mods[mod_id]
+
+    def clear_by_prefix(self, prefix: str):
+        ids = [k for k in self._mods.keys() if k.startswith(prefix)]
+        for k in ids:
+            del self._mods[k]
+
+    def get(self, key: str) -> float:
+        v = self.base.get(key, 0.0)
+        for mod in self._mods.values():
+            v += mod.values.get(key, 0.0)
+        return v
+
+    def update(self):
+        dt = framework.get_delta_time()
+        to_remove = []
+        for k, mod in self._mods.items():
+            if mod.duration is not None:
+                if mod.update(dt):
+                    to_remove.append(k)
+        for k in to_remove:
+            del self._mods[k]
+
+
+class CatAssassinStats(MonsterStats):
+    """CatAssassin 전용 스탯"""
+    def __init__(self):
+        super().__init__({
+            'max_health': 30.0,
+            'health': 30.0,
+            'move_speed': 120.0,
+            'attack_damage': 8.0,
+            'defense': 2.0,
+            'attack_speed': 1.2,
+            'attack_range': 400.0,
+        })

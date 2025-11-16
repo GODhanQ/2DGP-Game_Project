@@ -9,7 +9,7 @@ import os
 import random
 import time
 
-from pico2d import load_image, get_canvas_height, get_canvas_width
+from pico2d import load_image, get_canvas_height, get_canvas_width, draw_rectangle
 from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDL_GetMouseState,
                    SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT)
 
@@ -282,6 +282,15 @@ class Player:
         self.particles = [] # 파티클 리스트를 Player로 이동
         self.attack_effects = [] # 공격 이펙트 리스트
 
+        # 플레이어 히트박스 변수
+        self.collision_width = 15 * self.scale_factor
+        self.collision_height = 15 * self.scale_factor
+
+        # 무적시간 관련 변수
+        self.invincible = False  # 무적 상태인지
+        self.invincible_timer = 0.0  # 무적 시간 타이머
+        self.invincible_duration = 1.0  # 무적 시간 지속 시간 (1초)
+
         # 인벤토리 데이터 생성 및 디버그 아이템 채우기
         self.inventory = InventoryData(cols=6, rows=5)
         try:
@@ -330,6 +339,13 @@ class Player:
         )
 
     def update(self):
+        # 무적시간 업데이트
+        if self.invincible:
+            self.invincible_timer -= framework.get_delta_time()
+            if self.invincible_timer <= 0:
+                self.invincible = False
+                self.invincible_timer = 0.0
+
         self.state_machine.update()
 
         # 스탯 버프 업데이트(소비형 지속시간 관리)
@@ -508,6 +524,13 @@ class Player:
         except Exception:
             pass
 
+        # Debug: Draw collision box
+        player_left = self.x - self.collision_width / 2
+        player_right = self.x + self.collision_width / 2
+        player_bottom = self.y - self.collision_height / 2
+        player_top = self.y + self.collision_height / 2
+        draw_rectangle(player_left, player_bottom, player_right, player_top)
+
     def check_collision_with_projectile(self, projectile):
         """몬스터 발사체와의 충돌 감지
 
@@ -521,10 +544,6 @@ class Player:
         if hasattr(self, 'invincible') and self.invincible:
             return False
 
-        # 플레이어 충돌 박스 (대략적인 크기)
-        player_collision_width = 40
-        player_collision_height = 60
-
         # 발사체 크기 (Projectile의 get_collision_box 메서드 사용)
         if hasattr(projectile, 'get_collision_box'):
             projectile_width, projectile_height = projectile.get_collision_box()
@@ -533,10 +552,10 @@ class Player:
             projectile_height = 30
 
         # AABB (Axis-Aligned Bounding Box) 충돌 감지
-        player_left = self.x - player_collision_width / 2
-        player_right = self.x + player_collision_width / 2
-        player_bottom = self.y - player_collision_height / 2
-        player_top = self.y + player_collision_height / 2
+        player_left = self.x - self.collision_width / 2
+        player_right = self.x + self.collision_width / 2
+        player_bottom = self.y - self.collision_height / 2
+        player_top = self.y + self.collision_height / 2
 
         proj_left = projectile.x - projectile_width / 2
         proj_right = projectile.x + projectile_width / 2
@@ -546,13 +565,73 @@ class Player:
         # 충돌 검사
         if (player_left < proj_right and player_right > proj_left and
             player_bottom < proj_top and player_top > proj_bottom):
-            # 충돌 시 무적시간 활성화 (있다면)
-            if hasattr(self, 'invincible_timer') and hasattr(self, 'invincible_duration'):
-                self.invincible = True
-                self.invincible_timer = self.invincible_duration
+            # 충돌 시 피격 처리
+            self.on_hit(projectile)
             return True
 
         return False
+
+    def on_hit(self, attacker):
+        """피격 시 호출되는 메서드
+
+        Args:
+            attacker: 공격한 객체 (투사체, 이펙트 등)
+        """
+        # 무적 상태라면 무시
+        if self.invincible:
+            print(f"[Player] 무적 상태로 피격 무시 (남은 무적시간: {self.invincible_timer:.2f}초)")
+            return
+
+        # 무적시간 활성화
+        self.invincible = True
+        self.invincible_timer = self.invincible_duration
+
+        # 데미지 계산
+        damage = 0
+        if hasattr(attacker, 'damage'):
+            damage = attacker.damage
+        elif hasattr(attacker, 'owner') and hasattr(attacker.owner, 'stats'):
+            # 공격자의 스탯에서 데미지 가져오기
+            damage = attacker.owner.stats.get('attack_damage')
+        else:
+            damage = 10.0  # 기본 데미지
+
+        # 방어력 적산
+        defense = self.stats.get('defense') if hasattr(self, 'stats') else 0
+        final_damage = max(1.0, damage - defense)
+
+        # 체력 감소
+        if hasattr(self, 'stats'):
+            current_health = self.stats.get('health')
+            max_health = self.stats.get('max_health')
+            new_health = max(0, current_health - final_damage)
+            self.stats.set_base('health', new_health)
+
+            # 피격 정보 출력
+            attacker_name = attacker.__class__.__name__
+            print(f"\n{'='*60}")
+            print(f"[Player 피격]")
+            print(f"  공격자: {attacker_name}")
+            print(f"  원본 데미지: {damage:.1f}")
+            print(f"  방어력: {defense:.1f}")
+            print(f"  최종 데미지: {final_damage:.1f}")
+            print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
+            print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
+            print(f"  무적시간: {self.invincible_duration}초 활성화")
+            print(f"{'='*60}\n")
+
+            # 체력이 0 이하면 사망
+            if new_health <= 0:
+                print("[Player] 사망!")
+                # TODO: 사망 처리 (게임 오버 화면, 리스폰 등)
+        else:
+            attacker_name = attacker.__class__.__name__
+            print(f"[Player] 피격당함! 공격자: {attacker_name} (스탯 시스템 없음)")
+
+        # TODO: 추후 추가 가능
+        # - 피격 이펙트 재생
+        # - 넉백 효과
+        # - 피격 사운드
 
 class VFX_Run_Particle:
     def __init__(self, x, y, frames, frame_duration, scale):
@@ -588,8 +667,17 @@ VFX_GLOBAL_RANGE_MULT = 0.8   # 이펙트 거리 0.8배
 
 class VFX_Tier1_Sword_Swing:
     """검 공격 이펙트 VFX"""
-    def __init__(self, x, y, angle, flip, scale=4.5, range_factor=60, variant=1):
+    def __init__(self, x, y, angle, flip, scale=4.5, range_factor=60, variant=1, owner=None):
         import math
+
+        # 공격자 정보 저장
+        self.owner = owner
+
+        # 데미지 설정 (owner의 스탯에서 가져오거나 기본값 사용)
+        if owner and hasattr(owner, 'stats'):
+            self.damage = owner.stats.get('attack_damage')
+        else:
+            self.damage = 20.0  # 기본 데미지
 
         # 전역 배율을 적용한 range_factor/scale 사용
         range_factor = range_factor * VFX_GLOBAL_RANGE_MULT
@@ -601,14 +689,14 @@ class VFX_Tier1_Sword_Swing:
 
         self.x = x + temp_x
         self.y = y + temp_y
-        
+
         # 각도 조정: 마우스가 오른쪽(0도~90도, 270도~360도)일 때 -90도, 왼쪽일 때 +90도
         angle_deg = math.degrees(angle) % 360
         if 90 < angle_deg < 270:  # 왼쪽
             self.angle = angle + math.radians(90)
         else:  # 오른쪽
             self.angle = angle - math.radians(90)
-        
+
         self.flip = flip
         self.scale_factor = scale
 
