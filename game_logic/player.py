@@ -269,6 +269,101 @@ class Inventory:
         # 인벤토리 이미지는 별도의 UI 레이어(InventoryOverlay)에서 최상단으로 그림
 
 
+class Death:
+    """플레이어 사망 상태"""
+    image = None
+
+    def __init__(self, player):
+        self.player = player
+
+        if Death.image is None:
+            try:
+                Death.image = load_image('resources/Texture_organize/Player_character/Adventurer/Player_Adventurer_Down00.png')
+                print(f"[Player Death] Loaded Down00 image")
+            except Exception as e:
+                print(f"[Player Death] Failed to load image: {e}")
+                Death.image = None
+
+        self.death_timer = 0.0
+        self.death_duration = 5.0  # 5초 후 종료
+        self.game_over_triggered = False
+
+        # 넉백 관련 변수 (강한 넉백)
+        self.knockback_dx = 0
+        self.knockback_dy = 0
+        self.knockback_speed = 400  # 강한 넉백
+        self.knockback_duration = 0.5  # 0.5초 동안
+        self.knockback_timer = 0.0
+
+    def enter(self, e):
+        self.death_timer = 0.0
+        self.game_over_triggered = False
+        self.knockback_timer = 0.0
+
+        # 넉백 방향 계산
+        if e and len(e) > 1 and e[1] is not None:
+            attacker = e[1]
+            attacker_x = attacker.x if hasattr(attacker, 'x') else self.player.x
+            attacker_y = attacker.y if hasattr(attacker, 'y') else self.player.y
+
+            if hasattr(attacker, 'owner') and attacker.owner:
+                attacker_x = attacker.owner.x
+                attacker_y = attacker.owner.y
+
+            import math
+            dx = self.player.x - attacker_x
+            dy = self.player.y - attacker_y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            if distance > 0:
+                self.knockback_dx = dx / distance
+                self.knockback_dy = dy / distance
+            else:
+                self.knockback_dx = 1.0
+                self.knockback_dy = 0.0
+        else:
+            self.knockback_dx = 1.0
+            self.knockback_dy = 0.0
+
+        print(f"[Player Death State] 사망 상태 시작 (5초 후 게임 종료) - 넉백 적용")
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        dt = framework.get_delta_time()
+
+        self.death_timer += dt
+
+        # 넉백 효과 적용 (사망 시에도 밀려남)
+        if self.knockback_timer < self.knockback_duration:
+            progress = self.knockback_timer / self.knockback_duration
+            # 부드러운 감속
+            current_speed = self.knockback_speed * (1.0 - progress) ** 1.5
+            self.player.x += self.knockback_dx * current_speed * dt
+            self.player.y += self.knockback_dy * current_speed * dt
+            self.knockback_timer += dt
+
+        # 5초 후 게임 종료
+        if self.death_timer >= self.death_duration and not self.game_over_triggered:
+            self.game_over_triggered = True
+            print(f"[Player Death State] 5초 경과, 게임 종료")
+            # 게임 종료 처리 - game_framework의 quit() 사용
+            import game_framework
+            game_framework.quit()
+
+    def draw(self):
+        if Death.image is not None:
+            Death.image.draw(self.player.x, self.player.y,
+                           Death.image.w * self.player.scale_factor,
+                           Death.image.h * self.player.scale_factor)
+
+
+# 사망 이벤트 predicate
+def die(e):
+    return e[0] == 'DIE'
+
+
 class Player:
     def __init__(self):
         self.world = None
@@ -331,6 +426,7 @@ class Player:
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.INVENTORY = Inventory(self)
+        self.DEATH = Death(self)
 
         # 전투 플래그(전투중엔 인벤토리 안 염)
         self.in_combat = False
@@ -340,9 +436,10 @@ class Player:
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: {move_event: self.RUN, Tab_down: self.INVENTORY},
-                self.RUN: {stop_event: self.IDLE, Tab_down: self.INVENTORY},
-                self.INVENTORY: {Tab_down: None},
+                self.IDLE: {move_event: self.RUN, Tab_down: self.INVENTORY, die: self.DEATH},
+                self.RUN: {stop_event: self.IDLE, Tab_down: self.INVENTORY, die: self.DEATH},
+                self.INVENTORY: {Tab_down: None, die: self.DEATH},
+                self.DEATH: {},  # 사망 상태에서는 전환 없음
             }
         )
 
@@ -606,6 +703,10 @@ class Player:
             print(f"[Player] 무적 상태로 피격 무시 (남은 무적시간: {self.invincible_timer:.2f}초)")
             return
 
+        # 사망 상태면 무시
+        if isinstance(self.state_machine.cur_state, Death):
+            return
+
         # 무적시간 활성화
         self.invincible = True
         self.invincible_timer = self.invincible_duration
@@ -673,12 +774,15 @@ class Player:
                 print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
                 print(f"  무적시간: {self.invincible_duration}초 활성화")
                 print(f"  넉백: 거리 {knockback_distance:.1f}px, 지속시간 {knockback_duration:.2f}초")
-                print(f"{'='*60}\n")
 
-            # 체력이 0 이하면 사망
+            # 체력이 0 이하면 사망 상태로 전환
             if new_health <= 0:
-                print("[Player] 사망!")
-                # TODO: 사망 처리 (게임 오버 화면, 리스폰 등)
+                print(f"  >>> Player 체력 0 - 사망 상태로 전환")
+                print(f"{'='*60}\n")
+                self.state_machine.handle_state_event(('DIE', attacker))
+                return  # 사망 시 이펙트 생성하지 않음
+            else:
+                print(f"{'='*60}\n")
         else:
             attacker_name = attacker.__class__.__name__
             print(f"[Player] 피격당함! 공격자: {attacker_name} (스탯 시스템 없음)")
@@ -708,6 +812,11 @@ class Player:
         # TODO: 추후 추가 가능
         # - 피격 사운드
 
+    def on_death(self):
+        """사망 처리 - 상태 머신을 통해 Death 상태로 전환"""
+        print("[Player] on_death 호출 - Death 상태로 전환")
+        self.state_machine.handle_state_event(('DIE', None))
+
 class VFX_Run_Particle:
     def __init__(self, x, y, frames, frame_duration, scale):
         self.x, self.y = x, y
@@ -727,7 +836,7 @@ class VFX_Run_Particle:
         self.frame_time_acc += dt
         if self.frame_time_acc >= self.frame_duration:
             self.frame_time_acc -= self.frame_duration
-            self.frame = (self.frame + 1)
+            self.frame = (self.frame + 1) % len(self.frames)
         return True
 
     def draw(self):
