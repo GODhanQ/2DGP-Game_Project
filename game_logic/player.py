@@ -540,6 +540,12 @@ class Player:
         Returns:
             bool: 충돌 여부
         """
+        # 먼저 방패로 방어할 수 있는지 체크
+        if hasattr(self, 'shield') and self.shield:
+            if self.shield.check_projectile_block(projectile):
+                # 방패로 막았으면 투사체를 제거하고 충돌 처리 종료
+                return True
+
         # 무적 상태이면 충돌 무시
         if hasattr(self, 'invincible') and self.invincible:
             return False

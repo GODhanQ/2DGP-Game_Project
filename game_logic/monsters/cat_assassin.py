@@ -70,9 +70,14 @@ class Chase:
         self.lose_range = 600  # 플레이어를 놓치는 거리
         self.attack_range = 300  # 공격 범위
 
+        # 공격 쿨타임 관련
+        self.attack_cooldown = 2.0  # 공격 후 2초 대기
+        self.attack_cooldown_timer = 0.0  # 쿨타임 타이머
+        self.can_attack = True  # 공격 가능 여부
+
         # 하위 상태 머신 생성
         self.RUN = Run(cat)
-        self.ATTACK = Attack(cat)
+        self.ATTACK = Attack(cat, self)  # Chase 상태 참조 전달
 
         self.sub_state_machine = StateMachine(
             self.RUN,
@@ -93,6 +98,16 @@ class Chase:
         self.sub_state_machine.cur_state.exit(e)
 
     def do(self):
+        dt = framework.get_delta_time()
+
+        # 공격 쿨타임 업데이트
+        if not self.can_attack:
+            self.attack_cooldown_timer += dt
+            if self.attack_cooldown_timer >= self.attack_cooldown:
+                self.can_attack = True
+                self.attack_cooldown_timer = 0.0
+                print("[Chase State] 공격 쿨타임 완료 - 공격 가능")
+
         # 플레이어와의 거리 체크
         if self.cat.world and 'player' in self.cat.world:
             player = self.cat.world['player']
@@ -105,12 +120,12 @@ class Chase:
                 self.cat.state_machine.handle_state_event(('LOSE_PLAYER', None))
                 return
 
-            # 공격 범위 체크
-            if distance <= self.attack_range:
+            # 공격 범위 체크 (쿨타임이 끝났을 때만 공격)
+            if distance <= self.attack_range and self.can_attack:
                 # 공격 범위 내 - Attack 상태로 전환
                 self.sub_state_machine.handle_state_event(('IN_ATTACK_RANGE', player))
             else:
-                # 공격 범위 밖 - Run 상태로 전환
+                # 공격 범위 밖이거나 쿨타임 중 - Run 상태로 전환
                 self.sub_state_machine.handle_state_event(('OUT_ATTACK_RANGE', player))
 
         # 하위 상태 머신 업데이트
@@ -209,8 +224,9 @@ class Run:
 class Attack:
     images = None
 
-    def __init__(self, cat):
+    def __init__(self, cat, chase_state = None):
         self.cat = cat
+        self.chase_state = chase_state  # Chase 상태에 대한 참조 (optional)
 
         if Attack.images is None:
             Attack.images = []
@@ -258,6 +274,10 @@ class Attack:
                 if not self.animation_finished:
                     self.animation_finished = True
                     print("[Attack State] 공격 애니메이션 완료")
+                    # Chase 상태의 can_attack을 False로 설정 (쿨타임 시작)
+                    if self.chase_state:
+                        self.chase_state.can_attack = False
+
                     self.cat.state_machine.cur_state.sub_state_machine.handle_state_event(('ATTACK_END', None))
 
     def draw(self):

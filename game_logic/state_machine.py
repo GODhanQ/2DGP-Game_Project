@@ -39,4 +39,5 @@ class StateMachine:
             es = event_str.upper() if isinstance(event_str, str) else ''
             is_mouse_motion = ('MOUSE' in es and 'MOTION' in es) or ('MOUSEMOTION' in es)
             if not is_mouse_motion:
-                print('Refused Event:', self.cur_state.__class__.__name__, 'Input : ', event_to_string(state_event))
+                # print('Refused Event:', self.cur_state.__class__.__name__, 'Input : ', event_to_string(state_event))
+                pass

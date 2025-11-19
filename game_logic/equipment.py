@@ -227,6 +227,102 @@ class Shield(Weapon):
             self.image.h * self.scale_factor
         )
 
+    def check_projectile_block(self, projectile):
+        """투사체가 방패에 막혔는지 확인
+
+        Args:
+            projectile: 투사체 객체
+
+        Returns:
+            bool: 방패에 막혔으면 True, 아니면 False
+        """
+        # 방패를 전개하지 않았으면 막을 수 없음
+        if not self.blocking:
+            return False
+
+        print(f"[Shield] 방패 전개 중, 투사체 충돌 체크 시작")
+
+        # 방패 중심 위치 계산
+        if self.blocking:
+            local_offset_x = self.forward_offset if self.player.face_dir == 1 else -self.forward_offset
+        else:
+            local_offset_x = 10 if self.player.face_dir == -1 else -10
+        shield_x = self.player.x + local_offset_x
+        shield_y = self.player.y + self.offset_y
+
+        # 방패 크기 (이미지 크기 * scale) - 충돌 범위를 넓게
+        shield_width = self.image.w * self.scale_factor * 1.5  # 1.5배 더 넓게
+        shield_height = self.image.h * self.scale_factor * 1.5
+
+        # 투사체 크기
+        if hasattr(projectile, 'get_collision_box'):
+            proj_width, proj_height = projectile.get_collision_box()
+        else:
+            proj_width = 30
+            proj_height = 30
+
+        # AABB 충돌 감지
+        shield_left = shield_x - shield_width / 2
+        shield_right = shield_x + shield_width / 2
+        shield_bottom = shield_y - shield_height / 2
+        shield_top = shield_y + shield_height / 2
+
+        proj_left = projectile.x - proj_width / 2
+        proj_right = projectile.x + proj_width / 2
+        proj_bottom = projectile.y - proj_height / 2
+        proj_top = projectile.y + proj_height / 2
+
+        print(f"[Shield] 방패 위치: ({int(shield_x)}, {int(shield_y)}), 크기: {int(shield_width)}x{int(shield_height)}")
+        print(f"[Shield] 투사체 위치: ({int(projectile.x)}, {int(projectile.y)}), 크기: {int(proj_width)}x{int(proj_height)}")
+
+        # 충돌 검사
+        if (shield_left < proj_right and shield_right > proj_left and
+            shield_bottom < proj_top and shield_top > proj_bottom):
+
+            print(f"[Shield] AABB 충돌 감지!")
+
+            # 투사체가 플레이어 방향에서 왔는지 확인 (방패 방향과 일치하는지)
+            proj_to_player_x = self.player.x - projectile.x
+            proj_to_player_y = self.player.y - projectile.y
+
+            print(f"[Shield] 플레이어 face_dir: {self.player.face_dir}, proj_to_player_x: {proj_to_player_x:.1f}")
+
+            # 투사체가 방패 뒤에서 오는 경우는 막지 못함
+            if self.player.face_dir == 1 and proj_to_player_x < 0:
+                print(f"[Shield] 방패가 오른쪽을 보는데 투사체가 왼쪽에서 옴 - 방어 실패")
+                return False
+            if self.player.face_dir == -1 and proj_to_player_x > 0:
+                print(f"[Shield] 방패가 왼쪽을 보는데 투사체가 오른쪽에서 옴 - 방어 실패")
+                return False
+
+            print(f"[Shield] 투사체 방어 성공! at ({int(shield_x)}, {int(shield_y)})")
+
+            # 방어 이펙트 생성
+            if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                try:
+                    from .guard_fx import GuardFX
+                    guard_fx = GuardFX(shield_x, shield_y, scale=self.scale_factor)
+                    self.player.world['effects_front'].append(guard_fx)
+                    print("[Shield] 방어 이펙트 생성 완료")
+                except Exception as ex:
+                    print(f"[Shield] 방어 이펙트 생성 실패: {ex}")
+
+            # 플레이어 넉백 (약간)
+            knockback_strength = 50  # 픽셀
+            distance = math.sqrt(proj_to_player_x**2 + proj_to_player_y**2)
+            if distance > 0:
+                knockback_dx = -proj_to_player_x / distance
+                knockback_dy = -proj_to_player_y / distance
+
+                self.player.x += knockback_dx * knockback_strength
+                self.player.y += knockback_dy * knockback_strength
+                print(f"[Shield] 플레이어 넉백 적용: ({knockback_dx * knockback_strength:.1f}, {knockback_dy * knockback_strength:.1f})")
+
+            return True
+
+        print(f"[Shield] 충돌 감지 안됨")
+        return False
+
 
 class Sword(Weapon):
     """검 클래스 (항상 캐릭터 뒤에 그려짐)"""
