@@ -272,6 +272,8 @@ class Inventory:
 class Death:
     """플레이어 사망 상태"""
     image = None
+    hit_fx_images = None  # PlayerHitFX 이미지들
+    heart_hit_images = None  # HeartHit 이미지들
 
     def __init__(self, player):
         self.player = player
@@ -284,6 +286,32 @@ class Death:
                 print(f"[Player Death] Failed to load image: {e}")
                 Death.image = None
 
+        # PlayerHitFX 이미지 로드 (1 ~ 9)
+        if Death.hit_fx_images is None:
+            Death.hit_fx_images = []
+            try:
+                for i in range(1, 10):  # PlayerHitFX01 ~ PlayerHitFX09
+                    img_path = os.path.join('resources', 'Texture_organize', 'UI', 'Die_Animation', f'PlayerHitFX0{i}.png')
+                    img = load_image(img_path)
+                    Death.hit_fx_images.append(img)
+                print(f"[Player Death] PlayerHitFX 이미지 로드 완료: {len(Death.hit_fx_images)}개")
+            except Exception as e:
+                print(f"[Player Death] PlayerHitFX 이미지 로드 실패: {e}")
+                Death.hit_fx_images = []
+
+        # HeartHit 이미지 로드 (0 ~ 8)
+        if Death.heart_hit_images is None:
+            Death.heart_hit_images = []
+            try:
+                for i in range(9):  # HeartHit0_0 ~ HeartHit8_0
+                    img_path = os.path.join('resources', 'Texture_organize', 'UI', 'Hit_verdict', f'HeartHit{i}_0.png')
+                    img = load_image(img_path)
+                    Death.heart_hit_images.append(img)
+                print(f"[Player Death] HeartHit 이미지 로드 완료: {len(Death.heart_hit_images)}개")
+            except Exception as e:
+                print(f"[Player Death] HeartHit 이미지 로드 실패: {e}")
+                Death.heart_hit_images = []
+
         self.death_timer = 0.0
         self.death_duration = 5.0  # 5초 후 종료
         self.game_over_triggered = False
@@ -295,10 +323,25 @@ class Death:
         self.knockback_duration = 0.5  # 0.5초 동안
         self.knockback_timer = 0.0
 
+        # 애니메이션 관련 변수
+        self.hit_fx_frame = 0
+        self.hit_fx_time = 0.0
+        self.hit_fx_duration = 0.08  # 각 프레임당 0.08초
+
+        self.heart_hit_frame = 0
+        self.heart_hit_time = 0.0
+        self.heart_hit_duration = 0.1  # 각 프레임당 0.1초
+
     def enter(self, e):
         self.death_timer = 0.0
         self.game_over_triggered = False
         self.knockback_timer = 0.0
+
+        # 애니메이션 초기화
+        self.hit_fx_frame = 0
+        self.hit_fx_time = 0.0
+        self.heart_hit_frame = 0
+        self.heart_hit_time = 0.0
 
         # 넉백 방향 계산
         if e and len(e) > 1 and e[1] is not None:
@@ -344,6 +387,20 @@ class Death:
             self.player.y += self.knockback_dy * current_speed * dt
             self.knockback_timer += dt
 
+        # PlayerHitFX 애니메이션 업데이트
+        if Death.hit_fx_images and self.hit_fx_frame < len(Death.hit_fx_images):
+            self.hit_fx_time += dt
+            if self.hit_fx_time >= self.hit_fx_duration:
+                self.hit_fx_time -= self.hit_fx_duration
+                self.hit_fx_frame += 1
+
+        # HeartHit 애니메이션 업데이트
+        if Death.heart_hit_images and self.heart_hit_frame < len(Death.heart_hit_images):
+            self.heart_hit_time += dt
+            if self.heart_hit_time >= self.heart_hit_duration:
+                self.heart_hit_time -= self.heart_hit_duration
+                self.heart_hit_frame += 1
+
         # 5초 후 게임 종료
         if self.death_timer >= self.death_duration and not self.game_over_triggered:
             self.game_over_triggered = True
@@ -353,10 +410,37 @@ class Death:
             game_framework.quit()
 
     def draw(self):
+        # 플레이어 사망 이미지 (바닥에 누운 모습)
         if Death.image is not None:
             Death.image.draw(self.player.x, self.player.y,
                            Death.image.w * self.player.scale_factor,
                            Death.image.h * self.player.scale_factor)
+
+        # PlayerHitFX 이펙트 (플레이어 위치에 크게)
+        if Death.hit_fx_images and self.hit_fx_frame < len(Death.hit_fx_images):
+            hit_fx_img = Death.hit_fx_images[self.hit_fx_frame]
+            # 플레이어 위치 중앙에 크게 표시
+            scale = 3.0
+            hit_fx_img.draw(
+                self.player.x,
+                self.player.y,
+                hit_fx_img.w * scale,
+                hit_fx_img.h * scale
+            )
+
+        # HeartHit 이펙트 (화면 중앙 상단에 크게)
+        if Death.heart_hit_images and self.heart_hit_frame < len(Death.heart_hit_images):
+            heart_hit_img = Death.heart_hit_images[self.heart_hit_frame]
+            canvas_w = get_canvas_width()
+            canvas_h = get_canvas_height()
+            # 플레이어 위치 중앙에 표시
+            scale = 3.0
+            heart_hit_img.draw(
+                self.player.x,
+                self.player.y,
+                heart_hit_img.w * scale,
+                heart_hit_img.h * scale
+            )
 
 
 # 사망 이벤트 predicate
