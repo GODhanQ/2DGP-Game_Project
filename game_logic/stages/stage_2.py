@@ -2,6 +2,27 @@
 
 from ..monsters.cat_assassin import CatAssassin
 
+# 로딩 화면 정보
+LOADING_SCREEN_INFO = {
+    'stage_number': 2,
+    'bg_image': 'resources/Texture_organize/UI/Stage_Loading/Stage_2/St2Loading_BG.png',
+    'animation_prefix': 'resources/Texture_organize/UI/Stage_Loading/Stage_2/St2Loading_',
+    'animation_count': 12,  # 0~11
+    # 추가 애니메이션 (카트)
+    'extra_animation': {
+        'prefix': 'resources/Texture_organize/UI/Stage_Loading/Stage_2/St2Loading_Cart_',
+        'count': 12,  # 0~11
+        'position': 'Cart',  # 위치 지정
+        'scale': 5.0
+    }
+}
+
+# 플레이어 시작 위치
+PLAYER_START_POSITION = {
+    'x': 400,
+    'y': 450
+}
+
 stage_data = {
     'monsters': [
         (CatAssassin, 200, 200),

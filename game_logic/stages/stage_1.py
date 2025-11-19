@@ -3,10 +3,24 @@
 # This stage will use CatAssassin monsters
 from ..monsters.cat_assassin import CatAssassin
 
+# 로딩 화면 정보
+LOADING_SCREEN_INFO = {
+    'stage_number': 1,
+    'bg_image': 'resources/Texture_organize/UI/Stage_1/St1Loading_BG.png',
+    'animation_prefix': 'resources/Texture_organize/UI/Stage_Loading/Stage_1/St1Loading_',
+    'animation_count': 12  # 0~11
+}
+
+# 플레이어 시작 위치
+PLAYER_START_POSITION = {
+    'x': 300,
+    'y': 300
+}
+
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        # (CatAssassin, 200, 450),
+        (CatAssassin, 200, 450),
         (CatAssassin, 600, 450),
     ],
     'background': {

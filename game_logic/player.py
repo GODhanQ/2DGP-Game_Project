@@ -609,16 +609,18 @@ class Player:
 
             # 피격 정보 출력
             attacker_name = attacker.__class__.__name__
-            print(f"\n{'='*60}")
-            print(f"[Player 피격]")
-            print(f"  공격자: {attacker_name}")
-            print(f"  원본 데미지: {damage:.1f}")
-            print(f"  방어력: {defense:.1f}")
-            print(f"  최종 데미지: {final_damage:.1f}")
-            print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
-            print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
-            print(f"  무적시간: {self.invincible_duration}초 활성화")
-            print(f"{'='*60}\n")
+            DebugPrint = True
+            if DebugPrint:
+                print(f"\n{'='*60}")
+                print(f"[Player 피격]")
+                print(f"  공격자: {attacker_name}")
+                print(f"  원본 데미지: {damage:.1f}")
+                print(f"  방어력: {defense:.1f}")
+                print(f"  최종 데미지: {final_damage:.1f}")
+                print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
+                print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
+                print(f"  무적시간: {self.invincible_duration}초 활성화")
+                print(f"{'='*60}\n")
 
             # 체력이 0 이하면 사망
             if new_health <= 0:

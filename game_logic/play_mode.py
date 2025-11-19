@@ -7,6 +7,7 @@ import game_framework
 from .player import Player
 from .ui_overlay import InventoryOverlay
 from .cursor import Cursor
+from .loading_screen import LoadingScreen
 # 사용할 스테이지 모듈들을 import 합니다.
 from .stages import stage_1, stage_2
 
@@ -28,9 +29,42 @@ stages = [stage_1, stage_2] # 모든 스테이지 모듈을 리스트로 관리
 current_stage_index = 0
 is_stage_cleared = False
 
+# 로딩 화면 관리
+loading_screen = None
+is_loading = False
+next_stage_to_load = None
+
 def change_stage(next_stage_index):
     """다음 스테이지로 변경하는 함수"""
-    global current_stage_index, world, is_stage_cleared
+    global current_stage_index, loading_screen, is_loading, next_stage_to_load
+
+    # 다음 스테이지 인덱스 확인
+    if next_stage_index >= len(stages):
+        # 모든 스테이지 클리어 시 게임 종료 또는 다른 모드로 전환
+        print("All stages cleared!")
+        game_framework.quit()
+        return
+
+    # 로딩 화면 시작 - 스테이지 모듈의 LOADING_SCREEN_INFO 사용
+    next_stage_module = stages[next_stage_index]
+    loading_info = getattr(next_stage_module, 'LOADING_SCREEN_INFO', None)
+
+    if loading_info:
+        print(f"[change_stage] 스테이지 {next_stage_index + 1} 로딩 화면 시작")
+        loading_screen = LoadingScreen(loading_info)
+        is_loading = True
+        next_stage_to_load = next_stage_index
+    else:
+        # LOADING_SCREEN_INFO가 없으면 로딩 화면 없이 바로 전환
+        print(f"[change_stage] 스테이지 {next_stage_index + 1}에 로딩 화면 정보 없음, 즉시 전환")
+        next_stage_to_load = next_stage_index
+        _complete_stage_change()
+
+def _complete_stage_change():
+    """로딩이 완료된 후 실제 스테이지 전환을 수행"""
+    global current_stage_index, world, is_stage_cleared, loading_screen, is_loading, next_stage_to_load
+
+    print(f"[_complete_stage_change] 스테이지 {next_stage_to_load + 1} 로드 시작")
 
     # 현재 스테이지의 몬스터, 배경 등 제거 (플레이어는 유지)
     player = world.get('player')
@@ -40,20 +74,32 @@ def change_stage(next_stage_index):
     world['effects_back'].clear()
     world['effects_front'].clear()
 
-
     # 다음 스테이지 인덱스로 변경
-    current_stage_index = next_stage_index
-    if current_stage_index >= len(stages):
-        # 모든 스테이지 클리어 시 게임 종료 또는 다른 모드로 전환
-        print("All stages cleared!")
-        game_framework.quit()
-        return
+    current_stage_index = next_stage_to_load
 
     # 새 스테이지 로드
     stages[current_stage_index].load(world)
-    is_stage_cleared = False
-    print(f"Changed to Stage {current_stage_index + 1}")
 
+    # 플레이어 위치 설정 (스테이지에 PLAYER_START_POSITION이 있으면 사용)
+    if player:
+        next_stage_module = stages[current_stage_index]
+        player_start_pos = getattr(next_stage_module, 'PLAYER_START_POSITION', None)
+
+        if player_start_pos:
+            player.x = player_start_pos['x']
+            player.y = player_start_pos['y']
+            print(f"[_complete_stage_change] 플레이어 위치 설정: ({player.x}, {player.y})")
+        else:
+            print(f"[_complete_stage_change] 플레이어 시작 위치 정보 없음, 현재 위치 유지")
+
+    is_stage_cleared = False
+
+    # 로딩 화면 종료
+    loading_screen = None
+    is_loading = False
+    next_stage_to_load = None
+
+    print(f"[_complete_stage_change] Changed to Stage {current_stage_index + 1}")
 
 def enter():
     global world, current_stage_index, is_stage_cleared
@@ -219,7 +265,19 @@ def handle_events():
 
 
 def update():
-    global is_stage_cleared
+    global is_stage_cleared, loading_screen, is_loading
+
+    # 로딩 중이면 로딩 화면만 업데이트
+    if is_loading and loading_screen:
+        loading_screen.update()
+
+        # 로딩이 완료되었으면 실제 스테이지 전환
+        if loading_screen.is_complete:
+            _complete_stage_change()
+
+        return  # 로딩 중에는 게임 로직 업데이트 안 함
+
+    # 일반 게임 업데이트
     for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'cursor']:
         new_list = []
         for o in list(world[layer_name]):
@@ -228,6 +286,12 @@ def update():
                     alive = o.update()
                     if alive is False:
                         continue
+
+                # mark_for_removal 플래그 확인
+                if hasattr(o, 'mark_for_removal') and o.mark_for_removal:
+                    print(f"[Update] {o.__class__.__name__} 제거됨")
+                    continue  # 제거 표시된 객체는 new_list에 추가하지 않음
+
                 new_list.append(o)
             except Exception:
                 try:
@@ -303,11 +367,18 @@ def update():
 
 def draw():
     p2.clear_canvas()
-    for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'cursor']:
-        for o in world[layer_name]:
-            try:
-                if hasattr(o, 'draw'):
-                    o.draw()
-            except Exception:
-                pass
+
+    # 로딩 중이면 로딩 화면만 그리기
+    if is_loading and loading_screen:
+        loading_screen.draw()
+    else:
+        # 일반 게임 화면 그리기
+        for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'cursor']:
+            for o in world[layer_name]:
+                try:
+                    if hasattr(o, 'draw'):
+                        o.draw()
+                except Exception:
+                    pass
+
     p2.update_canvas()

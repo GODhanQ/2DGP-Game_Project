@@ -123,7 +123,7 @@ class CatAssassinStats(MonsterStats):
             'max_health': 30.0,
             'health': 30.0,
             'move_speed': 120.0,
-            'attack_damage': 8.0,
+            'attack_damage': 20.0,
             'defense': 2.0,
             'attack_speed': 1.2,
             'attack_range': 400.0,

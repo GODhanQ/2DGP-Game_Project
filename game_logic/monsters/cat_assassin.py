@@ -13,6 +13,7 @@ class Idle:
 
     def __init__(self, cat):
         self.cat = cat
+        self.detection_range = 300  # 플레이어 감지 범위 (픽셀)
 
         if Idle.images is None:
             Idle.images = []
@@ -44,21 +45,361 @@ class Idle:
             self.cat.animation_time = 0
 
         # AI: Check if player is nearby and chase
-        # TODO: Implement Chase state before enabling this
-        # if self.cat.world and self.cat.world.get('player'):
-        #     player = self.cat.world['player']
-        #     dx, dy = player.x - self.cat.x, player.y - self.cat.y
-        #     dist = math.sqrt(dx**2 + dy**2)
-        #
-        #     # If player is close, start chasing
-        #     if dist < 500:  # Detection range
-        #         self.cat.state_machine.handle_state_event(('DETECT_PLAYER', None))
+        if self.cat.world and 'player' in self.cat.world:
+            player = self.cat.world['player']
+            dx = player.x - self.cat.x
+            dy = player.y - self.cat.y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            # 감지 범위 내에 플레이어가 있으면 Chase 상태로 전환
+            if distance <= self.detection_range:
+                self.cat.state_machine.handle_state_event(('DETECT_PLAYER', player))
 
     def draw(self):
         if Idle.images and len(Idle.images) > 0:
             Idle.images[self.cat.frame].draw(self.cat.x, self.cat.y,
                                              Idle.images[self.cat.frame].w * self.cat.scale,
                                              Idle.images[self.cat.frame].h * self.cat.scale)
+
+# ========== Chase State (상위 상태) ==========
+class Chase:
+    """플레이어를 추적하는 상태 - Run과 Attack 하위 상태를 가짐"""
+
+    def __init__(self, cat):
+        self.cat = cat
+        self.lose_range = 600  # 플레이어를 놓치는 거리
+        self.attack_range = 300  # 공격 범위
+
+        # 하위 상태 머신 생성
+        self.RUN = Run(cat)
+        self.ATTACK = Attack(cat)
+
+        self.sub_state_machine = StateMachine(
+            self.RUN,
+            {
+                self.RUN: {in_attack_range: self.ATTACK},
+                self.ATTACK: {out_attack_range: self.RUN, attack_end: self.RUN},
+            }
+        )
+
+    def enter(self, e):
+        print("[Chase State] 추적 시작")
+        # 하위 상태 머신을 Run 상태로 초기화 (이미 __init__에서 초기화됨)
+        # sub_state_machine의 cur_state는 이미 RUN으로 설정되어 있음
+        self.sub_state_machine.cur_state.enter(e)
+
+    def exit(self, e):
+        print("[Chase State] 추적 종료")
+        self.sub_state_machine.cur_state.exit(e)
+
+    def do(self):
+        # 플레이어와의 거리 체크
+        if self.cat.world and 'player' in self.cat.world:
+            player = self.cat.world['player']
+            dx = player.x - self.cat.x
+            dy = player.y - self.cat.y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            # 플레이어를 놓쳤으면 Idle로 복귀
+            if distance > self.lose_range:
+                self.cat.state_machine.handle_state_event(('LOSE_PLAYER', None))
+                return
+
+            # 공격 범위 체크
+            if distance <= self.attack_range:
+                # 공격 범위 내 - Attack 상태로 전환
+                self.sub_state_machine.handle_state_event(('IN_ATTACK_RANGE', player))
+            else:
+                # 공격 범위 밖 - Run 상태로 전환
+                self.sub_state_machine.handle_state_event(('OUT_ATTACK_RANGE', player))
+
+        # 하위 상태 머신 업데이트
+        self.sub_state_machine.update()
+
+    def draw(self):
+        # 하위 상태 머신의 draw 호출
+        self.sub_state_machine.draw()
+
+# ========== Run State (Chase의 하위 상태) ==========
+class Run:
+    images = None
+
+    def __init__(self, cat):
+        self.cat = cat
+
+        if Run.images is None:
+            Run.images = []
+            try:
+                for i in range(8):  # Cat_Assassin_Move0 ~ Move8
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Move{i}.png')
+                    Run.images.append(img)
+                print(f"[CatAssassin Run] Loaded {len(Run.images)} images")
+            except Exception as e:
+                print(f"[CatAssassin Run] Failed to load images: {e}")
+                Run.images = []
+
+        # 랜덤 움직임 관련 변수
+        self.wander_angle = 0  # 현재 방향에서 벗어나는 각도
+        self.wander_change_timer = 0  # 방향 변경 타이머
+        self.wander_change_interval = 0.3  # 방향 변경 주기 (초)
+        self.wander_strength = 0.6  # 랜덤 움직임의 강도 (0~1)
+
+    def enter(self, e):
+        self.cat.frame = 0
+        self.cat.animation_time = 0
+        self.cat.animation_speed = 12
+        self.wander_angle = random.uniform(-math.pi/4, math.pi/4)  # -45도 ~ 45도
+        self.wander_change_timer = 0
+        print("[Run State] 달리기 시작")
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        dt = framework.get_delta_time()
+
+        # 애니메이션 업데이트
+        self.cat.animation_time += dt
+        if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
+            if len(Run.images) > 0:
+                self.cat.frame = (self.cat.frame + 1) % len(Run.images)
+            self.cat.animation_time = 0
+
+        # 플레이어 추적 with 랜덤 움직임
+        if self.cat.world and 'player' in self.cat.world:
+            player = self.cat.world['player']
+            dx = player.x - self.cat.x
+            dy = player.y - self.cat.y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            # 방향 계산 (정규화)
+            if distance > 0:
+                # 플레이어 방향으로의 기본 방향
+                base_dx = dx / distance
+                base_dy = dy / distance
+
+                # 랜덤 방향 변경 타이머 업데이트
+                self.wander_change_timer += dt
+                if self.wander_change_timer >= self.wander_change_interval:
+                    # 랜덤 각도 변경 (-60도 ~ 60도)
+                    self.wander_angle = random.uniform(-math.pi/3, math.pi/3)
+                    self.wander_change_timer = 0
+
+                # 기본 방향의 각도 계산
+                base_angle = math.atan2(base_dy, base_dx)
+
+                # 랜덤 각도를 적용한 최종 각도
+                final_angle = base_angle + (self.wander_angle * self.wander_strength)
+
+                # 최종 이동 방향 벡터
+                move_dx = math.cos(final_angle)
+                move_dy = math.sin(final_angle)
+
+                # 위치 업데이트
+                self.cat.x += move_dx * self.cat.speed * dt
+                self.cat.y += move_dy * self.cat.speed * dt
+
+    def draw(self):
+        if Run.images and len(Run.images) > 0:
+            Run.images[self.cat.frame].draw(self.cat.x, self.cat.y,
+                                            Run.images[self.cat.frame].w * self.cat.scale,
+                                            Run.images[self.cat.frame].h * self.cat.scale)
+
+# ========== Attack State (Chase의 하위 상태) ==========
+class Attack:
+    images = None
+
+    def __init__(self, cat):
+        self.cat = cat
+
+        if Attack.images is None:
+            Attack.images = []
+            try:
+                for i in range(7):  # Cat_Assassin_Attack0 ~ Attack6
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Attack{i}.png')
+                    Attack.images.append(img)
+                print(f"[CatAssassin Attack] Loaded {len(Attack.images)} images")
+            except Exception as e:
+                print(f"[CatAssassin Attack] Failed to load images: {e}")
+                Attack.images = []
+
+        self.animation_finished = False
+        self.projectile_spawned = False
+
+    def enter(self, e):
+        self.cat.frame = 0
+        self.cat.animation_time = 0
+        self.cat.animation_speed = 10  # 공격 애니메이션은 빠르게
+        self.animation_finished = False
+        self.projectile_spawned = False
+        print("[Attack State] 공격 시작")
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        dt = framework.get_delta_time()
+
+        # 애니메이션 업데이트
+        self.cat.animation_time += dt
+        if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
+            self.cat.frame += 1
+            self.cat.animation_time = 0
+
+            # 공격 프레임 중간쯤에 수리검 발사 (프레임 3에서 발사)
+            if self.cat.frame == 3 and not self.projectile_spawned:
+                self.projectile_spawned = True
+                if self.cat.world and 'player' in self.cat.world:
+                    player = self.cat.world['player']
+                    self.cat.attack(player)
+
+            # 애니메이션이 끝나면 Run으로 복귀
+            if len(Attack.images) > 0 and self.cat.frame >= len(Attack.images):
+                if not self.animation_finished:
+                    self.animation_finished = True
+                    print("[Attack State] 공격 애니메이션 완료")
+                    self.cat.state_machine.cur_state.sub_state_machine.handle_state_event(('ATTACK_END', None))
+
+    def draw(self):
+        if Attack.images and len(Attack.images) > 0:
+            frame_idx = min(self.cat.frame, len(Attack.images) - 1)
+            Attack.images[frame_idx].draw(self.cat.x, self.cat.y,
+                                          Attack.images[frame_idx].w * self.cat.scale,
+                                          Attack.images[frame_idx].h * self.cat.scale)
+
+# ========== Hit State ==========
+class Hit:
+    images = None
+
+    def __init__(self, cat):
+        self.cat = cat
+
+        if Hit.images is None:
+            Hit.images = []
+            try:
+                for i in range(3):  # Cat_Assassin_Airborne0 ~ Airborne2
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Airborne{i}.png')
+                    Hit.images.append(img)
+                print(f"[CatAssassin Hit] Loaded {len(Hit.images)} images")
+            except Exception as e:
+                print(f"[CatAssassin Hit] Failed to load images: {e}")
+                Hit.images = []
+
+        self.cat.animation_speed = 12  # 피격 애니메이션은 빠르게
+        self.animation_finished = False
+
+        # 넉백 관련 변수
+        self.knockback_dx = 0
+        self.knockback_dy = 0
+        self.knockback_speed = 200
+        self.knockback_duration = 0.2
+        self.knockback_timer = 0.0
+
+    def enter(self, e):
+        self.cat.frame = 0
+        self.cat.animation_time = 0
+        self.animation_finished = False
+        self.knockback_timer = 0.0
+
+        # 넉백 방향 계산
+        if e and len(e) > 1 and e[1] is not None:
+            attacker = e[1]
+            attacker_x = attacker.x if hasattr(attacker, 'x') else self.cat.x
+            attacker_y = attacker.y if hasattr(attacker, 'y') else self.cat.y
+
+            if hasattr(attacker, 'owner') and attacker.owner:
+                attacker_x = attacker.owner.x
+                attacker_y = attacker.owner.y
+
+            dx = self.cat.x - attacker_x
+            dy = self.cat.y - attacker_y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            if distance > 0:
+                self.knockback_dx = dx / distance
+                self.knockback_dy = dy / distance
+            else:
+                self.knockback_dx = 1.0
+                self.knockback_dy = 0.0
+        else:
+            self.knockback_dx = 1.0
+            self.knockback_dy = 0.0
+
+        print(f"[CatAssassin Hit State] 피격 애니메이션 시작")
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        dt = framework.get_delta_time()
+
+        # 넉백 효과 적용
+        if self.knockback_timer < self.knockback_duration:
+            progress = self.knockback_timer / self.knockback_duration
+            current_speed = self.knockback_speed * (1.0 - progress)
+            self.cat.x += self.knockback_dx * current_speed * dt
+            self.cat.y += self.knockback_dy * current_speed * dt
+            self.knockback_timer += dt
+
+        # 애니메이션 업데이트
+        self.cat.animation_time += dt
+        if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
+            self.cat.frame += 1
+            self.cat.animation_time = 0
+
+            if len(Hit.images) > 0 and self.cat.frame >= len(Hit.images):
+                if not self.animation_finished:
+                    self.animation_finished = True
+                    print(f"[CatAssassin Hit State] 피격 애니메이션 완료, Idle 복귀")
+                    self.cat.state_machine.handle_state_event(('HIT_END', None))
+
+    def draw(self):
+        if Hit.images and len(Hit.images) > 0:
+            frame_idx = min(self.cat.frame, len(Hit.images) - 1)
+            Hit.images[frame_idx].draw(self.cat.x, self.cat.y,
+                                       Hit.images[frame_idx].w * self.cat.scale,
+                                       Hit.images[frame_idx].h * self.cat.scale)
+
+# ========== Death State ==========
+class Death:
+    image = None
+
+    def __init__(self, cat):
+        self.cat = cat
+
+        if Death.image is None:
+            try:
+                Death.image = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Down0.png')
+                print(f"[CatAssassin Death] Loaded Down0 image")
+            except Exception as e:
+                print(f"[CatAssassin Death] Failed to load image: {e}")
+                Death.image = None
+
+        self.death_timer = 0.0
+        self.death_duration = 3.0
+        self.mark_for_removal = False
+
+    def enter(self, e):
+        self.death_timer = 0.0
+        self.mark_for_removal = False
+        print(f"[CatAssassin Death State] 사망 상태 시작 (3초 후 제거)")
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.death_timer += framework.get_delta_time()
+
+        if self.death_timer >= self.death_duration and not self.mark_for_removal:
+            self.mark_for_removal = True
+            self.cat.mark_for_removal = True
+            print(f"[CatAssassin Death State] 3초 경과, 제거 표시 완료")
+
+    def draw(self):
+        if Death.image is not None:
+            Death.image.draw(self.cat.x, self.cat.y,
+                           Death.image.w * self.cat.scale,
+                           Death.image.h * self.cat.scale)
 
 # ========== Event Predicates ==========
 def detect_player(e):
@@ -67,28 +408,44 @@ def detect_player(e):
 def lose_player(e):
     return e[0] == 'LOSE_PLAYER'
 
+def in_attack_range(e):
+    return e[0] == 'IN_ATTACK_RANGE'
+
+def out_attack_range(e):
+    return e[0] == 'OUT_ATTACK_RANGE'
+
+def attack_end(e):
+    return e[0] == 'ATTACK_END'
+
+def take_hit(e):
+    return e[0] == 'TAKE_HIT'
+
+def hit_end(e):
+    return e[0] == 'HIT_END'
+
+def die(e):
+    return e[0] == 'DIE'
+
 # Shuriken (projectile)
 class Shuriken(Projectile):
     """수리검 발사체 - Projectile을 상속받음"""
     images = None
 
     def __init__(self, x, y, target_x, target_y, owner=None):
-        # 부모 클래스 초기화 (몬스터가 쏘는 투사체이므로 from_player=False)
         super().__init__(x, y, target_x, target_y, speed=400, from_player=False)
 
-        # 공격자 정보 저장
         self.owner = owner
+        self.scale = 2.0
 
-        # 데미지 설정 (owner의 스탯에서 가져오거나 기본값 사용)
         if owner and hasattr(owner, 'stats'):
             self.damage = owner.stats.get('attack_damage')
         else:
-            self.damage = 10.0  # 기본 데미지
+            self.damage = 10.0
 
         if Shuriken.images is None:
             Shuriken.images = []
             try:
-                for i in range(8):  # Cat_Assassin_Shuriken0 ~ Shuriken7
+                for i in range(8):
                     img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/FX/Cat_Assassin_Shuriken{i}.png')
                     Shuriken.images.append(img)
             except Exception as e:
@@ -100,11 +457,9 @@ class Shuriken(Projectile):
         self.animation_speed = 10
 
     def update(self):
-        # 부모 클래스의 update 호출 (위치 업데이트 및 화면 밖 체크)
         if not super().update():
             return False
 
-        # 애니메이션 업데이트
         self.animation_time += framework.get_delta_time()
         if self.animation_time >= 1.0 / self.animation_speed:
             if len(Shuriken.images) > 0:
@@ -115,21 +470,26 @@ class Shuriken(Projectile):
 
     def draw(self):
         if Shuriken.images and len(Shuriken.images) > 0:
-            Shuriken.images[self.frame].draw(self.x, self.y)
+            Shuriken.images[self.frame].draw(
+                self.x, self.y,
+                Shuriken.images[self.frame].w * self.scale,
+                Shuriken.images[self.frame].h * self.scale
+            )
 
     def get_collision_box(self):
-        """수리검의 충돌 박스 크기"""
         return (30, 30)
 
 # CatAssassin (monster)
 class CatAssassin:
-    def __init__(self, x = 800, y = 450):  # Use default values instead of main.window_width
+    def __init__(self, x = 800, y = 450):
         self.x, self.y = x, y
         self.speed = 100
         self.scale = 3.0
-        self.world = None # Will be set from play_mode
+        self.world = None
 
-        self.attack_cooldown = 2.0 # Attack every 2 seconds
+        self.mark_for_removal = False
+
+        self.attack_cooldown = 2.0
         self.attack_timer = random.uniform(0, self.attack_cooldown)
 
         # Animation variables
@@ -137,26 +497,31 @@ class CatAssassin:
         self.animation_speed = 10
         self.animation_time = 0
 
-        # Collision box (히트박스 크기 설정)
-        # Cat_Assassin_Idle 이미지 크기를 기준으로 설정
-        self.collision_width = 15 * self.scale  # 대략적인 크기
+        # Collision box
+        self.collision_width = 15 * self.scale
         self.collision_height = 15 * self.scale
 
         # 무적시간 관련 변수
-        self.invincible = False  # 무적 상태인지
-        self.invincible_timer = 0.0  # 무적 시간 타이머
-        self.invincible_duration = 0.3  # 무적 시간 지속 시간 (0.3초)
+        self.invincible = False
+        self.invincible_timer = 0.0
+        self.invincible_duration = 0.3
 
         # 스탯 시스템
         self.stats = CatAssassinStats()
 
         # State machine setup with rules
-        # Create state instances
         self.IDLE = Idle(self)
+        self.CHASE = Chase(self)
+        self.HIT = Hit(self)
+        self.DEATH = Death(self)
+
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: {},
+                self.IDLE: {detect_player: self.CHASE, take_hit: self.HIT, die: self.DEATH},
+                self.CHASE: {lose_player: self.IDLE, take_hit: self.HIT, die: self.DEATH},
+                self.HIT: {hit_end: self.IDLE, die: self.DEATH},
+                self.DEATH: {},
             }
         )
 
@@ -285,6 +650,10 @@ class CatAssassin:
             print(f"[CatAssassin] 무적 상태로 피격 무시 (남은 무적시간: {self.invincible_timer:.2f}초)")
             return
 
+        # 사망 상태면 무시
+        if isinstance(self.state_machine.cur_state, Death):
+            return
+
         # 무적시간 활성화
         self.invincible = True
         self.invincible_timer = self.invincible_duration
@@ -309,7 +678,7 @@ class CatAssassin:
         new_health = max(0, current_health - final_damage)
         self.stats.set_base('health', new_health)
 
-        # 피격 정보 출력
+        # 피격 정보 출력 (디버그)
         attacker_name = attacker.__class__.__name__
         print(f"\n{'='*60}")
         print(f"[CatAssassin 피격] at ({int(self.x)}, {int(self.y)})")
@@ -321,31 +690,17 @@ class CatAssassin:
         print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
         print(f"  무적시간: {self.invincible_duration}초 활성화")
 
-        # 체력이 0 이하면 사망
+        # 체력이 0 이하면 사망 상태로 전환
         if new_health <= 0:
-            print(f"  >>> CatAssassin 사망! <<<")
-            self.on_death()
-
-        print(f"{'='*60}\n")
-
-        # TODO: 추후 추가 가능
-        # - 피격 이펙트 재생
-        # - 넉백 효과
-        # - 피격 사운드
-        # - AI 반응 (도주, 반격 등)
+            print(f"  >>> CatAssassin 체력 0 - 사망 상태로 전환")
+            print(f"{'='*60}\n")
+            self.state_machine.handle_state_event(('DIE', attacker))
+        else:
+            # 피격 상태로 전환 (공격자 정보를 함께 전달)
+            print(f"  >>> 피격 상태로 전환")
+            print(f"{'='*60}\n")
+            self.state_machine.handle_state_event(('TAKE_HIT', attacker))
 
     def on_death(self):
-        """사망 처리"""
-        print(f"[CatAssassin] 사망! at ({int(self.x)}, {int(self.y)})")
-        # world에서 자신을 제거
-        if self.world and 'entities' in self.world:
-            try:
-                self.world['entities'].remove(self)
-            except ValueError:
-                pass
-
-        # TODO: 추후 추가 가능
-        # - 사망 애니메이션
-        # - 아이템 드롭
-        # - 사망 이펙트
-        # - 경험치 제공
+        """사망 처리 - 이제 상태 머신에서 처리하므로 deprecated"""
+        pass
