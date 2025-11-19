@@ -435,3 +435,122 @@ class InventoryOverlay:
                     self._font.draw(tx, ty, str(self.drag_qty), (255, 255, 255))
                 except Exception:
                     pass
+
+
+class HealthBar:
+    """화면 왼쪽 상단에 표시되는 체력 바 UI"""
+    _hp_images = None  # 클래스 변수로 이미지 공유
+
+    def __init__(self, player):
+        self.player = player
+
+        # 체력 바 이미지 로드 (최초 1회만)
+        if HealthBar._hp_images is None:
+            HealthBar._hp_images = []
+            hp_folder = os.path.join('resources', 'Texture_organize', 'UI', 'Erta_HP')
+            try:
+                for i in range(6):  # ExtraHP00 ~ ExtraHP05
+                    img_path = os.path.join(hp_folder, f'ExtraHP0{i}.png')
+                    img = load_image(img_path)
+                    HealthBar._hp_images.append(img)
+                print(f"[HealthBar] 체력 바 이미지 로드 완료: {len(HealthBar._hp_images)}개")
+            except Exception as ex:
+                print(f"[HealthBar] 체력 바 이미지 로드 실패: {ex}")
+                HealthBar._hp_images = []
+
+        # UI 위치 및 크기 설정
+        self.x = 150  # 화면 왼쪽에서 150픽셀
+        self.y_from_top = 50  # 화면 위에서 50픽셀
+        self.width_scale = 5.0  # 가로 방향으로 5배 확대
+        self.height_scale = 2.0  # 세로 방향으로 2배 확대
+
+        # 애니메이션 관련 변수
+        self.frame_time = 0.0  # 현재 프레임 경과 시간
+        self.frame_index = 0  # 현재 애니메이션 프레임 인덱스
+        self.frame_duration = 0.1  # 각 프레임 지속 시간 (초) - 조정 가능
+
+        # 폰트 로드
+        self.font = None
+        try:
+            # 폰트 경로 후보
+            font_candidates = [
+                os.path.join('resources', 'Fonts', 'Arial.ttf'),
+                'C:/Windows/Fonts/arial.ttf',
+                'C:/Windows/Fonts/malgun.ttf',
+            ]
+            for font_path in font_candidates:
+                try:
+                    self.font = load_font(font_path, 20)  # 폰트 크기 20으로 조정
+                    print(f"[HealthBar] 폰트 로드 성공: {font_path}")
+                    break
+                except Exception:
+                    continue
+        except Exception as ex:
+            print(f"[HealthBar] 폰트 로드 실패: {ex}")
+
+    def update(self):
+        """애니메이션 프레임 업데이트"""
+        if not HealthBar._hp_images or len(HealthBar._hp_images) == 0:
+            return
+
+        # 시간 기반 애니메이션 진행
+        import time
+        current_time = time.time()
+        if not hasattr(self, '_last_update_time'):
+            self._last_update_time = current_time
+
+        delta_time = current_time - self._last_update_time
+        self._last_update_time = current_time
+
+        self.frame_time += delta_time
+
+        # 프레임 전환
+        if self.frame_time >= self.frame_duration:
+            self.frame_time -= self.frame_duration
+            self.frame_index = (self.frame_index + 1) % len(HealthBar._hp_images)
+
+    def draw(self):
+        """플레이어의 현재 체력에 따라 적절한 체력 바를 표시"""
+        if not HealthBar._hp_images or len(HealthBar._hp_images) == 0:
+            return
+
+        # 플레이어의 현재 체력 비율 계산
+        try:
+            current_health = self.player.stats.get('health')
+            max_health = self.player.stats.get('max_health')
+            health_ratio = current_health / max_health if max_health > 0 else 0
+        except Exception:
+            current_health = 100
+            max_health = 100
+            health_ratio = 1.0  # 기본값
+
+        # 애니메이션 프레임 사용 (상시 재생)
+        image_index = self.frame_index
+        if image_index < 0 or image_index >= len(HealthBar._hp_images):
+            image_index = 0
+
+        hp_image = HealthBar._hp_images[image_index]
+
+        # 화면 좌표 계산 (pico2d는 하단이 0)
+        canvas_h = get_canvas_height()
+        draw_y = canvas_h - self.y_from_top
+
+        # 가로로 늘려서 그리기
+        draw_width = hp_image.w * self.width_scale
+        draw_height = hp_image.h * self.height_scale
+
+        hp_image.draw(self.x, draw_y, draw_width, draw_height)
+
+        # 체력 텍스트 표시 (체력 바 중앙에)
+        if self.font:
+            text_x = self.x * 0.8  # 체력 바 중앙
+            text_y = draw_y  # 체력 바 중앙
+
+            # 체력 텍스트 (현재/최대)
+            health_text = f"{int(current_health)}/{int(max_health)}"
+
+            # 그림자 효과 (가독성 향상)
+            self.font.draw(text_x - 2, text_y - 2, health_text, (0, 0, 0))
+            self.font.draw(text_x - 1, text_y - 1, health_text, (0, 0, 0))
+            # 실제 텍스트 (흰색)
+            self.font.draw(text_x, text_y, health_text, (255, 255, 255))

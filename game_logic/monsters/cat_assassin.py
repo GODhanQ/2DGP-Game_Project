@@ -399,16 +399,60 @@ class Death:
         self.death_duration = 3.0
         self.mark_for_removal = False
 
+        # 넉백 관련 변수 (일반 피격보다 강함)
+        self.knockback_dx = 0
+        self.knockback_dy = 0
+        self.knockback_speed = 350  # Hit의 200보다 크게 (1.75배)
+        self.knockback_duration = 0.4  # Hit의 0.2초보다 길게 (2배)
+        self.knockback_timer = 0.0
+
     def enter(self, e):
         self.death_timer = 0.0
         self.mark_for_removal = False
-        print(f"[CatAssassin Death State] 사망 상태 시작 (3초 후 제거)")
+        self.knockback_timer = 0.0
+
+        # 넉백 방향 계산 (Hit State와 동일한 로직)
+        if e and len(e) > 1 and e[1] is not None:
+            attacker = e[1]
+            attacker_x = attacker.x if hasattr(attacker, 'x') else self.cat.x
+            attacker_y = attacker.y if hasattr(attacker, 'y') else self.cat.y
+
+            if hasattr(attacker, 'owner') and attacker.owner:
+                attacker_x = attacker.owner.x
+                attacker_y = attacker.owner.y
+
+            dx = self.cat.x - attacker_x
+            dy = self.cat.y - attacker_y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            if distance > 0:
+                self.knockback_dx = dx / distance
+                self.knockback_dy = dy / distance
+            else:
+                self.knockback_dx = 1.0
+                self.knockback_dy = 0.0
+        else:
+            self.knockback_dx = 1.0
+            self.knockback_dy = 0.0
+
+        print(f"[CatAssassin Death State] 사망 상태 시작 (3초 후 제거) - 넉백 적용")
 
     def exit(self, e):
         pass
 
     def do(self):
-        self.death_timer += framework.get_delta_time()
+        dt = framework.get_delta_time()
+
+        self.death_timer += dt
+
+        # 넉백 효과 적용 (사망 시에도 밀려남)
+        if self.knockback_timer < self.knockback_duration:
+            progress = self.knockback_timer / self.knockback_duration
+            # 더 부드러운 감속을 위해 제곱 사용
+            current_speed = self.knockback_speed * (1.0 - progress) ** 1.5
+            self.cat.x += self.knockback_dx * current_speed * dt
+            self.cat.y += self.knockback_dy * current_speed * dt
+            self.knockback_timer += dt
 
         if self.death_timer >= self.death_duration and not self.mark_for_removal:
             self.mark_for_removal = True
@@ -455,7 +499,7 @@ class Shuriken(Projectile):
         super().__init__(x, y, target_x, target_y, speed=400, from_player=False)
 
         self.owner = owner
-        self.scale = 2.0
+        self.scale = 3.0
 
         if owner and hasattr(owner, 'stats'):
             self.damage = owner.stats.get('attack_damage')

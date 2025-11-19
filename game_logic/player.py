@@ -624,6 +624,34 @@ class Player:
         defense = self.stats.get('defense') if hasattr(self, 'stats') else 0
         final_damage = max(1.0, damage - defense)
 
+        # 넉백 효과 적용 (공격자로부터 밀려나는 방향)
+        import math
+        knockback_distance = 100.0  # 넉백 거리
+        knockback_duration = 0.3  # 넉백 지속 시간 (초)
+
+        # 공격자의 위치 파악
+        attacker_x = attacker.x if hasattr(attacker, 'x') else self.x
+        attacker_y = attacker.y if hasattr(attacker, 'y') else self.y
+
+        # 넉백 방향 계산 (공격자 -> 플레이어 방향)
+        dx = self.x - attacker_x
+        dy = self.y - attacker_y
+        distance = math.sqrt(dx * dx + dy * dy)
+
+        if distance > 0:
+            # 정규화된 방향 벡터
+            self.knockback_dx = dx / distance
+            self.knockback_dy = dy / distance
+        else:
+            # 공격자와 위치가 같으면 랜덤 방향
+            angle = random.uniform(0, 2 * math.pi)
+            self.knockback_dx = math.cos(angle)
+            self.knockback_dy = math.sin(angle)
+
+        self.knockback_speed = knockback_distance / knockback_duration
+        self.knockback_duration = knockback_duration
+        self.knockback_timer = 0.0
+
         # 체력 감소
         if hasattr(self, 'stats'):
             current_health = self.stats.get('health')
@@ -644,6 +672,7 @@ class Player:
                 print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
                 print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
                 print(f"  무적시간: {self.invincible_duration}초 활성화")
+                print(f"  넉백: 거리 {knockback_distance:.1f}px, 지속시간 {knockback_duration:.2f}초")
                 print(f"{'='*60}\n")
 
             # 체력이 0 이하면 사망
@@ -655,7 +684,6 @@ class Player:
             print(f"[Player] 피격당함! 공격자: {attacker_name} (스탯 시스템 없음)")
 
         # 피격 이펙트 재생 - Wound Particle 생성 (4개)
-        import math
         for i in range(4):
             # 랜덤한 방향으로 파티클 발사
             angle = random.uniform(0, 2 * math.pi)
