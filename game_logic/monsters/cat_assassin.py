@@ -63,32 +63,39 @@ class Idle:
 
 # ========== Chase State (상위 상태) ==========
 class Chase:
-    """플레이어를 추적하는 상태 - Run과 Attack 하위 상태를 가짐"""
+    """플레이어를 추적하는 상태 - Run, Kiting, Attack 하위 상태를 가짐"""
 
     def __init__(self, cat):
         self.cat = cat
         self.lose_range = 600  # 플레이어를 놓치는 거리
         self.attack_range = 300  # 공격 범위
+        self.attack_range_exit = 350  # 공격 범위를 벗어나는 거리 (여유를 둠)
+        self.kiting_min_range = 250  # 너무 가까우면 후퇴할 거리
 
         # 공격 쿨타임 관련
         self.attack_cooldown = 2.0  # 공격 후 2초 대기
         self.attack_cooldown_timer = 0.0  # 쿨타임 타이머
-        self.can_attack = True  # 공격 가능 여부
+        self.can_attack = False  # 공격 가능 여부 - 처음에는 False로 시작
 
         # 하위 상태 머신 생성
         self.RUN = Run(cat)
+        self.KITING = Kiting(cat, self)  # 새로운 Kiting 상태 추가
         self.ATTACK = Attack(cat, self)  # Chase 상태 참조 전달
 
         self.sub_state_machine = StateMachine(
             self.RUN,
             {
-                self.RUN: {in_attack_range: self.ATTACK},
-                self.ATTACK: {out_attack_range: self.RUN, attack_end: self.RUN},
+                self.RUN: {in_attack_range: self.KITING},
+                self.KITING: {out_attack_range: self.RUN, ready_to_attack: self.ATTACK},
+                self.ATTACK: {attack_end: self.KITING},
             }
         )
 
     def enter(self, e):
         print("[Chase State] 추적 시작")
+        # 추적 시작 시 쿨타임 초기화
+        self.can_attack = False
+        self.attack_cooldown_timer = 0.0
         # 하위 상태 머신을 Run 상태로 초기화 (이미 __init__에서 초기화됨)
         # sub_state_machine의 cur_state는 이미 RUN으로 설정되어 있음
         self.sub_state_machine.cur_state.enter(e)
@@ -120,13 +127,31 @@ class Chase:
                 self.cat.state_machine.handle_state_event(('LOSE_PLAYER', None))
                 return
 
-            # 공격 범위 체크 (쿨타임이 끝났을 때만 공격)
-            if distance <= self.attack_range and self.can_attack:
-                # 공격 범위 내 - Attack 상태로 전환
-                self.sub_state_machine.handle_state_event(('IN_ATTACK_RANGE', player))
-            else:
-                # 공격 범위 밖이거나 쿨타임 중 - Run 상태로 전환
-                self.sub_state_machine.handle_state_event(('OUT_ATTACK_RANGE', player))
+            # 현재 하위 상태 확인
+            current_sub_state = self.sub_state_machine.cur_state
+            current_state_name = current_sub_state.__class__.__name__
+
+            # 거리에 따른 상태 전환 (Hysteresis 적용)
+            if isinstance(current_sub_state, Run):
+                # Run 상태: attack_range 이하면 Kiting으로
+                if distance <= self.attack_range:
+                    print(f"[Chase State] 거리 {distance:.1f} - Kiting 상태로 전환 (현재: {current_state_name})")
+                    self.sub_state_machine.handle_state_event(('IN_ATTACK_RANGE', player))
+
+            elif isinstance(current_sub_state, Kiting):
+                # Kiting 상태: attack_range_exit 초과하면 Run으로, can_attack이면 Attack으로
+                if distance > self.attack_range_exit:
+                    print(f"[Chase State] 거리 {distance:.1f} > {self.attack_range_exit} - Run 상태로 전환 (현재: {current_state_name})")
+                    self.sub_state_machine.handle_state_event(('OUT_ATTACK_RANGE', player))
+                elif self.can_attack:
+                    # 쿨타임 끝나고 공격 가능 - Attack 상태로
+                    print(f"[Chase State] 거리 {distance:.1f} - 공격 준비! (현재: {current_state_name}, can_attack: {self.can_attack})")
+                    self.sub_state_machine.handle_state_event(('READY_TO_ATTACK', player))
+                    print(f"[Chase State] 상태 전환 후: {self.sub_state_machine.cur_state.__class__.__name__}")
+
+            elif isinstance(current_sub_state, Attack):
+                # Attack 상태는 애니메이션이 끝나면 자동으로 Kiting으로 복귀
+                pass
 
         # 하위 상태 머신 업데이트
         self.sub_state_machine.update()
@@ -215,6 +240,95 @@ class Run:
                 self.cat.y += move_dy * self.cat.speed * dt
 
     def draw(self):
+        if Run.images and len(Run.images) > 0:
+            Run.images[self.cat.frame].draw(self.cat.x, self.cat.y,
+                                            Run.images[self.cat.frame].w * self.cat.scale,
+                                            Run.images[self.cat.frame].h * self.cat.scale)
+
+# ========== Kiting State (Chase의 하위 상태) ==========
+class Kiting:
+    """공격 사거리 내에서 거리를 유지하며 조금씩 움직이는 상태"""
+
+    def __init__(self, cat, chase_state = None):
+        self.cat = cat
+        self.chase_state = chase_state  # Chase 상태에 대한 참조
+
+        # Run 이미지 사용 (Kiting은 빠르게 움직이므로)
+        # Run 클래스의 이미지를 공유
+
+        # 측면 이동 관련 변수
+        self.strafe_direction = random.choice([-1, 1])  # -1: 왼쪽, 1: 오른쪽
+        self.strafe_change_timer = 0
+        self.strafe_change_interval = 1.5  # 1.5초마다 방향 변경
+        self.strafe_speed_multiplier = 1.0  # 원래 속도의 1.0배
+
+    def enter(self, e):
+        self.cat.frame = 0
+        self.cat.animation_time = 0
+        self.cat.animation_speed = 12  # Run과 같은 빠른 애니메이션
+        self.strafe_direction = random.choice([-1, 1])
+        self.strafe_change_timer = 0
+        print("[Kiting State] 거리 유지하며 움직이기 시작")
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        dt = framework.get_delta_time()
+
+        # 애니메이션 업데이트 (Run 이미지 사용)
+        self.cat.animation_time += dt
+        if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
+            if Run.images and len(Run.images) > 0:
+                self.cat.frame = (self.cat.frame + 1) % len(Run.images)
+            self.cat.animation_time = 0
+
+        # 측면 이동 방향 변경 타이머
+        self.strafe_change_timer += dt
+        if self.strafe_change_timer >= self.strafe_change_interval:
+            self.strafe_direction = random.choice([-1, 1])
+            self.strafe_change_timer = 0
+            print(f"[Kiting State] 이동 방향 변경: {'왼쪽' if self.strafe_direction == -1 else '오른쪽'}")
+
+        # 플레이어와의 거리 체크 및 이동
+        if self.cat.world and 'player' in self.cat.world:
+            player = self.cat.world['player']
+            dx = player.x - self.cat.x
+            dy = player.y - self.cat.y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            if distance > 0:
+                # 플레이어 방향으로의 단위 벡터
+                to_player_x = dx / distance
+                to_player_y = dy / distance
+
+                # 기본 이동 속도 (1.5배)
+                base_speed = self.cat.speed * self.strafe_speed_multiplier
+
+                # 너무 가까우면 후퇴
+                if distance < self.chase_state.kiting_min_range:
+                    # 후퇴 (플레이어 반대 방향으로) - 빠르게
+                    flee_dx = -to_player_x
+                    flee_dy = -to_player_y
+                    self.cat.x += flee_dx * base_speed * dt
+                    self.cat.y += flee_dy * base_speed * dt
+
+                elif distance > self.chase_state.attack_range:
+                    # 너무 멀면 조금 다가가기 (적당한 속도로)
+                    self.cat.x += to_player_x * base_speed * 0.5 * dt
+                    self.cat.y += to_player_y * base_speed * 0.5 * dt
+
+                else:
+                    # 적정 거리 - 측면으로 이동 (strafing)
+                    # 플레이어를 향한 벡터에 수직인 벡터로 이동
+                    perpendicular_x = -to_player_y * self.strafe_direction
+                    perpendicular_y = to_player_x * self.strafe_direction
+
+                    self.cat.x += perpendicular_x * base_speed * dt
+                    self.cat.y += perpendicular_y * base_speed * dt
+
+    def draw(self):
+        # Run 이미지 사용
         if Run.images and len(Run.images) > 0:
             Run.images[self.cat.frame].draw(self.cat.x, self.cat.y,
                                             Run.images[self.cat.frame].w * self.cat.scale,
@@ -477,6 +591,9 @@ def in_attack_range(e):
 
 def out_attack_range(e):
     return e[0] == 'OUT_ATTACK_RANGE'
+
+def ready_to_attack(e):
+    return e[0] == 'READY_TO_ATTACK'
 
 def attack_end(e):
     return e[0] == 'ATTACK_END'

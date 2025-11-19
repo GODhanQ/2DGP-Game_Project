@@ -21,8 +21,8 @@ PLAYER_START_POSITION = {
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        (CatAssassin, 200, 450),
-        (CatAssassin, 600, 450),
+        (CatAssassin, 500, 450),
+        (CatAssassin, 1000, 450),
     ],
     'background': {
         # 'image': 'resources/Texture_organize/UI/Stage_Loading/BlackBG.png',

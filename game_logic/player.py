@@ -343,6 +343,9 @@ class Death:
         self.heart_hit_frame = 0
         self.heart_hit_time = 0.0
 
+        # 플레이어 무장 해제
+        self.player.equipment_manager.unequip_all()
+
         # 넉백 방향 계산
         if e and len(e) > 1 and e[1] is not None:
             attacker = e[1]
@@ -469,7 +472,7 @@ class Player:
         # 무적시간 관련 변수
         self.invincible = False  # 무적 상태인지
         self.invincible_timer = 0.0  # 무적 시간 타이머
-        self.invincible_duration = 1.0  # 무적 시간 지속 시간 (1초)
+        self.invincible_duration = 0.3  # 무적 시간 지속 시간 (0.3초)
 
         # 넉백 관련 변수 (방패 방어 시 사용)
         self.knockback_dx = 0.0
