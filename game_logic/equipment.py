@@ -250,9 +250,9 @@ class Shield(Weapon):
         shield_x = self.player.x + local_offset_x
         shield_y = self.player.y + self.offset_y
 
-        # 방패 크기 (이미지 크기 * scale) - 충돌 범위를 넓게
-        shield_width = self.image.w * self.scale_factor * 1.5  # 1.5배 더 넓게
-        shield_height = self.image.h * self.scale_factor * 1.5
+        # 방패 크기 (이미지 크기 * scale) - 충돌 범위를 매우 넓게
+        shield_width = self.image.w * self.scale_factor * 3.0  # 3배로 확대
+        shield_height = self.image.h * self.scale_factor * 3.0
 
         # 투사체 크기
         if hasattr(projectile, 'get_collision_box'):
@@ -281,42 +281,49 @@ class Shield(Weapon):
 
             print(f"[Shield] AABB 충돌 감지!")
 
-            # 투사체가 플레이어 방향에서 왔는지 확인 (방패 방향과 일치하는지)
+            # 투사체가 플레이어 방향으로 날아오는지 확인
+            # 투사체에서 플레이어로 향하는 벡터 (투사체의 이동 방향과 유사)
             proj_to_player_x = self.player.x - projectile.x
             proj_to_player_y = self.player.y - projectile.y
 
+            # 투사체의 속도 벡터 확인 (투사체가 플레이어 쪽으로 오고 있는지)
+            if hasattr(projectile, 'dx') and hasattr(projectile, 'dy'):
+                # 투사체의 이동 방향과 플레이어 방향이 같은지 확인
+                dot_product = projectile.dx * proj_to_player_x + projectile.dy * proj_to_player_y
+                if dot_product < 0:
+                    # 투사체가 플레이어에게서 멀어지고 있음 (이미 지나침)
+                    print(f"[Shield] 투사체가 플레이어에게서 멀어지고 있음 - 방어 실패")
+                    return False
+
+            print(f"[Shield] 플레이어 위치: ({int(self.player.x)}, {int(self.player.y)})")
             print(f"[Shield] 플레이어 face_dir: {self.player.face_dir}, proj_to_player_x: {proj_to_player_x:.1f}")
 
-            # 투사체가 방패 뒤에서 오는 경우는 막지 못함
-            if self.player.face_dir == 1 and proj_to_player_x < 0:
-                print(f"[Shield] 방패가 오른쪽을 보는데 투사체가 왼쪽에서 옴 - 방어 실패")
-                return False
-            if self.player.face_dir == -1 and proj_to_player_x > 0:
-                print(f"[Shield] 방패가 왼쪽을 보는데 투사체가 오른쪽에서 옴 - 방어 실패")
-                return False
-
+            # 방어 성공 - 방향 체크 제거 (어느 방향에서 오든 방패가 막음)
             print(f"[Shield] 투사체 방어 성공! at ({int(shield_x)}, {int(shield_y)})")
 
-            # 방어 이펙트 생성
+            # 방어 이펙트 생성 (투사체 위치에 생성)
             if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
                 try:
                     from .guard_fx import GuardFX
-                    guard_fx = GuardFX(shield_x, shield_y, scale=self.scale_factor)
+                    # 투사체(공격자) 위치에 이펙트 생성
+                    guard_fx = GuardFX(projectile.x, projectile.y, scale=self.scale_factor)
                     self.player.world['effects_front'].append(guard_fx)
-                    print("[Shield] 방어 이펙트 생성 완료")
+                    print(f"[Shield] 방어 이펙트 생성 완료 at ({int(projectile.x)}, {int(projectile.y)})")
                 except Exception as ex:
                     print(f"[Shield] 방어 이펙트 생성 실패: {ex}")
 
-            # 플레이어 넉백 (약간)
-            knockback_strength = 50  # 픽셀
+            # 플레이어 넉백 (부드럽게)
+            knockback_strength = 100  # 픽셀 (초기 속도 기반)
             distance = math.sqrt(proj_to_player_x**2 + proj_to_player_y**2)
             if distance > 0:
-                knockback_dx = -proj_to_player_x / distance
-                knockback_dy = -proj_to_player_y / distance
-
-                self.player.x += knockback_dx * knockback_strength
-                self.player.y += knockback_dy * knockback_strength
-                print(f"[Shield] 플레이어 넉백 적용: ({knockback_dx * knockback_strength:.1f}, {knockback_dy * knockback_strength:.1f})")
+                # 넉백 방향 계산 (투사체에서 멀어지는 방향)
+                self.player.knockback_dx = proj_to_player_x / distance
+                self.player.knockback_dy = proj_to_player_y / distance
+                # 넉백 속도 및 지속시간 설정
+                self.player.knockback_speed = knockback_strength
+                self.player.knockback_duration = 0.2  # 0.2초 동안 넉백
+                self.player.knockback_timer = 0.0  # 타이머 초기화
+                print(f"[Shield] 플레이어 넉백 시작: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
 
             return True
 

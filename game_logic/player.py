@@ -271,6 +271,7 @@ class Inventory:
 
 class Player:
     def __init__(self):
+        self.world = None
         self.x = get_canvas_width() // 2
         self.y = get_canvas_height() // 2
         self.frame = 0
@@ -290,6 +291,13 @@ class Player:
         self.invincible = False  # 무적 상태인지
         self.invincible_timer = 0.0  # 무적 시간 타이머
         self.invincible_duration = 1.0  # 무적 시간 지속 시간 (1초)
+
+        # 넉백 관련 변수 (방패 방어 시 사용)
+        self.knockback_dx = 0.0
+        self.knockback_dy = 0.0
+        self.knockback_speed = 0.0
+        self.knockback_duration = 0.0
+        self.knockback_timer = 0.0
 
         # 인벤토리 데이터 생성 및 디버그 아이템 채우기
         self.inventory = InventoryData(cols=6, rows=5)
@@ -339,9 +347,19 @@ class Player:
         )
 
     def update(self):
+        dt = framework.get_delta_time()
+
+        # 넉백 효과 적용 (방패 방어 시)
+        if self.knockback_timer < self.knockback_duration:
+            progress = self.knockback_timer / self.knockback_duration
+            current_speed = self.knockback_speed * (1.0 - progress)
+            self.x += self.knockback_dx * current_speed * dt
+            self.y += self.knockback_dy * current_speed * dt
+            self.knockback_timer += dt
+
         # 무적시간 업데이트
         if self.invincible:
-            self.invincible_timer -= framework.get_delta_time()
+            self.invincible_timer -= dt
             if self.invincible_timer <= 0:
                 self.invincible = False
                 self.invincible_timer = 0.0
@@ -636,9 +654,30 @@ class Player:
             attacker_name = attacker.__class__.__name__
             print(f"[Player] 피격당함! 공격자: {attacker_name} (스탯 시스템 없음)")
 
+        # 피격 이펙트 재생 - Wound Particle 생성 (4개)
+        import math
+        for i in range(4):
+            # 랜덤한 방향으로 파티클 발사
+            angle = random.uniform(0, 2 * math.pi)
+            speed = random.uniform(80, 150)  # 속도 랜덤
+            vx = math.cos(angle) * speed
+            vy = math.sin(angle) * speed + random.uniform(50, 100) # 위쪽으로 약간 더 많이
+
+            # 플레이어 위치에서 약간 랜덤한 오프셋
+            offset_x = random.uniform(-10, 10)
+            offset_y = random.uniform(-10, 10)
+
+            wound_particle = VFX_Wound_Particle(
+                self.x + offset_x,
+                self.y + offset_y,
+                vx, vy,
+                scale=3.0
+            )
+            self.particles.append(wound_particle)
+
+        print(f"[Player] 피격 이펙트 생성 완료 (Wound Particle x4)")
+
         # TODO: 추후 추가 가능
-        # - 피격 이펙트 재생
-        # - 넉백 효과
         # - 피격 사운드
 
 class VFX_Run_Particle:
@@ -667,6 +706,77 @@ class VFX_Run_Particle:
         if self.frame < len(self.frames):
             image = self.frames[self.frame]
             image.draw(self.x, self.y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
+
+
+class VFX_Wound_Particle:
+    """피격 시 출혈 파티클 이펙트 (개별 이미지 파일 사용)"""
+    _frames = None  # 클래스 변수로 이미지 프레임 공유
+
+    def __init__(self, x, y, vx, vy, scale=3.0):
+        # 이미지 프레임 로드 (최초 1회만)
+        if VFX_Wound_Particle._frames is None:
+            VFX_Wound_Particle._frames = []
+            wound_folder = os.path.join('resources', 'Texture_organize', 'VFX', 'Wound_Particle')
+            try:
+                for i in range(5):  # WoundParticle_0 ~ WoundParticle_4
+                    img_path = os.path.join(wound_folder, f'WoundParticle_{i}.png')
+                    frame = load_image(img_path)
+                    VFX_Wound_Particle._frames.append(frame)
+                print(f"[WoundParticle] 이미지 로드 완료: {len(VFX_Wound_Particle._frames)}개 프레임")
+            except Exception as ex:
+                print(f"[WoundParticle] 이미지 로드 실패: {ex}")
+                VFX_Wound_Particle._frames = []
+
+        self.x = x
+        self.y = y
+        self.vx = vx  # x 방향 속도
+        self.vy = vy  # y 방향 속도
+        self.scale_factor = scale
+
+        # 애니메이션 설정
+        self.total_frames = 5  # 총 프레임 수
+        self.current_frame = 0
+        self.frame_duration = 0.08  # 각 프레임당 0.08초
+        self.frame_time_acc = 0.0
+        self.life = self.total_frames * self.frame_duration  # 총 수명
+
+        # 중력 효과
+        self.gravity = 200.0  # 픽셀/초^2
+
+    def update(self):
+        dt = framework.get_delta_time()
+
+        # 수명 감소
+        self.life -= dt
+        if self.life <= 0:
+            return False
+
+        # 물리 업데이트
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+        self.vy -= self.gravity * dt  # 중력 적용
+
+        # 애니메이션 업데이트
+        self.frame_time_acc += dt
+        if self.frame_time_acc >= self.frame_duration:
+            self.frame_time_acc -= self.frame_duration
+            self.current_frame += 1
+            if self.current_frame >= self.total_frames:
+                self.current_frame = self.total_frames - 1  # 마지막 프레임 유지
+
+        return True
+
+    def draw(self):
+        if not VFX_Wound_Particle._frames or len(VFX_Wound_Particle._frames) == 0:
+            return
+
+        if self.current_frame < len(VFX_Wound_Particle._frames):
+            image = VFX_Wound_Particle._frames[self.current_frame]
+            image.draw(
+                self.x, self.y,
+                image.w * self.scale_factor,
+                image.h * self.scale_factor
+            )
 
 
 # VFX 전역 배율 설정: 전체 이펙트 크기와 거리(범위)를 일괄 조정
@@ -765,3 +875,4 @@ class VFX_Tier1_Sword_Swing:
                 image.w * self.scale_factor,
                 image.h * self.scale_factor
             )
+

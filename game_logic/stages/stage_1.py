@@ -25,9 +25,9 @@ stage_data = {
         (CatAssassin, 600, 450),
     ],
     'background': {
-        'image': 'resources/Texture_organize/UI/Stage_Loading/BlackBG.png',
-        'width': 1600,
-        'height': 900
+        # 'image': 'resources/Texture_organize/UI/Stage_Loading/BlackBG.png',
+        # 'width': 1600,
+        # 'height': 900
     }
 }
 
