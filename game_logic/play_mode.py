@@ -5,7 +5,7 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE
 
 import game_framework
 from .player import Player
-from .ui_overlay import InventoryOverlay, HealthBar
+from .ui_overlay import InventoryOverlay, HealthBar, ManaBar
 from .cursor import Cursor
 from .loading_screen import LoadingScreen
 # 사용할 스테이지 모듈들을 import 합니다.
@@ -202,6 +202,25 @@ def enter():
 
         health_bar = _HealthBarStub(player)
     world['ui'].append(health_bar)
+
+    print("[play_mode] Creating mana bar...")
+    # mana bar UI 생성
+    try:
+        mana_bar = ManaBar(player)
+        print("[play_mode] ManaBar created successfully")
+    except Exception as ex:
+        print('[play_mode] ManaBar init failed, using stub:', ex)
+
+        class _ManaBarStub:
+            def __init__(self, player):
+                self.player = player
+            def update(self):
+                return
+            def draw(self):
+                return
+
+        mana_bar = _ManaBarStub(player)
+    world['ui'].append(mana_bar)
 
     print("[play_mode] Creating cursor...")
     # cursor on top (safe fallback)

@@ -554,3 +554,97 @@ class HealthBar:
             self.font.draw(text_x - 1, text_y - 1, health_text, (0, 0, 0))
             # 실제 텍스트 (흰색)
             self.font.draw(text_x, text_y, health_text, (255, 255, 255))
+
+
+class ManaBar:
+    """화면 왼쪽 상단에 표시되는 마나 바 UI"""
+    _mp_images = None  # 클래스 변수로 이미지 공유
+
+    def __init__(self, player):
+        self.player = player
+
+        # 마나 바 이미지 로드 (최초 1회만)
+        if ManaBar._mp_images is None:
+            ManaBar._mp_images = []
+            mp_folder = os.path.join('resources', 'Texture_organize', 'UI', 'Erta_MP')
+            try:
+                for i in range(6):  # ExtraMP00 ~ ExtraMP05
+                    img_path = os.path.join(mp_folder, f'ExtraMP0{i}.png')
+                    img = load_image(img_path)
+                    ManaBar._mp_images.append(img)
+                print(f"[ManaBar] 마나 바 이미지 로드 완료: {len(ManaBar._mp_images)}개")
+            except Exception as ex:
+                print(f"[ManaBar] 마나 바 이미지 로드 실패: {ex}")
+                ManaBar._mp_images = []
+
+        # UI 위치 및 크기 설정 (HealthBar보다 아래)
+        self.x = 150  # 화면 왼쪽에서 150픽셀
+        self.y_from_top = 120  # 화면 위에서 120픽셀 (HealthBar보다 아래)
+        self.width_scale = 5.0
+        self.height_scale = 2.0
+
+        # 애니메이션 관련 변수
+        self.frame_time = 0.0
+        self.frame_index = 0
+        self.frame_duration = 0.1
+
+        # 폰트 로드
+        self.font = None
+        try:
+            font_candidates = [
+                os.path.join('resources', 'Fonts', 'Arial.ttf'),
+                'C:/Windows/Fonts/arial.ttf',
+                'C:/Windows/Fonts/malgun.ttf',
+            ]
+            for font_path in font_candidates:
+                try:
+                    self.font = load_font(font_path, 20)
+                    print(f"[ManaBar] 폰트 로드 성공: {font_path}")
+                    break
+                except Exception:
+                    continue
+        except Exception as ex:
+            print(f"[ManaBar] 폰트 로드 실패: {ex}")
+
+    def update(self):
+        if not ManaBar._mp_images or len(ManaBar._mp_images) == 0:
+            return
+        import time
+        current_time = time.time()
+        if not hasattr(self, '_last_update_time'):
+            self._last_update_time = current_time
+        delta_time = current_time - self._last_update_time
+        self._last_update_time = current_time
+        self.frame_time += delta_time
+        if self.frame_time >= self.frame_duration:
+            self.frame_time -= self.frame_duration
+            self.frame_index = (self.frame_index + 1) % len(ManaBar._mp_images)
+
+    def draw(self):
+        if not ManaBar._mp_images or len(ManaBar._mp_images) == 0:
+            return
+        try:
+            current_mana = self.player.stats.get('mana')
+            max_mana = self.player.stats.get('max_mana')
+            mana_ratio = current_mana / max_mana if max_mana > 0 else 0
+        except Exception:
+            current_mana = 100
+            max_mana = 100
+            mana_ratio = 1.0
+        image_index = self.frame_index
+        if image_index < 0 or image_index >= len(ManaBar._mp_images):
+            image_index = 0
+        mp_image = ManaBar._mp_images[image_index]
+        canvas_h = get_canvas_height()
+        draw_y = canvas_h - self.y_from_top
+        draw_width = mp_image.w * self.width_scale
+        draw_height = mp_image.h * self.height_scale
+        mp_image.draw(self.x, draw_y, draw_width, draw_height)
+        if self.font:
+            text_x = self.x * 0.8
+            text_y = draw_y
+            mana_text = f"{int(current_mana)}/{int(max_mana)}"
+            self.font.draw(text_x - 2, text_y - 2, mana_text, (0, 0, 0))
+            self.font.draw(text_x - 1, text_y - 1, mana_text, (0, 0, 0))
+            self.font.draw(text_x, text_y, mana_text, (100, 200, 255))  # 파란색 계열
+
