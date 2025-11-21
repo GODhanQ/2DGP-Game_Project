@@ -407,10 +407,10 @@ class Death:
         # 5초 후 게임 종료
         if self.death_timer >= self.death_duration and not self.game_over_triggered:
             self.game_over_triggered = True
-            print(f"[Player Death State] 5초 경과, 게임 종료")
-            # 게임 종료 처리 - game_framework의 quit() 사용
+            print(f"[Player Death State] 5초 경과, 패배 모드로 전환")
             import game_framework
-            game_framework.quit()
+            from . import defeat_mode
+            game_framework.change_state(defeat_mode, self.player)
 
     def draw(self):
         # 플레이어 사망 이미지 (바닥에 누운 모습)

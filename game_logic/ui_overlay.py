@@ -646,5 +646,5 @@ class ManaBar:
             mana_text = f"{int(current_mana)}/{int(max_mana)}"
             self.font.draw(text_x - 2, text_y - 2, mana_text, (0, 0, 0))
             self.font.draw(text_x - 1, text_y - 1, mana_text, (0, 0, 0))
-            self.font.draw(text_x, text_y, mana_text, (255, 255, 255))  # 파란색 계열
+            self.font.draw(text_x, text_y, mana_text, (255, 255, 255))
 

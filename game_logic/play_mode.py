@@ -8,6 +8,7 @@ from .player import Player
 from .ui_overlay import InventoryOverlay, HealthBar, ManaBar
 from .cursor import Cursor
 from .loading_screen import LoadingScreen
+from . import defeat_mode
 # 사용할 스테이지 모듈들을 import 합니다.
 from .stages import stage_1, stage_2
 

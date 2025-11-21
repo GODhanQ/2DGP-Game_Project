@@ -5,7 +5,7 @@ current_state = None
 _running = False
 
 
-def change_state(new_state):
+def change_state(new_state, *args, **kwargs):
     global current_state
     # exit old state
     try:
@@ -14,23 +14,21 @@ def change_state(new_state):
     except Exception:
         pass
     current_state = new_state
-    # enter new state
-    run(current_state)
-    # try:
-    #     if current_state and hasattr(current_state, 'enter'):
-    #         current_state.enter()
-    # except Exception:
-    #     pass
+    # enter new state (with args if provided)
+    run(current_state, *args, **kwargs)
 
 
-def run(start_state):
+def run(start_state, *args, **kwargs):
     """Start the main loop with start_state (module-like object that exposes
     enter/exit/handle_events/update/draw)."""
     global current_state, _running
     current_state = start_state
     try:
         if current_state and hasattr(current_state, 'enter'):
-            current_state.enter()
+            if args or kwargs:
+                current_state.enter(*args, **kwargs)
+            else:
+                current_state.enter()
     except Exception:
         pass
 
@@ -84,4 +82,3 @@ def run(start_state):
 def quit():
     global _running
     _running = False
-

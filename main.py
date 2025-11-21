@@ -5,7 +5,8 @@ from pico2d import open_canvas, close_canvas
 import game_framework
 import game_logic.title_mode as init_mode
 
-window_width, window_height = 1600, 900
+window_scale = 5
+window_width, window_height = 160 * window_scale, 90 * window_scale
 
 print(f"[main.py] Opening canvas {window_width}x{window_height}...")
 open_canvas(window_width, window_height)
