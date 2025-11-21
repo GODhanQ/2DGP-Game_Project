@@ -1,4 +1,6 @@
 import pico2d as p2
+from pico2d import draw_rectangle
+
 import game_framework
 
 # defeat_mode의 world 레이어 구조 (play_mode와 유사)
@@ -16,6 +18,10 @@ def enter(player):
     world['entities'].append(player)
     player.x = p2.get_canvas_width() // 2
     player.y = p2.get_canvas_height() // 2
+    BG = BGimage('resources/Texture_organize/UI/Stage_Loading/BlackBG.png')
+    world['backgrounds'].append(BG)
+
+
 
 def exit():
     world['entities'].clear()
@@ -23,40 +29,43 @@ def exit():
 
 def update():
     # 필요시 player 등 업데이트
-    for o in world['entities']:
-        if hasattr(o, 'update'):
-            o.update()
-    for o in world['ui']:
-        if hasattr(o, 'update'):
-            o.update()
+    for layer in ['backgrounds', 'entities', 'ui']:
+        for o in world[layer]:
+            if hasattr(o, 'update'):
+                o.update()
 
 def draw():
-    p2.clear_canvas()
-    # (원한다면 player 등 그리기)
-    for o in world['backgrounds']:
-        if hasattr(o, 'draw'):
-            o.draw()
-    for o in world['entities']:
-        if hasattr(o, 'draw'):
-            o.draw()
-    for o in world['ui']:
-        if hasattr(o, 'draw'):
-            o.draw()
-    # 화면 중앙에 "패배" 메시지 출력
-    canvas_w = p2.get_canvas_width()
-    canvas_h = p2.get_canvas_height()
-    center_x = canvas_w // 2.5
-    center_y = canvas_h // 1.25
-    # 폰트 로드 (한글 지원 폰트 우선)
     try:
-        font = p2.load_font('resources/Fonts/pixelroborobo.otf', 80)
-    except Exception:
-        font = None
-    text = "패배"
-    if font:
-        font.draw(center_x, center_y, text, (255, 80, 80))
-    else:
-        p2.draw_text(text, center_x, center_y, (255, 80, 80))
+        p2.clear_canvas()
+        # (원한다면 player 등 그리기)
+        for layer in ['backgrounds', 'entities', 'ui']:
+            for o in world[layer]:
+                try:
+                    if hasattr(o, 'draw'):
+                        o.draw()
+                except Exception as e:
+                    print(f"[defeat_mode] draw error in {layer}: {e}")
+
+        # 화면 중앙에 "패배" 메시지 출력
+        canvas_w = p2.get_canvas_width()
+        canvas_h = p2.get_canvas_height()
+        center_x = canvas_w // 2
+        center_y = canvas_h // 1.25
+        # 폰트 로드 (한글 지원 폰트 우선)
+        try:
+            font = p2.load_font('resources/Fonts/pixelroborobo.otf', 80)
+        except Exception:
+            font = None
+        text = "패배"
+        font_size = 80
+        approx_width = int(len(text) * font_size * 1.0)
+
+        if font:
+            font.draw(center_x - approx_width // 2, center_y, text, (255, 80, 80))
+        else:
+            p2.draw_text(text, center_x - 40, center_y, (255, 80, 80))
+    except Exception as e:
+        print(f"[defeat_mode] draw() exception: {e}")
     p2.update_canvas()
 
 def handle_events():
@@ -75,3 +84,22 @@ def pause():
 def resume():
     pass
 
+class BGimage:
+    """패배 모드용 배경 이미지 클래스"""
+    def __init__(self, image_path):
+        try:
+            self.image = p2.load_image(image_path)
+        except Exception:
+            self.image = None
+
+    def update(self):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        if self.image:
+            canvas_w = p2.get_canvas_width()
+            canvas_h = p2.get_canvas_height()
+            self.image.draw(canvas_w // 2, canvas_h // 2, canvas_w, canvas_h)

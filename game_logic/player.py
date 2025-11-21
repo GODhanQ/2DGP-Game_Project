@@ -277,6 +277,7 @@ class Death:
 
     def __init__(self, player):
         self.player = player
+        self.world = getattr(player, 'world', None)  # play_mode에서 할당된 world 참조
 
         if Death.image is None:
             try:
@@ -313,8 +314,11 @@ class Death:
                 Death.heart_hit_images = []
 
         self.death_timer = 0.0
-        self.death_duration = 5.0  # 5초 후 종료
+        self.death_conversion = 2.0  # 2초 후 변환
+        self.death_duration = 6.0  # 6초 후 종료
+        self.game_over_conversion_triggered = False
         self.game_over_triggered = False
+        self.player_transform = False
 
         # 넉백 관련 변수 (강한 넉백)
         self.knockback_dx = 0
@@ -331,6 +335,42 @@ class Death:
         self.heart_hit_frame = 0
         self.heart_hit_time = 0.0
         self.heart_hit_duration = 0.1  # 각 프레임당 0.1초
+
+        # 사망 모드용 배경 이미지 클래스
+        class BGimage:
+            """사망 모드용 배경 이미지 클래스"""
+
+            def __init__(self, image_path):
+                try:
+                    self.image = load_image(image_path)
+                except Exception as e:
+                    print(f"[Defeat Mode BG] 이미지 로드 실패: {e}")
+                    self.image = None
+
+                self.alpha = 0.0 # 투명도 초기값
+
+            def do(self):
+                pass
+
+            def update(self):
+                # 점진적으로 투명도 증가 / 3초 동안 완전 불투명
+                print(f'[Defeat Mode BG] update() - alpha before: {self.alpha}')
+                if self.alpha < 1.0:
+                    self.alpha += framework.get_delta_time() / 3.0 * 2  # 3초에 걸쳐 1.0 도달
+                    if self.alpha > 1.0:
+                        self.alpha = 1.0
+
+            def draw(self):
+                if self.image:
+                    canvas_w = get_canvas_width()
+                    canvas_h = get_canvas_height()
+                    self.image.opacify(self.alpha)
+                    self.image.draw(canvas_w // 2, canvas_h // 2, canvas_w, canvas_h)
+                    self.image.opacify(1.0)
+                    print(f'[Defeat Mode BG] draw() - alpha: {self.alpha}')
+
+        # 배경 이미지 인스턴스 생성
+        self.BG = BGimage('resources/Texture_organize/UI/Stage_Loading/BlackBG.png')
 
     def enter(self, e):
         self.death_timer = 0.0
@@ -404,6 +444,19 @@ class Death:
                 self.heart_hit_time -= self.heart_hit_duration
                 self.heart_hit_frame += 1
 
+        # 2초 후 사망 이미지로 전환(변환처리)
+        if self.death_timer >= self.death_conversion and not self.game_over_conversion_triggered:
+            self.game_over_conversion_triggered = True
+            self.player_transform = True
+            # 사망 애니메이션 시작 위치 저장
+            self.death_start_x = self.player.x
+            self.death_start_y = self.player.y
+            from .play_mode import world
+            world['extra_bg'].append(self.BG)
+            world['extras'].append(self.player)
+            if self.player in self.world['entities']:
+                world['entities'].remove(self.player)
+
         # 5초 후 게임 종료
         if self.death_timer >= self.death_duration and not self.game_over_triggered:
             self.game_over_triggered = True
@@ -411,6 +464,16 @@ class Death:
             import game_framework
             from . import defeat_mode
             game_framework.change_state(defeat_mode, self.player)
+
+        # 플레이어 사망시 중앙으로 서서히 이동 (3초 동안)
+        if self.player_transform:
+            target_x = get_canvas_width() // 2
+            target_y = get_canvas_height() // 2
+            move_duration = 3.0
+            progress = min((self.death_timer - self.death_conversion) / move_duration, 1.0)
+            # 선형 보간으로 위치 계산
+            self.player.x = self.death_start_x + (target_x - self.death_start_x) * progress
+            self.player.y = self.death_start_y + (target_y - self.death_start_y) * progress
 
     def draw(self):
         # 플레이어 사망 이미지 (바닥에 누운 모습)
@@ -453,7 +516,6 @@ def die(e):
 
 class Player:
     def __init__(self):
-        self.world = None
         self.x = get_canvas_width() // 2
         self.y = get_canvas_height() // 2
         self.frame = 0

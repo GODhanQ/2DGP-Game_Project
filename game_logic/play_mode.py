@@ -21,6 +21,8 @@ world = {
     'entities': [],
     'effects_front': [],
     'ui': [],
+    'extra_bg': [],
+    'extras': [],
     'cursor': []
 }
 world['bg'] = world['ground']
@@ -155,6 +157,7 @@ def enter():
     try:
         player.world = world
     except Exception:
+        pass
         pass
     world['player'] = player # 플레이어를 world에 명시적으로 저장
     world['entities'].append(player)
@@ -317,7 +320,7 @@ def update():
         return  # 로딩 중에는 게임 로직 업데이트 안 함
 
     # 일반 게임 업데이트
-    for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'cursor']:
+    for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
         new_list = []
         for o in list(world[layer_name]):
             try:
@@ -412,7 +415,7 @@ def draw():
         loading_screen.draw()
     else:
         # 일반 게임 화면 그리기
-        for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'cursor']:
+        for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
             for o in world[layer_name]:
                 try:
                     if hasattr(o, 'draw'):
