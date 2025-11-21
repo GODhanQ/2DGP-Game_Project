@@ -579,7 +579,7 @@ class ManaBar:
 
         # UI 위치 및 크기 설정 (HealthBar보다 아래)
         self.x = 150  # 화면 왼쪽에서 150픽셀
-        self.y_from_top = 120  # 화면 위에서 120픽셀 (HealthBar보다 아래)
+        self.y_from_top = 80  # 화면 위에서 120픽셀 (HealthBar보다 아래)
         self.width_scale = 5.0
         self.height_scale = 2.0
 
@@ -646,5 +646,5 @@ class ManaBar:
             mana_text = f"{int(current_mana)}/{int(max_mana)}"
             self.font.draw(text_x - 2, text_y - 2, mana_text, (0, 0, 0))
             self.font.draw(text_x - 1, text_y - 1, mana_text, (0, 0, 0))
-            self.font.draw(text_x, text_y, mana_text, (100, 200, 255))  # 파란색 계열
+            self.font.draw(text_x, text_y, mana_text, (255, 255, 255))  # 파란색 계열
 
