@@ -356,7 +356,7 @@ def handle_events():
                         if not portal_triggered:
                             from . import play_mode
                             print('[lobby_mode] EnterTreePortal triggered: switching to play_mode')
-                            app_framework.change_state(play_mode)
+                            app_framework.change_state(play_mode, player)
                             portal_triggered = True
 
         # broadcast to entities -> ui -> cursor

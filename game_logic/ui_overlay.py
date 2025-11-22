@@ -17,10 +17,14 @@ class InventoryOverlay:
         img_path = os.path.join('resources', 'Texture_organize', 'UI', 'Inventory', 'InventoryBase_New1.png')
         try:
             self.image = load_image(img_path)
+            print(f'[InventoryOverlay] Loaded inventory background image: {img_path}')
         except Exception as ex:
             print('Failed to load inventory image:', img_path, ex)
             self.image = None
-        self.scale = 1.0
+
+        # 기본 스케일 팩터 (모든 인벤토리 요소에 일관되게 적용됨)
+        self.base_scale = 1.5
+        self.scale = self.base_scale  # 현재 적용되는 스케일 (캔버스 크기에 따라 동적 조정)
 
         # 슬롯 이미지 로드
         slot_path = os.path.join('resources', 'Texture_organize', 'UI', 'Inventory', 'InventorySlot_New0.png')
@@ -69,10 +73,8 @@ class InventoryOverlay:
             return
         # 폰트 경로 후보: 리소스 내 존재하면 우선, 없으면 Windows 기본 폰트 경로 사용
         candidates = [
+            'resources/Fonts/pixelroborobo.otf',
             os.path.join('resources', 'Fonts', 'Arial.ttf'),
-            os.path.join('resources', 'Fonts', 'NanumGothic.ttf'),
-            'C:/Windows/Fonts/arial.ttf',
-            'C:/Windows/Fonts/malgun.ttf',  # 한글 폰트
         ]
         for path in candidates:
             try:
@@ -232,14 +234,17 @@ class InventoryOverlay:
             return
 
     def _compute_layout(self, canvas_w, canvas_h):
-        # 배경 목표 위치/배율 계산 (player 인벤토리 열렸을 때와 동일 로직)
+        # 배경 목표 위치/배율 계산 - base_scale을 기준으로 모든 요소에 동일하게 적용
         target_x = canvas_w * 0.75
         target_y = canvas_h * 0.5
         max_w = canvas_w * 0.5
         max_h = canvas_h * 0.8
         scale_w = max_w / self.image.w
         scale_h = max_h / self.image.h
-        scale = min(1.0, scale_w, scale_h)
+        # 캔버스 크기에 따른 동적 스케일 계산 후 base_scale 적용
+        dynamic_scale = min(1.0, scale_w, scale_h)
+        scale = dynamic_scale * self.base_scale
+
         bg_w = self.image.w * scale
         bg_h = self.image.h * scale
         left = target_x - bg_w / 2
@@ -247,7 +252,7 @@ class InventoryOverlay:
         right = target_x + bg_w / 2
         top = target_y + bg_h / 2
 
-        # 슬롯 레이아웃 계산
+        # 슬롯 레이아웃 계산 - 모든 패딩/간격에 scale 적용
         pad_x = self.pad_x * scale
         pad_y = self.pad_y * scale
         gap_x = self.gap_x * scale
@@ -264,7 +269,7 @@ class InventoryOverlay:
         slot_h = (grid_h - gap_y * (self.rows - 1)) / self.rows if self.rows > 0 else 0
         slot_size = max(1.0, min(slot_w, slot_h))
 
-        # 실제 슬롯 이미지 배율
+        # 실제 슬롯 이미지 배율 - scale 반영
         slot_scale_x = slot_size / (self.slot_image.w if self.slot_image else slot_size)
         slot_scale_y = slot_size / (self.slot_image.h if self.slot_image else slot_size)
         slot_scale = min(slot_scale_x, slot_scale_y)
@@ -272,6 +277,7 @@ class InventoryOverlay:
         # 배경 중심 기준 + 오프셋 적용된 그리드 좌표계 계산
         base_slot_draw_w = (self.slot_image.w * slot_scale) if self.slot_image else slot_size
         base_slot_draw_h = (self.slot_image.h * slot_scale) if self.slot_image else slot_size
+        # 슬롯 배율 승수 적용
         slot_draw_w = base_slot_draw_w * getattr(self, 'slot_scale_mult_x', 1.0)
         slot_draw_h = base_slot_draw_h * getattr(self, 'slot_scale_mult_y', 1.0)
         total_w = self.cols * slot_draw_w

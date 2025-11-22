@@ -325,16 +325,16 @@ class Inventory:
 
     def draw(self, draw_x, draw_y):
         # 현재 키 상태에 따라 Idle/Run의 draw를 먼저 실행
-        active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
-        active_state.draw(draw_x, draw_y)
+        # active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
+        # active_state.draw(draw_x, draw_y)
         # 인벤토리 이미지를 화면 오른쪽에 표시 (카메라 스크롤 영향 없음)
-        if self.image:
-            canvas_w = get_canvas_width()
-            canvas_h = get_canvas_height()
-            inv_x = canvas_w - self.image.w * self.scale // 2 - 20
-            inv_y = canvas_h // 2
-            self.image.draw(inv_x, inv_y, self.image.w * self.scale, self.image.h * self.scale)
-
+        # if self.image:
+        #     canvas_w = get_canvas_width()
+        #     canvas_h = get_canvas_height()
+        #     inv_x = canvas_w - self.image.w * self.scale // 2 - 20
+        #     inv_y = canvas_h // 2
+        #     self.image.draw(inv_x, inv_y, self.image.w * self.scale, self.image.h * self.scale)
+        pass
 
 class Death:
     """플레이어 사망 상태"""

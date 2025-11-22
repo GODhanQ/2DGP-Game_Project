@@ -104,7 +104,7 @@ def _complete_stage_change():
 
     print(f"[_complete_stage_change] Changed to Stage {current_stage_index + 1}")
 
-def enter():
+def enter(player):
     global world, current_stage_index, is_stage_cleared
     print("[play_mode] Starting enter()...")
 
@@ -119,7 +119,8 @@ def enter():
     print("[play_mode] Creating player...")
     # create player (use fallback if heavy Player init fails)
     try:
-        player = Player()
+        if player == None:
+            player = Player()
         print("[play_mode] Player created successfully")
     except Exception as ex:
         print('[play_mode] Player initialization failed, using lightweight fallback:', ex)

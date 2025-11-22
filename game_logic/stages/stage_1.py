@@ -4,6 +4,10 @@
 from ..monsters.cat_assassin import CatAssassin
 from ..background import FixedBackground
 
+# 창 크기 설정 (main.py와 동일하게 유지)
+window_scale = 8
+window_width, window_height = 160 * window_scale, 90 * window_scale
+
 # 로딩 화면 정보
 LOADING_SCREEN_INFO = {
     'stage_number': 1,
@@ -25,9 +29,9 @@ stage_data = {
         (CatAssassin, 1000, 450),
     ],
     'background': {
-        # 'image': 'resources/Texture_organize/UI/Stage_Loading/BlackBG.png',
-        # 'width': 1600,
-        # 'height': 900
+        'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/Map_Askard/AskardMap.png',
+        'width': window_width,
+        'height': window_height
     }
 }
 
