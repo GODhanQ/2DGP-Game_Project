@@ -156,9 +156,10 @@ class Run:
         self.particle_spawn_timer += dt
         if self.particle_spawn_timer >= self.particle_spawn_interval:
             self.particle_spawn_timer -= self.particle_spawn_interval
-            # 플레이어 발밑에 파티클 생성 (y좌표 오프셋 조절)
+            # 플레이어 발밑에 파티클 생성 (월드 좌표 사용)
+            # y 오프셋을 줄여서 발 위치에 더 가깝게 배치
             particle_x = self.player.x + random.uniform(-10, 10)
-            particle_y = self.player.y - 40 + random.uniform(-5, 5)
+            particle_y = self.player.y - 20 + random.uniform(-5, 5)  # -40에서 -20으로 조정
             new_particle = VFX_Run_Particle(particle_x, particle_y, self.particle_frames, 0.05, 2.0)
             self.player.particles.append(new_particle)
 
@@ -250,13 +251,19 @@ class Idle:
         canvas_w = get_canvas_width()
         canvas_h = get_canvas_height()
 
-        # camera 가져오기
+        # camera 가져오기 - play_mode 우선, lobby_mode로 폴백
         camera = None
         try:
-            import game_logic.lobby_mode as lobby
-            camera = getattr(lobby, 'camera', None)
+            # 먼저 play_mode에서 카메라 가져오기 시도
+            import game_logic.play_mode as play
+            camera = getattr(play, 'camera', None)
+
+            # play_mode 카메라가 없으면 lobby_mode에서 시도
+            if camera is None:
+                import game_logic.lobby_mode as lobby
+                camera = getattr(lobby, 'camera', None)
         except Exception:
-            pass
+            print(f'[player Idle] 카메라 가져오기 실패')
 
         # 마우스 좌표를 월드 좌표로 변환
         if camera is not None:
@@ -821,6 +828,28 @@ class Player:
     # 신규: 렌더링 - 장비/플레이어/이펙트 순서대로 그리기
     def draw(self, draw_x, draw_y):
         # draw_x, draw_y는 카메라가 적용된 화면 좌표이므로 그대로 사용
+
+        # 디버그 로그 - 카메라 정보 포함
+        camera = None
+        try:
+            # 먼저 play_mode에서 카메라 가져오기 시도
+            import game_logic.play_mode as play
+            camera = getattr(play, 'camera', None)
+
+            # play_mode 카메라가 없으면 lobby_mode에서 시도
+            if camera is None:
+                import game_logic.lobby_mode as lobby
+                camera = getattr(lobby, 'camera', None)
+        except:
+            pass
+
+        # if camera is not None:
+        #     print(f'[Player] draw at screen ({draw_x:.1f}, {draw_y:.1f}), '
+        #           f'world ({self.x:.1f}, {self.y:.1f}), '
+        #           f'camera ({camera.x:.1f}, {camera.y:.1f})')
+        # else:
+        #     print(f'[Player] draw at ({draw_x:.1f}, {draw_y:.1f}), world ({self.x:.1f}, {self.y:.1f}) (NO CAMERA)')
+
         # 1) 장비(뒤쪽) 그리기
         if hasattr(self, 'equipment_manager'):
             self.equipment_manager.draw_back(draw_x, draw_y)
@@ -838,15 +867,7 @@ class Player:
 
         # 4) 파티클/공격 이펙트 (카메라 적용)
         try:
-            # lobby_mode에서 camera 가져오기
-            camera = None
-            if hasattr(self, 'world'):
-                try:
-                    import game_logic.lobby_mode as lobby
-                    camera = lobby.camera
-                except:
-                    pass
-
+            # 위에서 이미 가져온 camera 사용
             for p in getattr(self, 'particles', []):
                 if hasattr(p, 'draw'):
                     if camera is not None:
@@ -1068,7 +1089,7 @@ class VFX_Run_Particle:
         # draw_x, draw_y는 카메라가 적용된 화면 좌표
         if self.frame < len(self.frames):
             image = self.frames[self.frame]
-            image.draw(draw_x, draw_y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
+            image.draw(draw_x, draw_y, image.w * self.scale_factor, image.h * self.scale_factor)
 
 
 class VFX_Wound_Particle:

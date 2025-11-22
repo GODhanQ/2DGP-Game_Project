@@ -49,16 +49,20 @@ class Camera:
         target_y = self.target.y
         self.x += (target_x - self.x) * self.smooth
         self.y += (target_y - self.y) * self.smooth
+
         # 화면의 중앙이 (0,0)이 되도록 카메라 위치 보정
         half_w = self.screen_width // 2
         half_h = self.screen_height // 2
+
         # 맵의 중심이 (0,0) 기준이므로, 카메라의 x, y가 -map_width/2 ~ map_width/2 범위로 제한
         min_x = -self.map_width/2
         max_x = self.map_width/2
         min_y = -self.map_height/2
         max_y = self.map_height/2
+
         self.x = max(min_x, min(self.x, max_x))
         self.y = max(min_y, min(self.y, max_y))
+
         # 만약 맵이 화면보다 작으면 중앙에 고정
         if self.map_width <= self.screen_width:
             self.x = 0
@@ -356,7 +360,7 @@ def handle_events():
                         if not portal_triggered:
                             from . import play_mode
                             print('[lobby_mode] EnterTreePortal triggered: switching to play_mode')
-                            app_framework.change_state(play_mode, player)
+                            app_framework.change_state(play_mode)
                             portal_triggered = True
 
         # broadcast to entities -> ui -> cursor

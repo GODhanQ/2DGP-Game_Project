@@ -29,12 +29,19 @@ def get_mouse_world_position(player):
     mouse_screen_y = canvas_h - my.value
 
     # 카메라 오프셋 적용하여 월드 좌표로 변환
+    # play_mode와 lobby_mode 모두에서 카메라 가져오기
     camera = None
     try:
-        if hasattr(player, 'world'):
+        # 먼저 play_mode에서 카메라 가져오기 시도
+        import game_logic.play_mode as play
+        camera = getattr(play, 'camera', None)
+
+        # play_mode 카메라가 없으면 lobby_mode에서 시도
+        if camera is None:
             import game_logic.lobby_mode as lobby
-            camera = lobby.camera
-    except:
+            camera = getattr(lobby, 'camera', None)
+    except Exception as ex:
+        # 카메라 가져오기 실패 시 None 유지
         pass
 
     if camera is not None:
@@ -75,7 +82,7 @@ class ShieldRangeEffect:
 
         self.player = player
         self.shield = shield
-        self.range_scale = 4.0
+        self.range_scale = 4.0  # 방패 범위 이펙트 크기 조정
 
         # x, y 속성 제거: 카메라 적용을 위해 플레이어 참조만 유지
         # draw()에서 player의 카메라 적용된 좌표를 직접 받아서 사용
@@ -142,17 +149,13 @@ class Weapon:
         self.total_attack_time = self.attack_duration + self.attack_recovery  # 총 공격 시간
 
     def update(self):
-        """마우스 위치를 기준으로 무기 각도 계산"""
-        mx = ctypes.c_int(0)
-        my = ctypes.c_int(0)
-        SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
+        """마우스 위치를 기준으로 무기 각도 계산 (카메라 보정 적용)"""
+        # 마우스 월드 좌표 계산 (카메라 오프셋 고려)
+        world_mouse_x, world_mouse_y = get_mouse_world_position(self.player)
 
-        canvas_h = get_canvas_height()
-        mouse_game_y = canvas_h - my.value
-
-        # 플레이어에서 마우스로 향하는 벡터
-        dx = mx.value - self.player.x
-        dy = mouse_game_y - self.player.y
+        # 플레이어(월드 좌표)에서 마우스(월드 좌표)로 향하는 벡터 계산
+        dx = world_mouse_x - self.player.x
+        dy = world_mouse_y - self.player.y
 
         # 각도 계산 (라디안)
         self.angle = math.atan2(dy, dx)
@@ -313,7 +316,7 @@ class Shield(Weapon):
         if not self.blocking:
             return False
 
-        print(f"[Shield] 방패 전개 중, 투사체 충돌 체크 시작")
+        # print(f"[Shield] 방패 전개 중, 투사체 충돌 체크 시작")
 
         # 방패 중심 위치 계산
         if self.blocking:
@@ -324,8 +327,8 @@ class Shield(Weapon):
         shield_y = self.player.y + self.offset_y
 
         # 방패 크기 (이미지 크기 * scale) - 충돌 범위를 매우 넓게
-        shield_width = self.image.w * self.scale_factor * 3.0  # 3배로 확대
-        shield_height = self.image.h * self.scale_factor * 3.0
+        shield_width = self.image.w * self.scale_factor * 2.5  # 3배로 확대
+        shield_height = self.image.h * self.scale_factor * 2.5
 
         # 투사체 크기
         if hasattr(projectile, 'get_collision_box'):
@@ -344,9 +347,6 @@ class Shield(Weapon):
         proj_right = projectile.x + proj_width / 2
         proj_bottom = projectile.y - proj_height / 2
         proj_top = projectile.y + proj_height / 2
-
-        print(f"[Shield] 방패 위치: ({int(shield_x)}, {int(shield_y)}), 크기: {int(shield_width)}x{int(shield_height)}")
-        print(f"[Shield] 투사체 위치: ({int(projectile.x)}, {int(projectile.y)}), 크기: {int(proj_width)}x{int(proj_height)}")
 
         # 충돌 검사
         if (shield_left < proj_right and shield_right > proj_left and
@@ -367,12 +367,6 @@ class Shield(Weapon):
                     # 투사체가 플레이어에게서 멀어지고 있음 (이미 지나침)
                     print(f"[Shield] 투사체가 플레이어에게서 멀어지고 있음 - 방어 실패")
                     return False
-
-            print(f"[Shield] 플레이어 위치: ({int(self.player.x)}, {int(self.player.y)})")
-            print(f"[Shield] 플레이어 face_dir: {self.player.face_dir}, proj_to_player_x: {proj_to_player_x:.1f}")
-
-            # 방어 성공 - 방향 체크 제거 (어느 방향에서 오든 방패가 막음)
-            print(f"[Shield] 투사체 방어 성공! at ({int(shield_x)}, {int(shield_y)})")
 
             # 방어 이펙트 생성 (투사체 위치에 생성)
             if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
@@ -400,7 +394,7 @@ class Shield(Weapon):
 
             return True
 
-        print(f"[Shield] 충돌 감지 안됨")
+        # print(f"[Shield] 충돌 감지 안됨")
         return False
 
 

@@ -480,13 +480,12 @@ class HealthBar:
         try:
             # 폰트 경로 후보
             font_candidates = [
-                os.path.join('resources', 'Fonts', 'Arial.ttf'),
+                'resources/Fonts/pixelroborobo.otf',
                 'C:/Windows/Fonts/arial.ttf',
-                'C:/Windows/Fonts/malgun.ttf',
             ]
             for font_path in font_candidates:
                 try:
-                    self.font = load_font(font_path, 20)  # 폰트 크기 20으로 조정
+                    self.font = load_font(font_path, 15)  # 폰트 크기 20으로 조정
                     print(f"[HealthBar] 폰트 로드 성공: {font_path}")
                     break
                 except Exception:
@@ -598,13 +597,12 @@ class ManaBar:
         self.font = None
         try:
             font_candidates = [
-                os.path.join('resources', 'Fonts', 'Arial.ttf'),
+                'resources/Fonts/pixelroborobo.otf',
                 'C:/Windows/Fonts/arial.ttf',
-                'C:/Windows/Fonts/malgun.ttf',
             ]
             for font_path in font_candidates:
                 try:
-                    self.font = load_font(font_path, 20)
+                    self.font = load_font(font_path, 15)
                     print(f"[ManaBar] 폰트 로드 성공: {font_path}")
                     break
                 except Exception:

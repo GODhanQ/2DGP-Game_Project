@@ -20,16 +20,16 @@ LOADING_SCREEN_INFO = {
 
 # 플레이어 시작 위치
 PLAYER_START_POSITION = {
-    'x': 400,
-    'y': 450
+    'x': 0,
+    'y': 0
 }
 
 stage_data = {
     'monsters': [
-        (CatAssassin, 200, 200),
-        (CatAssassin, 600, 600),
-        (CatAssassin, 200, 600),
-        (CatAssassin, 600, 200),
+        (CatAssassin, 0, 0),
+        # (CatAssassin, 600, 600),
+        # (CatAssassin, 200, 600),
+        # (CatAssassin, 600, 200),
     ],
     'background': {
         # 'image': 'resources/Texture_organize/UI/Stage_Loading/Stage_2/St2Loading_BG.png',

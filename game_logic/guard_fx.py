@@ -10,6 +10,7 @@ class GuardFX:
     images = None
 
     def __init__(self, x, y, scale=3.0):
+        # 월드 좌표 저장 (카메라 적용 전 좌표)
         self.x = x
         self.y = y
         self.scale = scale
@@ -31,7 +32,7 @@ class GuardFX:
         self.animation_speed = 20  # 빠르게 재생 (20 FPS)
         self.finished = False
 
-        print(f"[GuardFX] 생성됨 at ({int(x)}, {int(y)}), 총 프레임: {len(GuardFX.images) if GuardFX.images else 0}")
+        print(f"[GuardFX] 생성됨 at world({int(x)}, {int(y)}), 총 프레임: {len(GuardFX.images) if GuardFX.images else 0}")
 
     def update(self):
         """이펙트 애니메이션 업데이트"""
@@ -56,8 +57,14 @@ class GuardFX:
 
         return True
 
-    def draw(self):
-        """이펙트 그리기"""
+    def draw(self, draw_x, draw_y):
+        """
+        이펙트 그리기
+
+        Args:
+            draw_x: 카메라가 적용된 화면 X 좌표
+            draw_y: 카메라가 적용된 화면 Y 좌표
+        """
         if not GuardFX.images or len(GuardFX.images) == 0:
             print("[GuardFX] 이미지가 없음!")
             return
@@ -67,8 +74,9 @@ class GuardFX:
 
         frame_idx = min(self.frame, len(GuardFX.images) - 1)
         try:
+            # 카메라가 적용된 좌표(draw_x, draw_y)를 사용하여 그리기
             GuardFX.images[frame_idx].draw(
-                self.x, self.y,
+                draw_x, draw_y,
                 GuardFX.images[frame_idx].w * self.scale,
                 GuardFX.images[frame_idx].h * self.scale
             )

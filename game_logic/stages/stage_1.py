@@ -18,18 +18,17 @@ LOADING_SCREEN_INFO = {
 
 # 플레이어 시작 위치
 PLAYER_START_POSITION = {
-    'x': 300,
-    'y': 300
+    'x': 0,
+    'y': 0
 }
 
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        (CatAssassin, 500, 450),
-        (CatAssassin, 1000, 450),
+        (CatAssassin, 0, 0),
     ],
     'background': {
-        'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/Map_Askard/AskardMap.png',
+        'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/badlandBG.png',
         'width': window_width,
         'height': window_height
     }

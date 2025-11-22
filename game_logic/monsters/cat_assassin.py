@@ -55,9 +55,9 @@ class Idle:
             if distance <= self.detection_range:
                 self.cat.state_machine.handle_state_event(('DETECT_PLAYER', player))
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         if Idle.images and len(Idle.images) > 0:
-            Idle.images[self.cat.frame].draw(self.cat.x, self.cat.y,
+            Idle.images[self.cat.frame].draw(draw_x, draw_y,
                                              Idle.images[self.cat.frame].w * self.cat.scale,
                                              Idle.images[self.cat.frame].h * self.cat.scale)
 
@@ -156,9 +156,9 @@ class Chase:
         # 하위 상태 머신 업데이트
         self.sub_state_machine.update()
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # 하위 상태 머신의 draw 호출
-        self.sub_state_machine.draw()
+        self.sub_state_machine.draw(draw_x, draw_y)
 
 # ========== Run State (Chase의 하위 상태) ==========
 class Run:
@@ -239,9 +239,9 @@ class Run:
                 self.cat.x += move_dx * self.cat.speed * dt
                 self.cat.y += move_dy * self.cat.speed * dt
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         if Run.images and len(Run.images) > 0:
-            Run.images[self.cat.frame].draw(self.cat.x, self.cat.y,
+            Run.images[self.cat.frame].draw(draw_x, draw_y,
                                             Run.images[self.cat.frame].w * self.cat.scale,
                                             Run.images[self.cat.frame].h * self.cat.scale)
 
@@ -327,10 +327,10 @@ class Kiting:
                     self.cat.x += perpendicular_x * base_speed * dt
                     self.cat.y += perpendicular_y * base_speed * dt
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # Run 이미지 사용
         if Run.images and len(Run.images) > 0:
-            Run.images[self.cat.frame].draw(self.cat.x, self.cat.y,
+            Run.images[self.cat.frame].draw(draw_x, draw_y,
                                             Run.images[self.cat.frame].w * self.cat.scale,
                                             Run.images[self.cat.frame].h * self.cat.scale)
 
@@ -394,10 +394,10 @@ class Attack:
 
                     self.cat.state_machine.cur_state.sub_state_machine.handle_state_event(('ATTACK_END', None))
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         if Attack.images and len(Attack.images) > 0:
             frame_idx = min(self.cat.frame, len(Attack.images) - 1)
-            Attack.images[frame_idx].draw(self.cat.x, self.cat.y,
+            Attack.images[frame_idx].draw(draw_x, draw_y,
                                           Attack.images[frame_idx].w * self.cat.scale,
                                           Attack.images[frame_idx].h * self.cat.scale)
 
@@ -487,10 +487,10 @@ class Hit:
                     print(f"[CatAssassin Hit State] 피격 애니메이션 완료, Idle 복귀")
                     self.cat.state_machine.handle_state_event(('HIT_END', None))
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         if Hit.images and len(Hit.images) > 0:
             frame_idx = min(self.cat.frame, len(Hit.images) - 1)
-            Hit.images[frame_idx].draw(self.cat.x, self.cat.y,
+            Hit.images[frame_idx].draw(draw_x, draw_y,
                                        Hit.images[frame_idx].w * self.cat.scale,
                                        Hit.images[frame_idx].h * self.cat.scale)
 
@@ -573,9 +573,9 @@ class Death:
             self.cat.mark_for_removal = True
             print(f"[CatAssassin Death State] 3초 경과, 제거 표시 완료")
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         if Death.image is not None:
-            Death.image.draw(self.cat.x, self.cat.y,
+            Death.image.draw(draw_x, draw_y,
                            Death.image.w * self.cat.scale,
                            Death.image.h * self.cat.scale)
 
@@ -649,16 +649,13 @@ class Shuriken(Projectile):
 
         return True
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         if Shuriken.images and len(Shuriken.images) > 0:
             Shuriken.images[self.frame].draw(
-                self.x, self.y,
+                draw_x, draw_y,
                 Shuriken.images[self.frame].w * self.scale,
                 Shuriken.images[self.frame].h * self.scale
             )
-
-    def get_collision_box(self):
-        return (30, 30)
 
 # CatAssassin (monster)
 class CatAssassin:
@@ -717,21 +714,24 @@ class CatAssassin:
         self.state_machine.update()
         return True
 
-    def draw(self):
-        self.state_machine.draw()
+    def draw(self, draw_x, draw_y):
+        self.state_machine.draw(draw_x, draw_y)
 
-        # Debug: Draw collision box
-        cat_left = self.x - self.collision_width / 2
-        cat_right = self.x + self.collision_width / 2
-        cat_bottom = self.y - self.collision_height / 2
-        cat_top = self.y + self.collision_height / 2
+        # Debug: Draw collision box (카메라 좌표 적용)
+        cat_left = draw_x - self.collision_width / 2
+        cat_right = draw_x + self.collision_width / 2
+        cat_bottom = draw_y - self.collision_height / 2
+        cat_top = draw_y + self.collision_height / 2
         p2.draw_rectangle(cat_left, cat_bottom, cat_right, cat_top)
 
     def attack(self, target):
+        """타겟을 향해 수리검 발사 (월드 좌표 사용)"""
         if self.world:
+            # Shuriken을 CatAssassin의 월드 좌표(self.x, self.y)에서 생성
+            # target의 월드 좌표(target.x, target.y)를 향해 발사
             shuriken = Shuriken(self.x, self.y, target.x, target.y, owner=self)
             self.world['effects_front'].append(shuriken)
-            print(f"CatAssassin at ({int(self.x)}, {int(self.y)}) attacks!")
+            print(f"[CatAssassin] 수리검 발사: 시작({int(self.x)}, {int(self.y)}) -> 목표({int(target.x)}, {int(target.y)})")
 
     def handle_event(self, e):
         pass

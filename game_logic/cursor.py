@@ -124,14 +124,20 @@ class Cursor:
 
         # 우클릭을 홀드할 때만 방패 범위 이미지를 플레이어 주변에 생성 (카메라 적용)
         if right_held and self.shield_range_image is not None and not draw_in_entity:
-            # 카메라 가져오기
+            # 카메라 가져오기 - play_mode와 lobby_mode 모두 지원
             camera = None
             try:
-                if hasattr(self.player, 'world'):
+                # 먼저 play_mode에서 카메라 가져오기 시도
+                import game_logic.play_mode as play
+                camera = getattr(play, 'camera', None)
+
+                # play_mode 카메라가 없으면 lobby_mode에서 시도
+                if camera is None:
                     import game_logic.lobby_mode as lobby
-                    camera = lobby.camera
-            except:
-                pass
+                    camera = getattr(lobby, 'camera', None)
+            except Exception as ex:
+                print(f'[Cursor] 카메라 가져오기 실패: {ex}')
+                camera = None
 
             # 마우스 화면 좌표 가져오기
             mx2 = ctypes.c_int(0)
@@ -184,6 +190,14 @@ class Cursor:
                 self.shield_range_image.w * self.shield_range_scale,
                 self.shield_range_image.h * self.shield_range_scale
             )
+            # 디버그 로그 - 카메라 정보 추가
+            # if camera is not None:
+            #     print(f'[Cursor] Drew shield range at screen ({draw_x_shield:.1f}, {draw_y_shield:.1f}), '
+            #           f'player world ({self.player.x:.1f}, {self.player.y:.1f}), '
+            #           f'player screen ({player_screen_x:.1f}, {player_screen_y:.1f}), '
+            #           f'camera ({camera.x:.1f}, {camera.y:.1f}), angle {theta:.2f}')
+            # else:
+            #     print(f'[Cursor] Drew shield range at ({draw_x_shield:.1f}, {draw_y_shield:.1f}) with angle {theta:.2f} (NO CAMERA)')
 
         # 인벤토리 열림 + 프레임 로드 성공 시 전용 커서 사용 (팁 위치를 마우스 좌표에 정렬)
         if self.player and getattr(self.player, 'inventory_open', False) and self.inv_frames:

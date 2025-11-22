@@ -37,6 +37,129 @@ loading_screen = None
 is_loading = False
 next_stage_to_load = None
 
+
+class Camera:
+    """
+    플레이어를 부드럽게 따라가는 카메라 클래스
+    맵의 경계를 넘지 않도록 제한하며, 화면 중앙을 (0,0)으로 하는 좌표계 사용
+    """
+    def __init__(self, target, map_width, map_height, screen_width, screen_height):
+        """
+        카메라 초기화
+        Args:
+            target: 카메라가 따라갈 대상 (일반적으로 플레이어)
+            map_width: 맵의 전체 너비
+            map_height: 맵의 전체 높이
+            screen_width: 화면 너비
+            screen_height: 화면 높이
+        """
+        self.target = target
+        self.x = target.x
+        self.y = target.y
+        self.map_width = map_width
+        self.map_height = map_height
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.smooth = 0.1  # 부드러운 이동 정도 (0~1, 낮을수록 부드럽고 느림)
+
+        # 맵 오프셋 (배경의 중심점, calculate_background_bounds에서 설정)
+        self.map_offset_x = 0
+        self.map_offset_y = 0
+
+    def update(self):
+        """
+        카메라 위치 업데이트 - 타겟을 부드럽게 따라가며 맵 경계 내로 제한
+        """
+        # 플레이어 위치를 부드럽게 따라감 (LERP - Linear Interpolation)
+        target_x = self.target.x
+        target_y = self.target.y
+        self.x += (target_x - self.x) * self.smooth
+        self.y += (target_y - self.y) * self.smooth
+
+        # 화면의 중앙이 (0,0)이 되도록 카메라 위치 보정
+        half_w = self.screen_width // 2
+        half_h = self.screen_height // 2
+
+        # 맵의 중심이 (0,0) 기준이므로, 카메라의 x, y가 -map_width/2 ~ map_width/2 범위로 제한
+        min_x = -self.map_width/2
+        max_x = self.map_width/2
+        min_y = -self.map_height/2
+        max_y = self.map_height/2
+
+        self.x = max(min_x, min(self.x, max_x))
+        self.y = max(min_y, min(self.y, max_y))
+
+        # 만약 맵이 화면보다 작으면 중앙에 고정
+        if self.map_width <= self.screen_width:
+            self.x = 0
+        if self.map_height <= self.screen_height:
+            self.y = 0
+
+    def apply(self, obj_x, obj_y):
+        """
+        카메라 위치에 따라 오브젝트의 화면 좌표 계산
+        Args:
+            obj_x: 오브젝트의 월드 x 좌표 (맵 중심 기준)
+            obj_y: 오브젝트의 월드 y 좌표 (맵 중심 기준)
+        Returns:
+            tuple: (draw_x, draw_y) - 화면에 그릴 좌표
+        """
+        half_w = self.screen_width // 2
+        half_h = self.screen_height // 2
+        return obj_x - self.x + half_w, obj_y - self.y + half_h
+
+
+# Camera 객체를 전역으로 선언
+camera = None
+
+
+def calculate_background_bounds():
+    """
+    ground 레이어의 모든 배경 객체들의 실제 범위를 계산합니다.
+    모든 배경 이미지를 고려하여 최소/최대 x, y 좌표를 반환합니다.
+
+    Returns:
+        tuple: (min_x, max_x, min_y, max_y) - 배경이 존재하는 실제 영역의 경계
+    """
+    min_x = float('inf')
+    max_x = float('-inf')
+    min_y = float('inf')
+    max_y = float('-inf')
+
+    # ground 레이어의 모든 객체를 순회
+    for obj in world['ground']:
+        # 객체가 x, y, image 속성을 가지고 있는지 확인
+        if hasattr(obj, 'x') and hasattr(obj, 'y') and hasattr(obj, 'image'):
+            # 객체의 중심 좌표
+            obj_x = obj.x
+            obj_y = obj.y
+
+            # 이미지 크기 계산 (scale 속성이 있으면 적용)
+            scale = getattr(obj, 'scale', 1.0)
+            img_width = obj.image.w * scale
+            img_height = obj.image.h * scale
+
+            # 객체의 경계 계산 (중심 기준이므로 절반씩)
+            obj_left = obj_x - img_width / 2
+            obj_right = obj_x + img_width / 2
+            obj_bottom = obj_y - img_height / 2
+            obj_top = obj_y + img_height / 2
+
+            # 최소/최대 값 업데이트
+            min_x = min(min_x, obj_left)
+            max_x = max(max_x, obj_right)
+            min_y = min(min_y, obj_bottom)
+            max_y = max(max_y, obj_top)
+
+    # 유효한 범위가 계산되지 않은 경우 기본값 반환 (1280x720 화면 기준)
+    if min_x == float('inf') or max_x == float('-inf'):
+        print("[WARNING] 배경 범위 계산 실패, 기본값 사용")
+        return (-640, 640, -360, 360)
+
+    print(f"[play_mode] 계산된 배경 범위: X({min_x:.1f} ~ {max_x:.1f}), Y({min_y:.1f} ~ {max_y:.1f})")
+    return (min_x, max_x, min_y, max_y)
+
+
 def change_stage(next_stage_index):
     """다음 스테이지로 변경하는 함수"""
     global current_stage_index, loading_screen, is_loading, next_stage_to_load
@@ -65,7 +188,7 @@ def change_stage(next_stage_index):
 
 def _complete_stage_change():
     """로딩이 완료된 후 실제 스테이지 전환을 수행"""
-    global current_stage_index, world, is_stage_cleared, loading_screen, is_loading, next_stage_to_load
+    global current_stage_index, world, is_stage_cleared, loading_screen, is_loading, next_stage_to_load, camera
 
     print(f"[_complete_stage_change] 스테이지 {next_stage_to_load + 1} 로드 시작")
 
@@ -89,11 +212,38 @@ def _complete_stage_change():
         player_start_pos = getattr(next_stage_module, 'PLAYER_START_POSITION', None)
 
         if player_start_pos:
-            player.x = player_start_pos['x']
-            player.y = player_start_pos['y']
+            # 플레이어 위치를 새 스테이지 시작 위치로 설정
+            new_x = player_start_pos['x']
+            new_y = player_start_pos['y']
+            player.x = new_x
+            player.y = new_y
             print(f"[_complete_stage_change] 플레이어 위치 설정: ({player.x}, {player.y})")
+
+            # 카메라가 존재하면 카메라도 즉시 플레이어 위치로 동기화
+            # (부드러운 전환 없이 즉시 이동)
+            if camera is not None:
+                camera.x = new_x
+                camera.y = new_y
+                print(f"[_complete_stage_change] 카메라 위치 동기화: ({camera.x}, {camera.y})")
         else:
             print(f"[_complete_stage_change] 플레이어 시작 위치 정보 없음, 현재 위치 유지")
+
+    # 새 스테이지의 배경 범위를 다시 계산하여 카메라 범위 업데이트
+    if camera is not None:
+        try:
+            min_x, max_x, min_y, max_y = calculate_background_bounds()
+            map_width = max_x - min_x
+            map_height = max_y - min_y
+
+            # 카메라의 맵 크기 및 오프셋 업데이트
+            camera.map_width = map_width
+            camera.map_height = map_height
+            camera.map_offset_x = (min_x + max_x) / 2
+            camera.map_offset_y = (min_y + max_y) / 2
+
+            print(f"[_complete_stage_change] 카메라 맵 범위 업데이트: {map_width:.1f}x{map_height:.1f}")
+        except Exception as ex:
+            print(f"[_complete_stage_change] 카메라 범위 업데이트 실패: {ex}")
 
     is_stage_cleared = False
 
@@ -104,7 +254,7 @@ def _complete_stage_change():
 
     print(f"[_complete_stage_change] Changed to Stage {current_stage_index + 1}")
 
-def enter(player):
+def enter(player=None):
     global world, current_stage_index, is_stage_cleared
     print("[play_mode] Starting enter()...")
 
@@ -259,13 +409,37 @@ def enter(player):
     except Exception:
         pass
 
+    # Camera 초기화 (Player를 target으로 설정)
+    # ground 레이어의 실제 배경 범위를 계산하여 카메라 제한 범위로 사용
+    try:
+        # 배경 범위 계산 (ground 레이어의 모든 객체 고려)
+        min_x, max_x, min_y, max_y = calculate_background_bounds()
+
+        # 배경 전체 크기 계산
+        map_width = max_x - min_x
+        map_height = max_y - min_y
+
+        screen_width = p2.get_canvas_width()
+        screen_height = p2.get_canvas_height()
+
+        global camera
+        camera = Camera(player, map_width, map_height, screen_width, screen_height)
+
+        # 카메라에 실제 배경 범위의 중심점 정보 전달 (오프셋 계산용)
+        camera.map_offset_x = (min_x + max_x) / 2
+        camera.map_offset_y = (min_y + max_y) / 2
+
+        print(f"[play_mode] Camera initialized for player at ({player.x}, {player.y})")
+        print(f"[play_mode] Map size: {map_width:.1f} x {map_height:.1f}, Offset: ({camera.map_offset_x:.1f}, {camera.map_offset_y:.1f})")
+    except Exception as ex:
+        print(f"[play_mode] Camera initialization failed: {ex}")
+
     print("[play_mode] Loading first stage...")
     # 첫 번째 스테이지 로드
     current_stage_index = 0
     is_stage_cleared = False
     stages[current_stage_index].load(world)
     print(f"[play_mode] Entered play_mode, loaded Stage {current_stage_index + 1}")
-
 
 def exit():
     for k in list(world.keys()):
@@ -308,7 +482,7 @@ def handle_events():
 
 
 def update():
-    global is_stage_cleared, loading_screen, is_loading
+    global is_stage_cleared, loading_screen, is_loading, camera
 
     # 로딩 중이면 로딩 화면만 업데이트
     if is_loading and loading_screen:
@@ -317,8 +491,13 @@ def update():
         # 로딩이 완료되었으면 실제 스테이지 전환
         if loading_screen.is_complete:
             _complete_stage_change()
+            print(f'[play_mode] 스테이지 {current_stage_index + 1} 로딩 완료, 전환 완료')
 
         return  # 로딩 중에는 게임 로직 업데이트 안 함
+
+    # 카메라 업데이트 추가
+    if camera is not None:
+        camera.update()
 
     # 일반 게임 업데이트
     for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
@@ -409,28 +588,45 @@ def update():
 
 
 def draw():
+    global camera
     p2.clear_canvas()
 
     # 로딩 중이면 로딩 화면만 그리기
     if is_loading and loading_screen:
         loading_screen.draw()
     else:
-        # 일반 게임 화면 그리기
-        player_obj = world.get('player')
-        for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
+        # 일반 게임 화면 그리기 (카메라 적용)
+        # 배경, 벽, 엔티티 등은 카메라 위치를 적용하여 그리기
+        for layer_name in ['bg', 'walls', 'upper_ground', 'effects_back', 'entities', 'effects_front', 'extra_bg', 'extras']:
             for o in world[layer_name]:
                 try:
                     if hasattr(o, 'draw'):
-                        # world['player'] 객체만 draw(x, y)로 호출, 그 외에는 draw()만 호출
-                        if layer_name == 'entities' and o is player_obj:
-                            canvas_w = p2.get_canvas_width()
-                            canvas_h = p2.get_canvas_height()
-                            camera_x = o.x - (canvas_w // 2)
-                            camera_y = o.y - (canvas_h // 2)
-                            o.draw(o.x - camera_x, o.y - camera_y)
+                        # x, y 속성이 있는 객체는 카메라 좌표로 변환하여 그리기
+                        if hasattr(o, 'x') and hasattr(o, 'y'):
+                            if camera is not None:
+                                draw_x, draw_y = camera.apply(o.x, o.y)
+                            else:
+                                draw_x, draw_y = o.x, o.y
+                            o.draw(draw_x, draw_y)
                         else:
+                            # x, y 속성이 없는 객체는 그대로 그리기
                             o.draw()
                 except Exception:
                     pass
+
+        # UI와 커서는 카메라 적용하지 않음 (고정 UI)
+        for o in world['ui']:
+            try:
+                if hasattr(o, 'draw'):
+                    o.draw()
+            except Exception:
+                pass
+
+        for o in world['cursor']:
+            try:
+                if hasattr(o, 'draw'):
+                    o.draw()
+            except Exception:
+                pass
 
     p2.update_canvas()
