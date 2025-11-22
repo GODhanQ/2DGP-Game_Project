@@ -333,7 +333,8 @@ def start_game():
     """게임 시작 버튼 콜백"""
     print("[title_mode] 게임 시작")
     import game_logic.play_mode as play_mode
-    game_framework.change_state(play_mode)
+    import game_logic.lobby_mode as lobby_mode
+    game_framework.change_state(lobby_mode)
 
 def quit_game():
     """게임 종료 버튼 콜백"""

@@ -12,7 +12,9 @@ def change_state(new_state, *args, **kwargs):
         if current_state and hasattr(current_state, 'exit'):
             current_state.exit()
     except Exception:
-        pass
+        print(f'[game_framework] Exception during exit of state {current_state}')
+
+    # change state
     current_state = new_state
     # enter new state (with args if provided)
     run(current_state, *args, **kwargs)
@@ -29,8 +31,8 @@ def run(start_state, *args, **kwargs):
                 current_state.enter(*args, **kwargs)
             else:
                 current_state.enter()
-    except Exception:
-        pass
+    except Exception as ex:
+        print(f'[game_framework] Exception {ex} during enter of state {current_state}')
 
     _running = True
     last_time = time.time()
@@ -42,8 +44,8 @@ def run(start_state, *args, **kwargs):
             # update global delta_time used by game_logic modules
             try:
                 gl_framework.set_delta_time(dt)
-            except Exception:
-                pass
+            except Exception as ex:
+                print(f'[game_framework] Exception {ex} during set_delta_time() with dt={dt}')
 
             if current_state is None:
                 break
@@ -52,22 +54,24 @@ def run(start_state, *args, **kwargs):
             try:
                 if hasattr(current_state, 'handle_events'):
                     current_state.handle_events()
-            except Exception:
-                pass
+            except Exception as ex:
+                print(f'[game_framework] Exception {ex} during handle_events() of state {current_state}')
+                print(f'[game_framework] Or Entering Next State with {current_state} handle_events()')
+                print('[game_framework]Continuing main loop...')
 
             # update
             try:
                 if hasattr(current_state, 'update'):
                     current_state.update()
-            except Exception:
-                pass
+            except Exception as ex:
+                print(f'[game_framework] Exception {ex} during update() of state {current_state}')
 
             # draw
             try:
                 if hasattr(current_state, 'draw'):
                     current_state.draw()
-            except Exception:
-                pass
+            except Exception as ex:
+                print(f'[game_framework] Exception {ex} during draw() of state {current_state}')
 
             # small sleep to avoid 100% CPU (frame limiter is handled by resource loads)
             time.sleep(gl_framework.frame_time if hasattr(gl_framework, 'frame_time') else 0.01)
@@ -75,8 +79,8 @@ def run(start_state, *args, **kwargs):
         try:
             if current_state and hasattr(current_state, 'exit'):
                 current_state.exit()
-        except Exception:
-            pass
+        except Exception as ex:
+            print(f'[game_framework] Exception {ex} during exit() of state {current_state}')
 
 
 def quit():

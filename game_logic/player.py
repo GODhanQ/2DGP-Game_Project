@@ -99,16 +99,30 @@ class Run:
         if dir_magnitude > 0:
             norm_dir_x = self.player.dir[0] / dir_magnitude
             norm_dir_y = self.player.dir[1] / dir_magnitude
-            if self.player.x + norm_dir_x * moving_speed * dt > get_canvas_width():
-                self.player.x = get_canvas_width()
-            elif self.player.x + norm_dir_x * moving_speed * dt < 0:
-                self.player.x = 0
-            else: self.player.x += norm_dir_x * moving_speed * dt
-            if self.player.y + norm_dir_y * moving_speed * dt > get_canvas_height():
-                self.player.y = get_canvas_height()
-            elif self.player.y + norm_dir_y * moving_speed * dt < 0:
-                self.player.y = 0
-            else: self.player.y += norm_dir_y * moving_speed * dt
+            new_x = self.player.x + norm_dir_x * moving_speed * dt
+            new_y = self.player.y + norm_dir_y * moving_speed * dt
+            # 화면 경계 체크
+            if new_x > get_canvas_width():
+                new_x = get_canvas_width()
+            elif new_x < 0:
+                new_x = 0
+            if new_y > get_canvas_height():
+                new_y = get_canvas_height()
+            elif new_y < 0:
+                new_y = 0
+            # 벽 충돌 체크 (플레이어 크기 32x48)
+            collided = False
+            try:
+                from game_logic.lobby_mode import world
+                for wall in world['walls']:
+                    if wall.check_collision(new_x, new_y, 32, 48):
+                        collided = True
+                        break
+            except Exception:
+                pass
+            if not collided:
+                self.player.x = new_x
+                self.player.y = new_y
 
 
         # 파티클 생성
@@ -354,7 +368,6 @@ class Death:
 
             def update(self):
                 # 점진적으로 투명도 증가 / 3초 동안 완전 불투명
-                print(f'[Defeat Mode BG] update() - alpha before: {self.alpha}')
                 if self.alpha < 1.0:
                     self.alpha += framework.get_delta_time() / 3.0 * 2  # 3초에 걸쳐 1.0 도달
                     if self.alpha > 1.0:
@@ -367,7 +380,6 @@ class Death:
                     self.image.opacify(self.alpha)
                     self.image.draw(canvas_w // 2, canvas_h // 2, canvas_w, canvas_h)
                     self.image.opacify(1.0)
-                    print(f'[Defeat Mode BG] draw() - alpha: {self.alpha}')
 
         # 배경 이미지 인스턴스 생성
         self.BG = BGimage('resources/Texture_organize/UI/Stage_Loading/BlackBG.png')
@@ -1161,4 +1173,3 @@ class VFX_Tier1_Sword_Swing:
                 image.w * self.scale_factor,
                 image.h * self.scale_factor
             )
-
