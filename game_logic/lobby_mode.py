@@ -381,9 +381,14 @@ def update():
     if projectiles_to_remove:
         world['effects_front'] = [obj for obj in world['effects_front'] if obj not in projectiles_to_remove]
 
-    # 플레이 모드 전환 트리거 확인
-    # TODO: 특정 위치로 가서 행동시 플레이 모드 전환 로직 추가
-    
+    # 포탈 위에 텍스트 표시
+    for obj in world['upper_ground']:
+        if isinstance(obj, EnterTreePortal) and player:
+            if obj.check_player_collision(player):
+                obj.trigger = True
+            else:
+                obj.trigger = False
+
 def draw():
     global camera
     p2.clear_canvas()
@@ -415,7 +420,7 @@ class LobbyBackGround:
     def __init__(self):
         if LobbyBackGround.image is None:
             LobbyBackGround.image = p2.load_image('resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorld0.png')
-        self.scale = 7
+        self.scale = 5
         self.x = 0  # 화면 중심(0,0)으로 위치 보정
         self.y = 0  # 화면 중심(0,0)으로 위치 보정
 
@@ -468,7 +473,8 @@ class EnterTreePortal:
         self.x = x
         self.y = y
         self.scale = scale
-        self.trigger_radius = 50  # 플레이어가 접근해야 하는 반경
+        # self.trigger_radius = 50  # 플레이어가 접근해야 하는 반경
+        self.trigger = False
 
         # animation state
         self.begin_animation_done = False
@@ -548,6 +554,17 @@ class EnterTreePortal:
         except Exception:
             pass
 
+        # 포탈 위에 텍스트 그리기
+        if self.trigger:
+            print(f'[lobby_mode] Drawing portal text at ({draw_x}, {draw_y})')
+            try:
+                text = "F 키를 눌러 나무로 들어가기"
+                font_size = 20
+                approx_width = int(len(text) * font_size * 0.6)
+                p2.draw_text(draw_x - approx_width // 2, draw_y + 80, text, (255, 255, 255))
+            except Exception:
+                pass
+
     def check_player_collision(self, player):
         # 플레이어와 포탈의 히트박스 충돌 검사
         # 플레이어의 크기(w, h)는 기본값 32x32로 가정, 필요시 Player에서 가져올 것
@@ -556,8 +573,8 @@ class EnterTreePortal:
         pw = getattr(player, 'w', 32)
         ph = getattr(player, 'h', 32)
         # 포탈의 히트박스는 중심 기준, 크기는 이미지 크기 * scale * 0.5 (적당히 조정)
-        portal_w = 64 * self.scale
-        portal_h = 128 * self.scale
+        portal_w = 61 * self.scale
+        portal_h = 47 * self.scale
         portal_x = self.x - portal_w / 2
         portal_y = self.y - portal_h / 2
         return (px < portal_x + portal_w and px + pw > portal_x and
