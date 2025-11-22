@@ -101,21 +101,48 @@ class Run:
             norm_dir_y = self.player.dir[1] / dir_magnitude
             new_x = self.player.x + norm_dir_x * moving_speed * dt
             new_y = self.player.y + norm_dir_y * moving_speed * dt
-            # 화면 경계 체크
-            if new_x > get_canvas_width():
-                new_x = get_canvas_width()
-            elif new_x < 0:
-                new_x = 0
-            if new_y > get_canvas_height():
-                new_y = get_canvas_height()
-            elif new_y < 0:
-                new_y = 0
+
+            # 맵 경계 체크 (카메라/월드 좌표 기반)
+            # lobby_mode에서 맵 크기를 가져와 경계 체크
+            try:
+                from game_logic.lobby_mode import world
+                # 배경 오브젝트에서 맵 크기 계산
+                if world['bg']:
+                    bg = world['bg'][0]
+                    map_width = bg.image.w * bg.scale
+                    map_height = bg.image.h * bg.scale
+                    # 맵의 중심이 (0, 0)이므로 경계는 ±map_width/2, ±map_height/2
+                    map_left = -map_width / 2
+                    map_right = map_width / 2
+                    map_bottom = -map_height / 2
+                    map_top = map_height / 2
+
+                    # 플레이어가 맵 경계를 벗어나지 않도록 제한
+                    if new_x < map_left:
+                        new_x = map_left
+                    elif new_x > map_right:
+                        new_x = map_right
+                    if new_y < map_bottom:
+                        new_y = map_bottom
+                    elif new_y > map_top:
+                        new_y = map_top
+            except Exception:
+                # 맵 정보를 가져올 수 없으면 화면 경계로 폴백
+                if new_x > get_canvas_width():
+                    new_x = get_canvas_width()
+                elif new_x < 0:
+                    new_x = 0
+                if new_y > get_canvas_height():
+                    new_y = get_canvas_height()
+                elif new_y < 0:
+                    new_y = 0
+
             # 벽 충돌 체크 (플레이어 크기 32x48)
             collided = False
             try:
                 from game_logic.lobby_mode import world
                 for wall in world['walls']:
-                    if wall.check_collision(new_x, new_y, 32, 48):
+                    if wall.check_collision(new_x - 32//2, new_y - 48//2, 32, 48):
                         collided = True
                         break
             except Exception:
@@ -136,7 +163,7 @@ class Run:
             self.player.particles.append(new_particle)
 
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # 파티클은 Player에서 그림
 
         # 마우스 위치 읽기
@@ -163,14 +190,14 @@ class Run:
 
         # 마우스가 플레이어보다 위에 있으면 upper를 위에 그림
         if mouse_game_y > self.player.y:
-            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,self.player.x, self.player.y,
+            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
-            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,self.player.x, self.player.y,
+            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,draw_x, draw_y,
                                       uw * self.player.scale_factor, uh * self.player.scale_factor)
         else:
-            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,self.player.x, self.player.y,
+            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,draw_x, draw_y,
                                       uw * self.player.scale_factor, uh * self.player.scale_factor)
-            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,self.player.x, self.player.y,
+            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
 
 class Idle:
@@ -207,7 +234,7 @@ class Idle:
             self.frame_time_acc -= self.frame_duration
             self.frame = (self.frame + 1) % len(self.lower_frames)
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # 마우스 위치 읽기
         mx = ctypes.c_int(0)
         my = ctypes.c_int(0)
@@ -232,14 +259,14 @@ class Idle:
 
         # 마우스가 플레이어보다 위에 있으면 upper를 위에 그림
         if mouse_game_y > self.player.y:
-            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,self.player.x, self.player.y,
+            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
-            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,self.player.x, self.player.y,
+            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,draw_x, draw_y,
                                       uw * self.player.scale_factor, uh * self.player.scale_factor)
         else:
-            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,self.player.x, self.player.y,
+            upper.clip_composite_draw(0, 0, uw, uh, 0, flip,draw_x, draw_y,
                                       uw * self.player.scale_factor, uh * self.player.scale_factor)
-            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,self.player.x, self.player.y,
+            lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
 
 
@@ -276,11 +303,17 @@ class Inventory:
         active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
         active_state.do()
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # 현재 키 상태에 따라 Idle/Run의 draw를 먼저 실행
         active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
-        active_state.draw()
-        # 인벤토리 이미지는 별도의 UI 레이어(InventoryOverlay)에서 최상단으로 그림
+        active_state.draw(draw_x, draw_y)
+        # 인벤토리 이미지를 화면 오른쪽에 표시 (카메라 스크롤 영향 없음)
+        if self.image:
+            canvas_w = get_canvas_width()
+            canvas_h = get_canvas_height()
+            inv_x = canvas_w - self.image.w * self.scale // 2 - 20
+            inv_y = canvas_h // 2
+            self.image.draw(inv_x, inv_y, self.image.w * self.scale, self.image.h * self.scale)
 
 
 class Death:
@@ -487,21 +520,20 @@ class Death:
             self.player.x = self.death_start_x + (target_x - self.death_start_x) * progress
             self.player.y = self.death_start_y + (target_y - self.death_start_y) * progress
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # 플레이어 사망 이미지 (바닥에 누운 모습)
         if Death.image is not None:
-            Death.image.draw(self.player.x, self.player.y,
+            Death.image.draw(draw_x, draw_y,
                            Death.image.w * self.player.scale_factor,
                            Death.image.h * self.player.scale_factor)
 
         # PlayerHitFX 이펙트 (플레이어 위치에 크게)
         if Death.hit_fx_images and self.hit_fx_frame < len(Death.hit_fx_images):
             hit_fx_img = Death.hit_fx_images[self.hit_fx_frame]
-            # 플레이어 위치 중앙에 크게 표시
             scale = 3.0
             hit_fx_img.draw(
-                self.player.x,
-                self.player.y,
+                draw_x,
+                draw_y,
                 hit_fx_img.w * scale,
                 hit_fx_img.h * scale
             )
@@ -511,11 +543,10 @@ class Death:
             heart_hit_img = Death.heart_hit_images[self.heart_hit_frame]
             canvas_w = get_canvas_width()
             canvas_h = get_canvas_height()
-            # 플레이어 위치 중앙에 표시
             scale = 3.0
             heart_hit_img.draw(
-                self.player.x,
-                self.player.y,
+                draw_x,
+                draw_y,
                 heart_hit_img.w * scale,
                 heart_hit_img.h * scale
             )
@@ -743,15 +774,16 @@ class Player:
                     self.dir[1] = 1 if self.keys_down['w'] else ( -1 if self.keys_down['s'] else 0)
                 elif event.key == SDLK_s:
                     self.keys_down['s'] = False
-                    self.dir[1] = -1 if self.keys_down['s'] else ( 1 if self.keys_down['w'] else 0)
+                    self.dir[1] = 1 if self.keys_down['w'] else ( -1 if self.keys_down['s'] else 0)
                 elif event.key == SDLK_a:
                     self.keys_down['a'] = False
                     self.dir[0] = -1 if self.keys_down['a'] else ( 1 if self.keys_down['d'] else 0)
                 elif event.key == SDLK_d:
                     self.keys_down['d'] = False
-                    self.dir[0] = 1 if self.keys_down['d'] else ( -1 if self.keys_down['a'] else 0)
-        except Exception:
-            pass
+                    self.dir[0] = -1 if self.keys_down['a'] else ( 1 if self.keys_down['d'] else 0)
+
+        except Exception as ex:
+            print('[Player] 이동 입력 처리 오류:', ex)
 
         moved_after = any(self.keys_down.values())
         try:
@@ -767,44 +799,56 @@ class Player:
             print('[Player] MOVE/STOP 이벤트 처리 오류:', ex)
 
     # 신규: 렌더링 - 장비/플레이어/이펙트 순서대로 그리기
-    def draw(self):
-        # 1) 캐릭터 뒤 장비
-        try:
-            if hasattr(self, 'equipment_manager'):
-                self.equipment_manager.draw_back()
-        except Exception:
-            pass
+    def draw(self, draw_x, draw_y):
+        # draw_x, draw_y는 카메라가 적용된 화면 좌표이므로 그대로 사용
+        # 1) 장비(뒤쪽) 그리기
+        if hasattr(self, 'equipment_manager'):
+            self.equipment_manager.draw_back(draw_x, draw_y)
 
         # 2) 현재 상태 스프라이트(Idle/Run/Inventory)
         try:
             if hasattr(self, 'state_machine'):
-                self.state_machine.draw()
+                self.state_machine.draw(draw_x, draw_y)
         except Exception:
             pass
 
-        # 3) 캐릭터 앞 장비(방패 등)
-        try:
-            if hasattr(self, 'equipment_manager'):
-                self.equipment_manager.draw_front()
-        except Exception:
-            pass
+        # 3) 장비(앞쪽) 그리기
+        if hasattr(self, 'equipment_manager'):
+            self.equipment_manager.draw_front(draw_x, draw_y)
 
-        # 4) 파티클/공격 이펙트
+        # 4) 파티클/공격 이펙트 (카메라 적용)
         try:
+            # lobby_mode에서 camera 가져오기
+            camera = None
+            if hasattr(self, 'world'):
+                try:
+                    import game_logic.lobby_mode as lobby
+                    camera = lobby.camera
+                except:
+                    pass
+
             for p in getattr(self, 'particles', []):
                 if hasattr(p, 'draw'):
-                    p.draw()
+                    if camera is not None:
+                        particle_draw_x, particle_draw_y = camera.apply(p.x, p.y)
+                        p.draw(particle_draw_x, particle_draw_y)
+                    else:
+                        p.draw(p.x, p.y)
             for e in getattr(self, 'attack_effects', []):
                 if hasattr(e, 'draw'):
-                    e.draw()
+                    if camera is not None:
+                        effect_draw_x, effect_draw_y = camera.apply(e.x, e.y)
+                        e.draw(effect_draw_x, effect_draw_y)
+                    else:
+                        e.draw(e.x, e.y)
         except Exception:
             pass
 
-        # Debug: Draw collision box
-        player_left = self.x - self.collision_width / 2
-        player_right = self.x + self.collision_width / 2
-        player_bottom = self.y - self.collision_height / 2
-        player_top = self.y + self.collision_height / 2
+        # 화면에 표시되는 히트박스 (카메라 적용된 좌표 사용)
+        player_left = draw_x - self.collision_width / 2
+        player_right = draw_x + self.collision_width / 2
+        player_bottom = draw_y - self.collision_height / 2
+        player_top = draw_y + self.collision_height / 2
         draw_rectangle(player_left, player_bottom, player_right, player_top)
 
     def check_collision_with_projectile(self, projectile):
@@ -1000,10 +1044,11 @@ class VFX_Run_Particle:
             self.frame = (self.frame + 1) % len(self.frames)
         return True
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
+        # draw_x, draw_y는 카메라가 적용된 화면 좌표
         if self.frame < len(self.frames):
             image = self.frames[self.frame]
-            image.draw(self.x, self.y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
+            image.draw(draw_x, draw_y + 20, image.w * self.scale_factor, image.h * self.scale_factor)
 
 
 class VFX_Wound_Particle:
@@ -1064,14 +1109,15 @@ class VFX_Wound_Particle:
 
         return True
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
+        # draw_x, draw_y는 카메라가 적용된 화면 좌표
         if not VFX_Wound_Particle._frames or len(VFX_Wound_Particle._frames) == 0:
             return
 
         if self.current_frame < len(VFX_Wound_Particle._frames):
             image = VFX_Wound_Particle._frames[self.current_frame]
             image.draw(
-                self.x, self.y,
+                draw_x, draw_y,
                 image.w * self.scale_factor,
                 image.h * self.scale_factor
             )
@@ -1163,13 +1209,14 @@ class VFX_Tier1_Sword_Swing:
                 self.frame = len(self.frames) - 1  # 마지막 프레임 유지
         return True
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
+        # draw_x, draw_y는 카메라가 적용된 화면 좌표
         if self.frame < len(self.frames):
             image = self.frames[self.frame]
             image.clip_composite_draw(
                 0, 0, image.w, image.h,
                 self.angle, self.flip,
-                self.x, self.y,
+                draw_x, draw_y,
                 image.w * self.scale_factor,
                 image.h * self.scale_factor
             )

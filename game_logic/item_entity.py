@@ -88,7 +88,7 @@ class WorldItem:
             # 안전하게 무시
             pass
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         ic = self.icon
         if ic is None:
             return
@@ -96,6 +96,6 @@ class WorldItem:
         h = ic.h * self.scale
         # 아이콘을 중심 기준으로 그림
         try:
-            ic.draw(self.x, self.y, w, h)
+            ic.draw(draw_x, draw_y, w, h)
         except Exception:
             pass

@@ -12,8 +12,8 @@ class StateMachine:
     def update(self):
         self.cur_state.do()
 
-    def draw(self):
-        self.cur_state.draw()
+    def draw(self, draw_x = None, draw_y = None):
+        self.cur_state.draw(draw_x, draw_y)
 
     def handle_state_event(self, state_event):
         processed_event = False

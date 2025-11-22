@@ -62,12 +62,7 @@ class AnimatedVFX:
             self.frame += 1
         return self.life > 0
 
-    def draw(self):
-        if not self.images:
-            return
-        img = self.images[self.frame]
-        try:
-            # pico2d 좌표계: 이미지.draw(x,y,width,height) 중심 기준
-            img.draw(self.x, self.y, img.w * self.scale, img.h * self.scale)
-        except Exception:
-            pass
+    def draw(self, draw_x, draw_y):
+        if self.images and 0 <= self.frame < len(self.images):
+            img = self.images[self.frame]
+            img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)

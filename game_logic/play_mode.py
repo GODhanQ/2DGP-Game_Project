@@ -415,11 +415,20 @@ def draw():
         loading_screen.draw()
     else:
         # 일반 게임 화면 그리기
+        player_obj = world.get('player')
         for layer_name in ['bg', 'effects_back', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
             for o in world[layer_name]:
                 try:
                     if hasattr(o, 'draw'):
-                        o.draw()
+                        # world['player'] 객체만 draw(x, y)로 호출, 그 외에는 draw()만 호출
+                        if layer_name == 'entities' and o is player_obj:
+                            canvas_w = p2.get_canvas_width()
+                            canvas_h = p2.get_canvas_height()
+                            camera_x = o.x - (canvas_w // 2)
+                            camera_y = o.y - (canvas_h // 2)
+                            o.draw(o.x - camera_x, o.y - camera_y)
+                        else:
+                            o.draw()
                 except Exception:
                     pass
 

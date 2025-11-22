@@ -12,6 +12,7 @@ from . import defeat_mode
 # 사용할 스테이지 모듈들을 import 합니다.
 from .stages import stage_1, stage_2
 from PIL import Image
+import math
 
 # world layers: keep same keys as original main.py
 world = {
@@ -29,8 +30,54 @@ world = {
 world['bg'] = world['ground']
 world['player'] = world['entities']  # 플레이어 참조를 위한 키 추가
 
+class Camera:
+    def __init__(self, target, map_width, map_height, screen_width, screen_height):
+        self.target = target
+        self.x = target.x
+        self.y = target.y
+        self.map_width = map_width
+        self.map_height = map_height
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.smooth = 0.1  # 부드러운 이동 정도 (0~1)
+
+    def update(self):
+        # 플레이어 위치를 부드럽게 따라감 (LERP)
+        target_x = self.target.x
+        target_y = self.target.y
+        self.x += (target_x - self.x) * self.smooth
+        self.y += (target_y - self.y) * self.smooth
+        # 화면의 중앙이 (0,0)이 되도록 카메라 위치 보정
+        half_w = self.screen_width // 2
+        half_h = self.screen_height // 2
+        # 맵의 중심이 (0,0) 기준이므로, 카메라의 x, y가 -map_width/2 ~ map_width/2 범위로 제한
+        min_x = -self.map_width/2
+        max_x = self.map_width/2
+        min_y = -self.map_height/2
+        max_y = self.map_height/2
+        self.x = max(min_x, min(self.x, max_x))
+        self.y = max(min_y, min(self.y, max_y))
+        # 만약 맵이 화면보다 작으면 중앙에 고정
+        if self.map_width <= self.screen_width:
+            self.x = 0
+        if self.map_height <= self.screen_height:
+            self.y = 0
+        # self.x, self.y는 맵 중심 기준 카메라 위치
+        # 화면 중앙이 (0,0)이 되도록 보정
+
+    def apply(self, obj_x, obj_y):
+        # 카메라 위치만큼 오브젝트 위치 보정 (화면 중앙 기준)
+        # obj_x, obj_y: 맵 중심(0,0) 기준 좌표
+        # 반환값: 화면에 그릴 좌표 (pico2d 기준, 화면 중앙이 0,0)
+        half_w = self.screen_width // 2
+        half_h = self.screen_height // 2
+        return obj_x - self.x + half_w, obj_y - self.y + half_h
+
+# Camera 객체를 전역으로 선언
+camera = None
+
 def enter():
-    global world
+    global world, camera
     print("[lobby_mode] Starting enter()...")
 
     # clear existing
@@ -80,6 +127,8 @@ def enter():
     # create player (use fallback if heavy Player init fails)
     try:
         player = Player()
+        player.x = 0  # 화면 중심(0,0)으로 위치 보정
+        player.y = 0  # 화면 중심(0,0)으로 위치 보정
         print("[lobby_mode] Player created successfully")
     except Exception as ex:
         print('[lobby_mode] Player initialization failed, using lightweight fallback:', ex)
@@ -87,8 +136,8 @@ def enter():
 
         class _FallbackPlayer:
             def __init__(self):
-                self.x = 400
-                self.y = 300
+                self.x = 0  # 화면 중심(0,0)으로 위치 보정
+                self.y = 0  # 화면 중심(0,0)으로 위치 보정
                 self.face_dir = 1
                 self.scale_factor = 1.0
                 self.keys_down = {'w': False, 'a': False, 's': False, 'd': False}
@@ -121,6 +170,18 @@ def enter():
         pass
     world['player'] = player # 플레이어를 world에 명시적으로 저장
     world['entities'].append(player)
+
+    # Camera 초기화 (Player를 target으로 설정)
+    try:
+        map_width = bg.image.w * bg.scale
+        map_height = bg.image.h * bg.scale
+        screen_width = p2.get_canvas_width()
+        screen_height = p2.get_canvas_height()
+        global camera
+        camera = Camera(player, map_width, map_height, screen_width, screen_height)
+        print(f"[lobby_mode] Camera initialized for player at ({player.x}, {player.y})")
+    except Exception as ex:
+        print(f"[lobby_mode] Camera initialization failed: {ex}")
 
     print("[lobby_mode] Creating inventory overlay...")
     # inventory overlay: pass world reference so InventoryOverlay can spawn WorldItem into this world
@@ -237,7 +298,11 @@ def handle_events():
 
 
 def update():
-    
+    global camera
+    # 카메라 업데이트 추가
+    if camera is not None:
+        camera.update()
+
     # 일반 게임 업데이트
     for layer_name in ['bg', 'effects_back', 'upper_ground', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
         new_list = []
@@ -320,16 +385,29 @@ def update():
     # TODO: 특정 위치로 가서 행동시 플레이 모드 전환 로직 추가
     
 def draw():
+    global camera
     p2.clear_canvas()
     # draw 루프에 'walls' 레이어 포함
-    for layer_name in ['bg', 'walls', 'effects_back', 'upper_ground', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
-        for o in world[layer_name]:
-            try:
-                if hasattr(o, 'draw'):
-                    o.draw()
-            except Exception:
-                print(f'[lobby_mode] Error No draw() object in layer {layer_name}')
-
+    # 모든 오브젝트(배경 포함)에 camera.apply 적용
+    for layer in ['bg', 'walls', 'upper_ground', 'entities', 'effects_back', 'effects_front', 'extras']:
+        for obj in world[layer]:
+            if hasattr(obj, 'x') and hasattr(obj, 'y'):
+                if camera is not None:
+                    draw_x, draw_y = camera.apply(obj.x, obj.y)
+                else:
+                    draw_x, draw_y = obj.x, obj.y
+                if hasattr(obj, 'draw'):
+                    obj.draw(draw_x, draw_y)
+            else:
+                if hasattr(obj, 'draw'):
+                    obj.draw()
+    # UI, cursor 등은 카메라 적용하지 않음
+    for obj in world['ui']:
+        if hasattr(obj, 'draw'):
+            obj.draw()
+    for obj in world['cursor']:
+        if hasattr(obj, 'draw'):
+            obj.draw()
     p2.update_canvas()
 
 class LobbyBackGround:
@@ -337,20 +415,19 @@ class LobbyBackGround:
     def __init__(self):
         if LobbyBackGround.image is None:
             LobbyBackGround.image = p2.load_image('resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorld0.png')
-
-        self.scale = 5.0
-        self.x = p2.get_canvas_width() // 2
-        self.y = p2.get_canvas_height() // 2
+        self.scale = 7
+        self.x = 0  # 화면 중심(0,0)으로 위치 보정
+        self.y = 0  # 화면 중심(0,0)으로 위치 보정
 
     def update(self):
         pass
 
-    def draw(self):
-        LobbyBackGround.image.draw(self.x, self.y, LobbyBackGround.image.w * self.scale, LobbyBackGround.image.h * self.scale)
-        p2.draw_rectangle(self.x - (LobbyBackGround.image.w * self.scale) / 2,
-                          self.y - (LobbyBackGround.image.h * self.scale) / 2,
-                          self.x + (LobbyBackGround.image.w * self.scale) / 2,
-                          self.y + (LobbyBackGround.image.h * self.scale) / 2)
+    def draw(self, draw_x, draw_y):
+        LobbyBackGround.image.draw(draw_x, draw_y, LobbyBackGround.image.w * self.scale, LobbyBackGround.image.h * self.scale)
+        p2.draw_rectangle(draw_x - (LobbyBackGround.image.w * self.scale) / 2,
+                          draw_y - (LobbyBackGround.image.h * self.scale) / 2,
+                          draw_x + (LobbyBackGround.image.w * self.scale) / 2,
+                          draw_y + (LobbyBackGround.image.h * self.scale) / 2)
 
 class EnterTreePortal:
     # frame lists (class-level so images are loaded only once)
@@ -447,15 +524,15 @@ class EnterTreePortal:
 
         return True
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         # draw portal image (begin or cycle)
         try:
             if not self.begin_animation_done and EnterTreePortal.portalImagesBegin:
                 img = EnterTreePortal.portalImagesBegin[min(self.frame_idx, len(EnterTreePortal.portalImagesBegin)-1)]
-                img.draw(self.x, self.y, img.w * self.scale, img.h * self.scale)
+                img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
             elif EnterTreePortal.portalImagesCycle:
                 img = EnterTreePortal.portalImagesCycle[self.frame_idx % len(EnterTreePortal.portalImagesCycle)]
-                img.draw(self.x, self.y, img.w * self.scale, img.h * self.scale)
+                img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
         except Exception:
             # drawing failure should not crash the game
             pass
@@ -464,10 +541,10 @@ class EnterTreePortal:
         try:
             if not self.begin_animation_done and EnterTreePortal.portalFXBegin:
                 fx = EnterTreePortal.portalFXBegin[self.fx_idx % len(EnterTreePortal.portalFXBegin)]
-                fx.draw(self.x, self.y, fx.w * self.scale, fx.h * self.scale)
+                fx.draw(draw_x, draw_y, fx.w * self.scale, fx.h * self.scale)
             elif EnterTreePortal.portalFXCycle:
                 fx = EnterTreePortal.portalFXCycle[self.fx_idx % len(EnterTreePortal.portalFXCycle)]
-                fx.draw(self.x, self.y, fx.w * self.scale, fx.h * self.scale)
+                fx.draw(draw_x, draw_y, fx.w * self.scale, fx.h * self.scale)
         except Exception:
             pass
 
@@ -499,12 +576,12 @@ class LobbyWall:
         return (self.x < px + pw and self.x + self.w > px and
                 self.y < py + ph and self.y + self.h > py)
 
-    def draw(self):
-        # 디버그용: 벽 영역을 빨간색으로 표시
+    def draw(self, draw_x, draw_y):
+        # 카메라 적용 좌표로 벽 영역을 빨간색으로 표시
         try:
-            p2.draw_rectangle(self.x, self.y, self.x + self.w, self.y + self.h)
+            p2.draw_rectangle(draw_x, draw_y, draw_x + self.w, draw_y + self.h)
         except Exception as ex:
-            print(f'[LobbyWall] draw() 실패 at ({self.x}, {self.y}, {self.w}, {self.h}), Exception {ex}')
+            print(f'[LobbyWall] draw() 실패 at ({draw_x}, {draw_y}, {self.w}, {self.h}), Exception {ex}')
 
 def generate_walls_from_png(png_path, block_size=16, bg_x=None, bg_y=None, scale=1.0):
     print(f"[DEBUG] generate_walls_from_png 시작: {png_path}, block_size={block_size}, bg_x={bg_x}, bg_y={bg_y}, scale={scale}")
@@ -517,7 +594,7 @@ def generate_walls_from_png(png_path, block_size=16, bg_x=None, bg_y=None, scale
     walls = []
     pixels = img.load()
     transparent_count = 0
-    # 배경 이미지의 화면 내 좌상단 좌표 계산
+    # 배경 이미지의 화면 내 좌표계 기준 좌표 계산
     if bg_x is None: bg_x = width * scale / 2
     if bg_y is None: bg_y = height * scale / 2
     screen_left = bg_x - (width * scale) / 2

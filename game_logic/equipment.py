@@ -1,17 +1,70 @@
 import ctypes
 import math
 import os
-from pico2d import load_image, get_canvas_height
+from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
 from . import framework
 
 
+def get_mouse_world_position(player):
+    """
+    마우스 화면 좌표를 월드 좌표로 변환하는 헬퍼 함수
+    카메라 스크롤을 고려하여 정확한 월드 좌표를 반환
+
+    Args:
+        player: 플레이어 객체 (world 참조를 통해 camera 접근)
+
+    Returns:
+        tuple: (world_x, world_y) 월드 좌표계에서의 마우스 위치
+    """
+    # 마우스 화면 좌표 가져오기
+    mx = ctypes.c_int(0)
+    my = ctypes.c_int(0)
+    SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
+
+    # pico2d 좌표계로 변환 (Y축 반전)
+    canvas_h = get_canvas_height()
+    canvas_w = get_canvas_width()
+    mouse_screen_x = mx.value
+    mouse_screen_y = canvas_h - my.value
+
+    # 카메라 오프셋 적용하여 월드 좌표로 변환
+    camera = None
+    try:
+        if hasattr(player, 'world'):
+            import game_logic.lobby_mode as lobby
+            camera = lobby.camera
+    except:
+        pass
+
+    if camera is not None:
+        # 화면 좌표 -> 월드 좌표 변환
+        # camera.apply()의 역연산: world_pos = screen_pos - (screen_center - camera_pos)
+        half_w = canvas_w // 2
+        half_h = canvas_h // 2
+        world_x = mouse_screen_x - half_w + camera.x
+        world_y = mouse_screen_y - half_h + camera.y
+    else:
+        # 카메라가 없으면 화면 좌표 그대로 사용
+        world_x = mouse_screen_x
+        world_y = mouse_screen_y
+
+    return world_x, world_y
+
+
 # 방패 범위 이펙트 클래스
 class ShieldRangeEffect:
-    """방패 범위 표시 이펙트 - world['effects_front']에서 관리"""
+    """
+    방패 범위 표시 이펙트 - world['effects_front']에서 관리
+    우클릭으로 방패를 전개할 때 표시되는 범위 이펙트
+
+    주의: 이 클래스는 x, y 속성을 가지지 않습니다.
+    lobby_mode.py의 draw 루프에서 특별 처리가 필요합니다.
+    """
     _range_image = None  # 클래스 변수로 이미지 공유
 
     def __init__(self, player, shield):
+        # 이미지 최초 1회만 로드 (클래스 변수 사용)
         if ShieldRangeEffect._range_image is None:
             range_path = os.path.join('resources', 'Texture_organize', 'Weapon', 'shieldRange.png')
             try:
@@ -24,22 +77,36 @@ class ShieldRangeEffect:
         self.shield = shield
         self.range_scale = 4.0
 
+        # x, y 속성 제거: 카메라 적용을 위해 플레이어 참조만 유지
+        # draw()에서 player의 카메라 적용된 좌표를 직접 받아서 사용
+
     def update(self):
-        # 방패가 blocking 상태가 아니면 제거
+        """
+        매 프레임마다 호출되어 이펙트 상태 업데이트
+        방패가 blocking 상태가 아니면 False를 반환하여 제거됨
+        """
+        # 방패의 blocking 상태가 해제되면 이펙트도 제거
         if not self.shield.blocking:
             return False
+        # x, y 동기화 제거: player 참조만 유지
         return True
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
+        """
+        방패 범위 이펙트 그리기
+
+        Args:
+            draw_x: 카메라가 적용된 플레이어의 화면 X 좌표
+            draw_y: 카메라가 적용된 플레이어의 화면 Y 좌표
+        """
         if ShieldRangeEffect._range_image is None:
             return
 
+        # 방패 범위 각도 계산 (마우스 방향 기준, -90도 오프셋 적용)
         base_offset = -math.pi / 2
         theta = self.shield.range_angle + base_offset
-        half_h_scaled = (ShieldRangeEffect._range_image.h * self.range_scale) * 0.5
-        draw_x = self.player.x - half_h_scaled * math.sin(theta)
-        draw_y = self.player.y + half_h_scaled * math.cos(theta)
 
+        # 카메라가 적용된 draw_x, draw_y를 기준으로 방패 범위 이펙트 그리기
         ShieldRangeEffect._range_image.clip_composite_draw(
             0, 0, ShieldRangeEffect._range_image.w, ShieldRangeEffect._range_image.h,
             theta, '',
@@ -107,11 +174,12 @@ class Weapon:
             return True
         return False
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         """무기를 회전시켜서 그리기"""
-        # 무기 위치 계산 (플레이어 위치 + 오프셋)
-        weapon_x = self.player.x + self.offset_x * math.cos(self.angle)
-        weapon_y = self.player.y + self.offset_y + self.offset_x * math.sin(self.angle)
+        # draw_x, draw_y는 카메라가 적용된 화면 좌표
+        # 무기 위치 계산 (카메라 적용된 플레이어 위치 기준)
+        weapon_x = draw_x + self.offset_x * math.cos(self.angle)
+        weapon_y = draw_y + self.offset_y + self.offset_x * math.sin(self.angle)
 
         # 좌우 반전 결정
         flip = 'h' if self.player.face_dir == -1 else ''
@@ -150,7 +218,7 @@ class Shield(Weapon):
         self.blocking = False
 
     def update(self):
-        """방패: 우클릭 유지 시 각도를 커서 방향으로 갱신"""
+        """방패: 우클릭 유지 시 각도를 커서 방향으로 갱신 (카메라 보정 적용)"""
         # 인벤토리가 열려 있으면 방패 입력/전개 무시
         if getattr(self.player, 'inventory_open', False):
             self.blocking = False
@@ -162,20 +230,23 @@ class Shield(Weapon):
                     self.attack_timer = 0.0
             return
 
-        # 각도는 항상 계산해둠 (범위 이미지를 위한 값)
-        mx = ctypes.c_int(0)
-        my = ctypes.c_int(0)
-        state = SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
-        canvas_h = get_canvas_height()
-        mouse_game_y = canvas_h - my.value
-        dx = mx.value - self.player.x
-        dy = mouse_game_y - self.player.y
+        # 마우스 월드 좌표 계산 (카메라 오프셋 고려)
+        world_mouse_x, world_mouse_y = get_mouse_world_position(self.player)
+
+        # 플레이어(월드 좌표)에서 마우스(월드 좌표)로 향하는 벡터 계산
+        dx = world_mouse_x - self.player.x
+        dy = world_mouse_y - self.player.y
+
+        # 방패 범위 각도 계산 (라디안)
         self.range_angle = math.atan2(dy, dx)
 
         # 이전 blocking 상태 저장
         was_blocking = self.blocking
 
         # 프레임별 우클릭 유지 여부를 직접 폴링하여 blocking 동기화 (이벤트 누락 대비)
+        mx = ctypes.c_int(0)
+        my = ctypes.c_int(0)
+        state = SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
         try:
             right_mask = 1 << (SDL_BUTTON_RIGHT - 1)
             self.blocking = bool(state & right_mask)
@@ -207,7 +278,7 @@ class Shield(Weapon):
             self.attack_timer = 0.0
             print(f"방패로 막기!")
 
-    def draw(self):
+    def draw(self, draw_x, draw_y):
         """방패 본체 그리기 (범위 이미지는 world['effects_front']에서 관리)"""
         # 방패 본체는 회전 없이 플레이어 앞에 고정
         flip = 'h' if self.player.face_dir == -1 else ''
@@ -216,8 +287,10 @@ class Shield(Weapon):
             local_offset_x = self.forward_offset if self.player.face_dir == 1 else -self.forward_offset
         else:
             local_offset_x = 10 if self.player.face_dir == -1 else -10
-        weapon_x = self.player.x + local_offset_x
-        weapon_y = self.player.y + self.offset_y
+
+        # 바라보는 방향에 따른 방패 로컬 오프셋 적용
+        weapon_x = draw_x + local_offset_x
+        weapon_y = draw_y + self.offset_y
 
         self.image.clip_composite_draw(
             0, 0, self.image.w, self.image.h,
@@ -323,7 +396,7 @@ class Shield(Weapon):
                 self.player.knockback_speed = knockback_strength
                 self.player.knockback_duration = 0.2  # 0.2초 동안 넉백
                 self.player.knockback_timer = 0.0  # 타이머 초기화
-                print(f"[Shield] 플레이어 넉백 시작: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
+                print(f"[Shield] 방어 이펙트에 의한 넉백 발생: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
 
             return True
 
@@ -389,17 +462,13 @@ class Sword(Weapon):
         self.total_attack_time = self.attack_duration + self.attack_recovery
 
     def update(self):
-        """마우스 위치를 기준으로 무기 각도 계산"""
-        mx = ctypes.c_int(0)
-        my = ctypes.c_int(0)
-        SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
+        """마우스 위치를 기준으로 무기 각도 계산 (카메라 보정 적용)"""
+        # 마우스 월드 좌표 계산 (카메라 오프셋 고려)
+        world_mouse_x, world_mouse_y = get_mouse_world_position(self.player)
 
-        canvas_h = get_canvas_height()
-        mouse_game_y = canvas_h - my.value
-
-        # 플레이어에서 마우스로 향하는 벡터
-        dx = mx.value - self.player.x
-        dy = mouse_game_y - self.player.y
+        # 플레이어(월드 좌표)에서 마우스(월드 좌표)로 향하는 벡터 계산
+        dx = world_mouse_x - self.player.x
+        dy = world_mouse_y - self.player.y
 
         # 각도 계산 (라디안)
         self.angle = math.atan2(dy, dx)
@@ -562,67 +631,65 @@ class Sword(Weapon):
             # 그 외(공격 중이지만 아직 공격 모션 중이거나 이미 최고 단계면 무시)
             return False
 
-    def draw(self):
-        """검을 회전시켜서 그리기 - 검 자체를 중심으로 회전 + 캐릭터 중심으로 공전"""
-        # 검 자체 회전 각도 계산
-        sword_rotation = 0.0
-        orbit_angle_offset = 0.0  # 캐릭터 중심 공전을 위한 각도 오프셋
-        y_offset_modifier = 0.0
+    def draw(self, draw_x, draw_y):
+        """
+        검을 회전시켜서 그리기 - 검 자체를 중심으로 회전 + 캐릭터 중심으로 공전
+
+        Args:
+            draw_x: 카메라가 적용된 플레이어의 화면 X 좌표
+            draw_y: 카메라가 적용된 플레이어의 화면 Y 좌표
+        """
+        # ========== 공격 모션에 따른 각도 및 오프셋 계산 ==========
+        sword_rotation = 0.0          # 검 자체의 회전 각도 (자전)
+        orbit_angle_offset = 0.0      # 캐릭터 중심 기준 공전 각도 오프셋
+        y_offset_modifier = 0.0       # Y축 위치 오프셋 (공격 시 아래로 내려감)
 
         if self.is_attacking:
             if self.attack_timer < self.attack_duration:
                 # 공격 모션 중 (0 ~ attack_duration)
                 sword_rotation = self.rotation_angle_range * self.attack_progress  # 자전 각도
                 orbit_angle_offset = self.orbit_angle_range * self.attack_progress  # 공전 각도
-
-                # Y축 오프셋: 공격 기간 동안 2 * self.offset_y만큼 내려감 (0 ~ 1)
+                # Y축 오프셋: 공격 시 검을 아래로 내림
                 y_offset_modifier = -3 * self.offset_y * self.attack_progress
             else:
                 # 후딜레이 중 (attack_duration ~ total_attack_time)
-                sword_rotation = self.rotation_angle_range  # 자전 최대 각도 유지
-                orbit_angle_offset = self.orbit_angle_range  # 공전 최대 각도 유지
-
-                # Y축 오프셋: 후딜레이 동안 최대 아래 위치 유지 (후딜레이 끝나면 자동으로 0으로)
+                sword_rotation = self.rotation_angle_range      # 자전 최대 각도 유지
+                orbit_angle_offset = self.orbit_angle_range    # 공전 최대 각도 유지
+                # Y축 오프셋: 후딜레이 동안 최대 아래 위치 유지
                 y_offset_modifier = -3 * self.offset_y
 
-        # 2스테이지(콤보)일 때는 회전 각도를 반대 방향으로 돌림
-        # 반전 적용 조건: 현재 스테이지가 2이고 (공격 모션 구간)일 때만 자전 반전 적용
+        # ========== 2스테이지(콤보) 시 자전 방향 반전 ==========
+        # 콤보 공격 시 검이 반대 방향으로 회전하여 자연스러운 연계 공격 연출
         invert_rotation = (getattr(self, 'stage', 1) == 2 and self.attack_timer < self.attack_duration)
         if invert_rotation:
-            # 자전만 반전하면 검의 회전 방향만 역전되어 자연스러운 콤보 느낌을 줍니다.
             sword_rotation = -sword_rotation
 
-        # base_angle_offset은 항상 동일하게 사용하여 위치 변화 발생을 막음
+        # ========== 검의 기본 각도 오프셋 ==========
         base_offset = self.base_angle_offset
 
-        # 마우스가 왼쪽에 있을 때 (각도가 90도 ~ 270도 범위)
+        # ========== 마우스 위치에 따른 검의 방향 결정 ==========
         angle_deg = math.degrees(self.angle) % 360
 
-        # position_angle(orbit) 먼저 계산
+        # 마우스가 왼쪽/오른쪽에 있는지에 따라 검의 위치와 반전 방향 결정
         if 90 < angle_deg < 270:  # 왼쪽 영역
             flip = 'v'  # 수직 반전
-            # position은 orbit 기반으로 계산 (self.angle - orbit_angle_offset)
+            # 왼쪽: 공전 각도를 빼서 위치 계산
             position_angle = self.angle - orbit_angle_offset
+            # 왼쪽: 자전 각도를 빼서 최종 각도 계산
+            final_angle = position_angle - sword_rotation
         else:  # 오른쪽 영역
             flip = ''
-            # position은 orbit 기반으로 계산 (self.angle + orbit_angle_offset)
+            # 오른쪽: 공전 각도를 더해서 위치 계산
             position_angle = self.angle + orbit_angle_offset
-
-        # final_angle은 position_angle을 기준으로 검 자체의 자전(sword_rotation)을 더/빼서 계산
-        # direction에 따라 검의 자전 방향을 더하거나 뺍니다.
-        if 90 < angle_deg < 270:
-            # 왼쪽
-            final_angle = position_angle - sword_rotation
-        else:
-            # 오른쪽
+            # 오른쪽: 자전 각도를 더해서 최종 각도 계산
             final_angle = position_angle + sword_rotation
 
-        # 검의 위치 계산 (캐릭터 중심으로 공전하도록 position_angle 사용)
-        # 공전 반경은 offset_x(거리)를 사용하고, position_angle(orbit 기반)을 사용합니다.
-        weapon_x = self.player.x + self.offset_x * math.cos(position_angle)
-        weapon_y = self.player.y + self.offset_y + self.offset_x * math.sin(position_angle) + y_offset_modifier
+        # ========== 검의 실제 화면 위치 계산 (카메라 적용 좌표 기준) ==========
+        # draw_x, draw_y는 이미 카메라가 적용된 화면 좌표이므로, 이를 기준으로 offset 적용
+        weapon_x = draw_x + self.offset_x * math.cos(position_angle)
+        weapon_y = draw_y + self.offset_y + self.offset_x * math.sin(position_angle) + y_offset_modifier
 
-        # 회전된 무기 그리기 (검 자체 중심으로 회전)
+        # ========== 검 이미지 그리기 ==========
         self.image.clip_composite_draw(
             0, 0, self.image.w, self.image.h,
             final_angle + base_offset, flip,
@@ -690,12 +757,12 @@ class EquipmentManager:
                 if isinstance(equipment, Shield):
                     equipment.end_block()
 
-    def draw_back(self):
+    def draw_back(self, draw_x, draw_y):
         """캐릭터 뒤에 그려질 장비들"""
         for equipment in self.back_equipment:
-            equipment.draw()
+            equipment.draw(draw_x, draw_y)
 
-    def draw_front(self):
+    def draw_front(self, draw_x, draw_y):
         """캐릭터 앞에 그려질 장비들"""
         for equipment in self.front_equipment:
-            equipment.draw()
+            equipment.draw(draw_x, draw_y)

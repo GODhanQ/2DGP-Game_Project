@@ -1,7 +1,7 @@
 import ctypes
 import os
 import math
-from pico2d import load_image, get_canvas_height
+from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import SDL_GetMouseState, SDL_ShowCursor, SDL_DISABLE, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
 from . import framework
 
@@ -100,7 +100,11 @@ class Cursor:
                 # idle_up: 프레임 6 유지
                 self.frame_idx = 6
 
-    def draw(self):
+    def draw(self, draw_x=None, draw_y=None):
+        if draw_x is None:
+            draw_x = self.x
+        if draw_y is None:
+            draw_y = self.y
         # 방패 전개 범위 오버레이(항상 최상단). 단, 엔티티 레이어에서 그릴 경우 여기서는 생략
         right_held = False
         try:
@@ -118,28 +122,65 @@ class Cursor:
             shield_block = getattr(self.player.shield, 'blocking', False)
             draw_in_entity = getattr(self.player.shield, 'draw_range_in_entity', False)
 
-        # 엔티티 레이어에서 그리고 있지 않을 때만 커서 레이어에서 그림
-        if (right_held or shield_block) and self.shield_range_image is not None and self.player and not draw_in_entity:
-            # 마우스 각도 계산
+        # 우클릭을 홀드할 때만 방패 범위 이미지를 플레이어 주변에 생성 (카메라 적용)
+        if right_held and self.shield_range_image is not None and not draw_in_entity:
+            # 카메라 가져오기
+            camera = None
+            try:
+                if hasattr(self.player, 'world'):
+                    import game_logic.lobby_mode as lobby
+                    camera = lobby.camera
+            except:
+                pass
+
+            # 마우스 화면 좌표 가져오기
             mx2 = ctypes.c_int(0)
             my2 = ctypes.c_int(0)
             SDL_GetMouseState(ctypes.byref(mx2), ctypes.byref(my2))
+
             canvas_h = get_canvas_height()
-            mouse_game_y = canvas_h - my2.value
-            dx = mx2.value - self.player.x
-            dy = mouse_game_y - self.player.y
+            canvas_w = get_canvas_width()
+            mouse_screen_x = mx2.value
+            mouse_screen_y = canvas_h - my2.value
+
+            # 마우스 화면 좌표를 월드 좌표로 변환
+            if camera is not None:
+                half_w = canvas_w // 2
+                half_h = canvas_h // 2
+                mouse_world_x = mouse_screen_x - half_w + camera.x
+                mouse_world_y = mouse_screen_y - half_h + camera.y
+            else:
+                mouse_world_x = mouse_screen_x
+                mouse_world_y = mouse_screen_y
+
+            # 플레이어(월드 좌표)에서 마우스(월드 좌표)로 향하는 벡터 계산
+            dx = mouse_world_x - self.player.x
+            dy = mouse_world_y - self.player.y
+
+            # 각도 계산
             angle = math.atan2(dy, dx)
-            # 기본 각도 -90도 오프셋 + 피벗(이미지 중앙-아래쪽) 보정
             base_offset = -math.pi / 2
             theta = angle + base_offset
+
+            # 플레이어의 월드 좌표를 화면 좌표로 변환
+            if camera is not None:
+                half_w = canvas_w // 2
+                half_h = canvas_h // 2
+                player_screen_x = self.player.x - camera.x + half_w
+                player_screen_y = self.player.y - camera.y + half_h
+            else:
+                player_screen_x = self.player.x
+                player_screen_y = self.player.y
+
+            # 방패 이펙트를 플레이어의 화면 좌표 기준으로 그리기
             half_h_scaled = (self.shield_range_image.h * self.shield_range_scale) * 0.5
-            draw_x = self.player.x - half_h_scaled * math.sin(theta)
-            draw_y = self.player.y + half_h_scaled * math.cos(theta)
-            # 플레이어 중심 기준 회전 렌더 (보정 좌표 사용)
+            draw_x_shield = player_screen_x - half_h_scaled * math.sin(theta)
+            draw_y_shield = player_screen_y + half_h_scaled * math.cos(theta)
+
             self.shield_range_image.clip_composite_draw(
                 0, 0, self.shield_range_image.w, self.shield_range_image.h,
                 theta, '',
-                draw_x, draw_y,
+                draw_x_shield, draw_y_shield,
                 self.shield_range_image.w * self.shield_range_scale,
                 self.shield_range_image.h * self.shield_range_scale
             )
@@ -150,13 +191,11 @@ class Cursor:
             w = img.w * self.scale_factor
             h = img.h * self.scale_factor
             ax, ay = self.inv_anchor
-            # center_x = mouse_x + (0.5 - ax) * width
-            # center_y = mouse_y + (0.5 - ay) * height
             cx = self.x + (0.5 - ax) * w
             cy = self.y + (0.5 - ay) * h
             img.draw(cx, cy, w, h)
         else:
-            self.image.draw(self.x, self.y, self.image.w * self.scale_factor, self.image.h * self.scale_factor)
+            self.image.draw(draw_x, draw_y, self.image.w * self.scale_factor, self.image.h * self.scale_factor)
 
     def handle_event(self, event):
         # 인벤토리 열렸을 때만 클릭 애니메이션 처리
