@@ -249,6 +249,7 @@ class Idle:
         SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
         canvas_w = get_canvas_width()
         canvas_h = get_canvas_height()
+
         # camera 가져오기
         camera = None
         try:
@@ -256,6 +257,7 @@ class Idle:
             camera = getattr(lobby, 'camera', None)
         except Exception:
             pass
+
         # 마우스 좌표를 월드 좌표로 변환
         if camera is not None:
             mouse_game_x = mx.value + (camera.x - canvas_w // 2)
@@ -263,6 +265,7 @@ class Idle:
         else:
             mouse_game_x = mx.value
             mouse_game_y = canvas_h - my.value
+
         # 마우스 x좌표 기준 face_dir 결정
         if mouse_game_x < self.player.x:
             self.player.face_dir = -1
@@ -273,6 +276,7 @@ class Idle:
         upper = self.upper_frames[self.frame]
         lw, lh = lower.w, lower.h
         uw, uh = upper.w, upper.h
+
         # 마우스 y좌표 기준 upper/lower 순서 결정
         if mouse_game_y > self.player.y:
             lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,

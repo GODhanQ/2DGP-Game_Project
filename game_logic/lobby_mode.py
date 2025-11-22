@@ -16,6 +16,7 @@ import math
 
 # world layers: keep same keys as original main.py
 world = {
+    'sky' : [],
     'ground': [],
     'upper_ground': [],
     'walls': [],
@@ -29,6 +30,7 @@ world = {
 }
 world['bg'] = world['ground']
 world['player'] = world['entities']  # 플레이어 참조를 위한 키 추가
+world_list = ['sky', 'ground', 'upper_ground', 'walls', 'effects_back', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']
 
 class Camera:
     def __init__(self, target, map_width, map_height, screen_width, screen_height):
@@ -76,6 +78,52 @@ class Camera:
 # Camera 객체를 전역으로 선언
 camera = None
 
+def calculate_background_bounds():
+    """
+    sky와 ground 레이어의 모든 배경 객체들의 실제 범위를 계산합니다.
+    모든 배경 이미지를 고려하여 최소/최대 x, y 좌표를 반환합니다.
+
+    Returns:
+        tuple: (min_x, max_x, min_y, max_y) - 배경이 존재하는 실제 영역의 경계
+    """
+    min_x = float('inf')
+    max_x = float('-inf')
+    min_y = float('inf')
+    max_y = float('-inf')
+
+    # sky와 ground 레이어의 모든 객체를 순회
+    for layer_name in ['sky', 'ground']:
+        for obj in world[layer_name]:
+            # 객체가 x, y, image, scale 속성을 가지고 있는지 확인
+            if hasattr(obj, 'x') and hasattr(obj, 'y') and hasattr(obj, 'image') and hasattr(obj, 'scale'):
+                # 객체의 중심 좌표
+                obj_x = obj.x
+                obj_y = obj.y
+
+                # 이미지 크기 계산 (scale 적용)
+                img_width = obj.image.w * obj.scale
+                img_height = obj.image.h * obj.scale
+
+                # 객체의 경계 계산 (중심 기준이므로 절반씩)
+                obj_left = obj_x - img_width / 2
+                obj_right = obj_x + img_width / 2
+                obj_bottom = obj_y - img_height / 2
+                obj_top = obj_y + img_height / 2
+
+                # 최소/최대 값 업데이트
+                min_x = min(min_x, obj_left)
+                max_x = max(max_x, obj_right)
+                min_y = min(min_y, obj_bottom)
+                max_y = max(max_y, obj_top)
+
+    # 유효한 범위가 계산되지 않은 경우 기본값 반환
+    if min_x == float('inf') or max_x == float('-inf'):
+        print("[WARNING] 배경 범위 계산 실패, 기본값 사용")
+        return (-800, 800, -600, 600)
+
+    print(f"[lobby_mode] 계산된 배경 범위: X({min_x:.1f} ~ {max_x:.1f}), Y({min_y:.1f} ~ {max_y:.1f})")
+    return (min_x, max_x, min_y, max_y)
+
 def enter():
     global world, camera
     print("[lobby_mode] Starting enter()...")
@@ -87,6 +135,28 @@ def enter():
                 world[k].clear()
         except Exception:
             pass
+
+    # sky
+    print("[lobby_mode] Creating Sky...")
+    whiteBackPath = 'resources/Texture_organize/Map/Dream_Tree/BackGround/WhiteBG.png'
+    skyBackGroundPath = 'resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorldCloudBall_Gradation.png'
+    skyBackPath = 'resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorldCloud_Back.png'
+    skyMidPath = 'resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorldCloud_Mid.png'
+    skyFrontPath = 'resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorldCloud_Front.png'
+    cloudPropPath = 'resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorldCloud_Prop.png'
+    whiteBack = LobbySky(whiteBackPath, 0, 0, 6.5)
+    skyBackGround = LobbySky(skyBackGroundPath, 0, 0, 5.4)
+    skyBack = LobbySky(skyBackPath, 0, 200)
+    skyMid = LobbySky(skyMidPath, 0, 0)
+    skyFront = LobbySky(skyFrontPath, 0, -200)
+    cloudProp = LobbySky(cloudPropPath, 0, -400)
+
+    world['sky'].append(whiteBack)
+    world['sky'].append(skyBackGround)
+    world['sky'].append(skyBack)
+    world['sky'].append(skyMid)
+    world['sky'].append(skyFront)
+    world['sky'].append(cloudProp)
 
     # background
     print("[lobby_mode] Creating Background...")
@@ -107,6 +177,7 @@ def enter():
         print(f"[DEBUG] wall_blocks 반환: {len(wall_blocks)}개")
         for wall in wall_blocks:
             world['walls'].append(wall)
+            pass
         print(f"[lobby_mode] Generated {len(wall_blocks)} walls from PNG transparency.")
     except Exception as ex:
         print(f"[lobby_mode] Wall generation from PNG failed: {ex}")
@@ -167,19 +238,31 @@ def enter():
         player.world = world
     except Exception:
         pass
-        pass
     world['player'] = player # 플레이어를 world에 명시적으로 저장
     world['entities'].append(player)
 
     # Camera 초기화 (Player를 target으로 설정)
+    # sky와 ground 레이어의 실제 배경 범위를 계산하여 카메라 제한 범위로 사용
     try:
-        map_width = bg.image.w * bg.scale
-        map_height = bg.image.h * bg.scale
+        # 배경 범위 계산 (sky와 ground 레이어의 모든 객체 고려)
+        min_x, max_x, min_y, max_y = calculate_background_bounds()
+
+        # 배경 전체 크기 계산
+        map_width = max_x - min_x
+        map_height = max_y - min_y
+
         screen_width = p2.get_canvas_width()
         screen_height = p2.get_canvas_height()
+
         global camera
         camera = Camera(player, map_width, map_height, screen_width, screen_height)
+
+        # 카메라에 실제 배경 범위의 중심점 정보 전달 (오프셋 계산용)
+        camera.map_offset_x = (min_x + max_x) / 2
+        camera.map_offset_y = (min_y + max_y) / 2
+
         print(f"[lobby_mode] Camera initialized for player at ({player.x}, {player.y})")
+        print(f"[lobby_mode] Map size: {map_width:.1f} x {map_height:.1f}, Offset: ({camera.map_offset_x:.1f}, {camera.map_offset_y:.1f})")
     except Exception as ex:
         print(f"[lobby_mode] Camera initialization failed: {ex}")
 
@@ -304,7 +387,7 @@ def update():
         camera.update()
 
     # 일반 게임 업데이트
-    for layer_name in ['bg', 'effects_back', 'upper_ground', 'entities', 'effects_front', 'ui', 'extra_bg', 'extras', 'cursor']:
+    for layer_name in world_list:
         new_list = []
         for o in list(world[layer_name]):
             try:
@@ -392,9 +475,21 @@ def update():
 def draw():
     global camera
     p2.clear_canvas()
-    # draw 루프에 'walls' 레이어 포함
-    # 모든 오브젝트(배경 포함)에 camera.apply 적용
-    for layer in ['bg', 'walls', 'upper_ground', 'entities', 'effects_back', 'effects_front', 'extras']:
+    # 하늘을 가장 먼저 그리기 (배경 뒤)
+    for obj in world['sky']:
+        if hasattr(obj, 'x') and hasattr(obj, 'y'):
+            if camera is not None:
+                draw_x, draw_y = camera.apply(obj.x, obj.y)
+            else:
+                draw_x, draw_y = obj.x, obj.y
+            if hasattr(obj, 'draw'):
+                obj.draw(draw_x, draw_y)
+        else:
+            if hasattr(obj, 'draw'):
+                obj.draw()
+
+    # 나머지 레이어들 (배경, 벽, 엔티티 등)
+    for layer in ['ground', 'walls', 'upper_ground', 'entities', 'effects_back', 'effects_front', 'extra_bg', 'extras']:
         for obj in world[layer]:
             if hasattr(obj, 'x') and hasattr(obj, 'y'):
                 if camera is not None:
@@ -415,12 +510,32 @@ def draw():
             obj.draw()
     p2.update_canvas()
 
+class LobbySky:
+    def __init__(self, path, x=0, y=0, scale=3):
+        self.image = p2.load_image(path)
+        self.scale = scale
+        self.x = x  # 화면 중심(0,0) 기준
+        self.y = y  # 화면 중심(0,0) 기준
+
+    def update(self):
+        pass
+
+    def draw(self, draw_x, draw_y):
+        self.image.draw(draw_x, draw_y, self.image.w * self.scale,
+                        self.image.h * self.scale)
+        # 디버그용 히트박스 (필요시 주석 처리)
+        # p2.draw_rectangle(draw_x - (self.image.w * self.scale) / 2,
+        #                   draw_y - (self.image.h * self.scale) / 2,
+        #                   draw_x + (self.image.w * self.scale) / 2,
+        #                   draw_y + (self.image.h * self.scale) / 2)
+
+
 class LobbyBackGround:
     image = None
     def __init__(self):
         if LobbyBackGround.image is None:
             LobbyBackGround.image = p2.load_image('resources/Texture_organize/Map/Dream_Tree/BackGround/DreamWorld0.png')
-        self.scale = 5
+        self.scale = 6.5
         self.x = 0  # 화면 중심(0,0)으로 위치 보정
         self.y = 0  # 화면 중심(0,0)으로 위치 보정
 
@@ -556,14 +671,15 @@ class EnterTreePortal:
 
         # 포탈 위에 텍스트 그리기
         if self.trigger:
-            print(f'[lobby_mode] Drawing portal text at ({draw_x}, {draw_y})')
             try:
-                text = "F 키를 눌러 나무로 들어가기"
-                font_size = 20
-                approx_width = int(len(text) * font_size * 0.6)
-                p2.draw_text(draw_x - approx_width // 2, draw_y + 80, text, (255, 255, 255))
-            except Exception:
-                pass
+                # print(f'[lobby_mode] Drawing portal text at ({draw_x}, {draw_y})')
+                font = p2.load_font('resources/Fonts/pixelroborobo.otf', 20)
+                text = "[F] 모험하기"
+                font_size = 40
+                approx_width = int(len(text) * font_size * 0.4)
+                font.draw(draw_x - approx_width // 2, draw_y + 10 * self.scale, text, (255, 255, 0))
+            except Exception as ex:
+                print(f'[lobby_mode] 포탈 텍스트 그리기 실패: {ex}')
 
     def check_player_collision(self, player):
         # 플레이어와 포탈의 히트박스 충돌 검사
