@@ -25,7 +25,7 @@ class Cursor:
             try:
                 self.inv_frames.append(load_image(path))
             except Exception as ex:
-                print('Failed to load cursor frame:', path, ex)
+                print(f"\033[91mFailed to load cursor frame: {path}, {ex}\033[0m")
                 self.inv_frames = []
                 break
 
@@ -39,7 +39,7 @@ class Cursor:
         try:
             self.shield_range_image = load_image('resources/Texture_organize/Weapon/shieldRange.png')
         except Exception as ex:
-            print('Failed to load shield range image in cursor:', ex)
+            print(f"\033[91mFailed to load shield range image in cursor: {ex}\033[0m")
             self.shield_range_image = None
         self.shield_range_scale = 4.0
 
@@ -136,7 +136,7 @@ class Cursor:
                     import game_logic.lobby_mode as lobby
                     camera = getattr(lobby, 'camera', None)
             except Exception as ex:
-                print(f'[Cursor] 카메라 가져오기 실패: {ex}')
+                print(f"\033[91m[Cursor] 카메라 가져오기 실패: {ex}\033[0m")
                 camera = None
 
             # 마우스 화면 좌표 가져오기

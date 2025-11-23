@@ -143,7 +143,7 @@ class TitleCursor:
             try:
                 self.frames.append(p2.load_image(path))
             except Exception as ex:
-                print(f'[TitleCursor] Failed to load cursor frame: {path}, {ex}')
+                print(f"\033[91m[TitleCursor] Failed to load cursor frame: {path}, {ex}\033[0m")
                 self.frames = []
                 break
 
@@ -288,20 +288,22 @@ class MenuButton:
         # 버튼 배경 박스
         if self.hovered:
             # hover 상태: 밝은 테두리
-            p2.draw_rectangle(
-                self.x - self.width // 2,
-                self.y - self.height // 2,
-                self.x + self.width // 2,
-                self.y + self.height // 2
-            )
+            # p2.draw_rectangle(
+            #     self.x - self.width // 2,
+            #     self.y - self.height // 2,
+            #     self.x + self.width // 2,
+            #     self.y + self.height // 2
+            # )
+            pass
         else:
             # 일반 상태: 어두운 테두리
-            p2.draw_rectangle(
-                self.x - self.width // 2,
-                self.y - self.height // 2,
-                self.x + self.width // 2,
-                self.y + self.height // 2
-            )
+            # p2.draw_rectangle(
+            #     self.x - self.width // 2,
+            #     self.y - self.height // 2,
+            #     self.x + self.width // 2,
+            #     self.y + self.height // 2
+            # )
+            pass
 
         # 텍스트 표시
         if MenuButton._font:

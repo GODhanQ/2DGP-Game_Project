@@ -83,10 +83,10 @@ class WorldItem:
                         if world is not None and self in world.get('entities', []):
                             world['entities'].remove(self)
                     except Exception:
-                        pass
+                        print(f'\033[91m[WorldItem] failed to remove picked up item from world\033[0m')
         except Exception:
             # 안전하게 무시
-            pass
+            print(f'\033[91m[WorldItem] handle_event exception\033[0m')
 
     def draw(self, draw_x, draw_y):
         ic = self.icon
@@ -98,4 +98,4 @@ class WorldItem:
         try:
             ic.draw(draw_x, draw_y, w, h)
         except Exception:
-            pass
+            print(f'\033[91m[WorldItem] failed to draw icon\033[0m')

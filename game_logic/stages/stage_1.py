@@ -2,7 +2,7 @@
 
 # This stage will use CatAssassin monsters
 from ..monsters.cat_assassin import CatAssassin
-from ..background import FixedBackground
+from ..background import FixedBackground, StageMap
 
 # 창 크기 설정 (main.py와 동일하게 유지)
 window_scale = 8
@@ -31,6 +31,11 @@ stage_data = {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/badlandBG.png',
         'width': window_width,
         'height': window_height
+    },
+    'stage_map': {
+        'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/Map_Askard/AskardMap.png',
+        'width': 512,
+        'height': 368
     }
 }
 
@@ -49,5 +54,16 @@ def load(world):
         monster = monster_class(x, y)
         monster.world = world  # Allow monster to access the world (e.g., to spawn projectiles)
         world['entities'].append(monster)
+
+    # TODO : Load and set up the stage map
+    # 1. create StageMap instance
+    # 2. assign to world['ground']
+    # 3. print confirmation message
+
+    stageMap_info = stage_data.get('stage_map')
+    if stageMap_info:
+        stage_map = StageMap(stageMap_info['image'], stageMap_info['width'], stageMap_info['height'])
+        world['ground'] = stage_map
+        print(f"[Stage 1] 스테이지 맵 추가됨: {stageMap_info['image']}")
 
     print("Stage 1 with CatAssassin loaded.")

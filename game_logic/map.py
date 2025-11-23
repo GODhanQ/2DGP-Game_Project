@@ -252,14 +252,14 @@ class Map:
                     self.apply_tile_size_to_world(world, self.tile_size, origin)
                     print(f"set_tile_size: in-place applied to {total} entities, new_tile_size={self.tile_size}")
                 except Exception as e:
-                    print('set_tile_size: in-place apply failed:', e)
+                    print(f"\033[91mset_tile_size: in-place apply failed: {e}\033[0m")
             else:
                 # 일부 엔티티에 grid 정보가 없으면 안전하게 재빌드
                 try:
                     self.rebuild_into_world(world, tile_size=self.tile_size, origin=origin)
                     print(f"set_tile_size: rebuilt world with new_tile_size={self.tile_size}")
                 except Exception as e:
-                    print('set_tile_size: rebuild failed:', e)
+                    print(f"\033[91mset_tile_size: rebuild failed: {e}\033[0m")
 
 
 # 간단한 자기검증 스크립트

@@ -23,7 +23,7 @@ class Idle:
                     Idle.images.append(img)
                 print(f"[CatAssassin Idle] Loaded {len(Idle.images)} images")
             except Exception as e:
-                print(f"[CatAssassin Idle] Failed to load images: {e}")
+                print(f"\033[91m[CatAssassin Idle] Failed to load images: {e}\033[0m")
                 Idle.images = []
 
         self.cat.frame = 0
@@ -175,7 +175,7 @@ class Run:
                     Run.images.append(img)
                 print(f"[CatAssassin Run] Loaded {len(Run.images)} images")
             except Exception as e:
-                print(f"[CatAssassin Run] Failed to load images: {e}")
+                print(f"\033[91m[CatAssassin Run] Failed to load images: {e}\033[0m")
                 Run.images = []
 
         # 랜덤 움직임 관련 변수
@@ -350,7 +350,7 @@ class Attack:
                     Attack.images.append(img)
                 print(f"[CatAssassin Attack] Loaded {len(Attack.images)} images")
             except Exception as e:
-                print(f"[CatAssassin Attack] Failed to load images: {e}")
+                print(f"\033[91m[CatAssassin Attack] Failed to load images: {e}\033[0m")
                 Attack.images = []
 
         self.animation_finished = False
@@ -416,7 +416,7 @@ class Hit:
                     Hit.images.append(img)
                 print(f"[CatAssassin Hit] Loaded {len(Hit.images)} images")
             except Exception as e:
-                print(f"[CatAssassin Hit] Failed to load images: {e}")
+                print(f"\033[91m[CatAssassin Hit] Failed to load images: {e}\033[0m")
                 Hit.images = []
 
         self.cat.animation_speed = 12  # 피격 애니메이션은 빠르게
@@ -506,7 +506,7 @@ class Death:
                 Death.image = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Down0.png')
                 print(f"[CatAssassin Death] Loaded Down0 image")
             except Exception as e:
-                print(f"[CatAssassin Death] Failed to load image: {e}")
+                print(f"\033[91m[CatAssassin Death] Failed to load image: {e}\033[0m")
                 Death.image = None
 
         self.death_timer = 0.0

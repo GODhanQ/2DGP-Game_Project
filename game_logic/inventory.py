@@ -42,7 +42,7 @@ class Item:
             try:
                 self._icon_image = load_image(self.icon_path)
             except Exception as ex:
-                print(f"[Item] 아이콘 로드 실패: {self.icon_path}", ex)
+                print(f"\033[91m[Item] 아이콘 로드 실패: {self.icon_path}, {ex}\033[0m")
                 self._icon_image = None
         return self._icon_image
 
@@ -228,10 +228,10 @@ class InventoryData:
                 try:
                     item = Item.from_filename(spec)
                 except Exception as ex:
-                    print('[InventoryData.input] 잘못된 파일명:', spec, ex)
+                    print(f"\033[91m[InventoryData.input] 잘못된 파일명: {spec}, {ex}\033[0m")
                     continue
             else:
-                print('[InventoryData.input] 지원하지 않는 스펙 타입:', type(spec))
+                print("\033[91m[InventoryData.input] 지원하지 않는 스펙 타입:\033[0m", type(spec))
                 continue
             leftover = self.add_item(item, qty) if prefer_stack else self.append_item(item, qty, prefer_stack=False)
             results.append((item, leftover))

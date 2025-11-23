@@ -24,7 +24,7 @@ class GuardFX:
                     GuardFX.images.append(img)
                 print(f"[GuardFX] Loaded {len(GuardFX.images)} images")
             except Exception as e:
-                print(f"[GuardFX] Failed to load images: {e}")
+                print(f"\033[91m[GuardFX] Failed to load images: {e}\033[0m")
                 GuardFX.images = []
 
         self.frame = 0
@@ -81,4 +81,4 @@ class GuardFX:
                 GuardFX.images[frame_idx].h * self.scale
             )
         except Exception as e:
-            print(f"[GuardFX] draw 에러: {e}")
+            print(f"\033[91m[GuardFX] draw 에러: {e}\033[0m")

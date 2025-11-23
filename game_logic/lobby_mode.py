@@ -138,7 +138,7 @@ def enter():
             if isinstance(world[k], list):
                 world[k].clear()
         except Exception:
-            pass
+            print("\033[91m[lobby_mode] Failed to clear world layer\033[0m")
 
     # sky
     print("[lobby_mode] Creating Sky...")
@@ -184,7 +184,7 @@ def enter():
             pass
         print(f"[lobby_mode] Generated {len(wall_blocks)} walls from PNG transparency.")
     except Exception as ex:
-        print(f"[lobby_mode] Wall generation from PNG failed: {ex}")
+        print(f"\033[91m[lobby_mode] Wall generation from PNG failed: {ex}\033[0m")
 
     # create portal to play mode
     print("[lobby_mode] Creating EnterTreePortal...")
@@ -196,7 +196,7 @@ def enter():
         world['upper_ground'].append(enterTree)
         print(f"[lobby_mode] EnterTreePortal created at ({portal_x}, {portal_y}) with scale {bg.scale}")
     except Exception as ex:
-        print('[lobby_mode] Failed to create EnterTreePortal:', ex)
+        print(f"\033[91m[lobby_mode] Failed to create EnterTreePortal: {ex}\033[0m")
 
     print("[lobby_mode] Creating player...")
     # create player (use fallback if heavy Player init fails)
@@ -206,7 +206,7 @@ def enter():
         player.y = 0  # 화면 중심(0,0)으로 위치 보정
         print("[lobby_mode] Player created successfully")
     except Exception as ex:
-        print('[lobby_mode] Player initialization failed, using lightweight fallback:', ex)
+        print(f"\033[91m[lobby_mode] Player initialization failed, using lightweight fallback: {ex}\033[0m")
         from .inventory import InventoryData, seed_debug_inventory
 
         class _FallbackPlayer:
@@ -222,6 +222,7 @@ def enter():
                 try:
                     seed_debug_inventory(self.inventory)
                 except Exception:
+                    print("\033[91m[lobby_mode] seed_debug_inventory failed\033[0m")
                     pass
                 self.inventory_open = False
 
@@ -241,7 +242,7 @@ def enter():
     try:
         player.world = world
     except Exception:
-        pass
+        print("\033[91m[lobby_mode] Failed to attach world to player\033[0m")
     world['player'] = player # 플레이어를 world에 명시적으로 저장
     world['entities'].append(player)
 
@@ -268,7 +269,7 @@ def enter():
         print(f"[lobby_mode] Camera initialized for player at ({player.x}, {player.y})")
         print(f"[lobby_mode] Map size: {map_width:.1f} x {map_height:.1f}, Offset: ({camera.map_offset_x:.1f}, {camera.map_offset_y:.1f})")
     except Exception as ex:
-        print(f"[lobby_mode] Camera initialization failed: {ex}")
+        print(f"\033[91m[lobby_mode] Camera initialization failed: {ex}\033[0m")
 
     print("[lobby_mode] Creating inventory overlay...")
     # inventory overlay: pass world reference so InventoryOverlay can spawn WorldItem into this world
@@ -276,7 +277,7 @@ def enter():
         inv = InventoryOverlay(player, world)
         print("[lobby_mode] InventoryOverlay created successfully")
     except Exception as ex:
-        print('[lobby_mode] InventoryOverlay init failed, creating minimal stub:', ex)
+        print(f"\033[91m[lobby_mode] InventoryOverlay init failed, creating minimal stub: {ex}\033[0m")
 
         class _InvStub:
             def __init__(self, player, world=None):
@@ -302,7 +303,7 @@ def enter():
         cursor = Cursor(player)
         print("[lobby_mode] Cursor created successfully")
     except Exception as ex:
-        print('[lobby_mode] Cursor init failed, using stub cursor:', ex)
+        print(f"\033[91m[lobby_mode] Cursor init failed, using stub cursor: {ex}\033[0m")
 
         class _CursorStub:
             def __init__(self, player=None):
@@ -326,7 +327,7 @@ def enter():
         if main_mod is not None:
             setattr(main_mod, 'world', world)
     except Exception:
-        print("[lobby_mode] Failed to expose world to __main__")
+        print("\033[91m[lobby_mode] Failed to expose world to __main__\033[0m")
 
 
 def exit():
@@ -335,7 +336,7 @@ def exit():
             if isinstance(world[k], list):
                 world[k].clear()
         except Exception:
-            pass
+            print("\033[91m[lobby_mode] Failed to clear world layer\033[0m")
 
 
 def handle_events():
@@ -369,19 +370,19 @@ def handle_events():
                 if hasattr(o, 'handle_event'):
                     o.handle_event(e)
             except Exception:
-                pass
+                print("\033[91m[lobby_mode] Failed to handle event for entity\033[0m")
         for o in list(world['ui']):
             try:
                 if hasattr(o, 'handle_event'):
                     o.handle_event(e)
             except Exception:
-                pass
+                print("\033[91m[lobby_mode] Failed to handle event for UI\033[0m")
         for o in list(world['cursor']):
             try:
                 if hasattr(o, 'handle_event'):
                     o.handle_event(e)
             except Exception:
-                pass
+                print("\033[91m[lobby_mode] Failed to handle event for cursor\033[0m")
 
 
 def update():
@@ -399,18 +400,15 @@ def update():
                     alive = o.update()
                     if alive is False:
                         continue
-
-                # mark_for_removal 플래그 확인
-                if hasattr(o, 'mark_for_removal') and o.mark_for_removal:
-                    print(f"[Update] {o.__class__.__name__} 제거됨")
-                    continue  # 제거 표시된 객체는 new_list에 추가하지 않음
-
-                new_list.append(o)
             except Exception:
-                try:
-                    new_list.append(o)
-                except Exception:
-                    pass
+                print("\033[91m[lobby_mode] Failed to update object\033[0m")
+
+            # mark_for_removal 플래그 확인
+            if hasattr(o, 'mark_for_removal') and o.mark_for_removal:
+                print(f"[Update] {o.__class__.__name__} 제거됨")
+                continue  # 제거 표시된 객체는 new_list에 추가하지 않음
+
+            new_list.append(o)
         world[layer_name][:] = new_list
 
     # 충돌 검사 시스템
@@ -525,8 +523,8 @@ class LobbySky:
         pass
 
     def draw(self, draw_x, draw_y):
-        self.image.draw(draw_x, draw_y, self.image.w * self.scale,
-                        self.image.h * self.scale)
+        self.image.draw(draw_x, draw_y, self.image.w * self.scale * 2,
+                        self.image.h * self.scale * 1.5)
         # 디버그용 히트박스 (필요시 주석 처리)
         # p2.draw_rectangle(draw_x - (self.image.w * self.scale) / 2,
         #                   draw_y - (self.image.h * self.scale) / 2,
@@ -548,10 +546,10 @@ class LobbyBackGround:
 
     def draw(self, draw_x, draw_y):
         LobbyBackGround.image.draw(draw_x, draw_y, LobbyBackGround.image.w * self.scale, LobbyBackGround.image.h * self.scale)
-        p2.draw_rectangle(draw_x - (LobbyBackGround.image.w * self.scale) / 2,
-                          draw_y - (LobbyBackGround.image.h * self.scale) / 2,
-                          draw_x + (LobbyBackGround.image.w * self.scale) / 2,
-                          draw_y + (LobbyBackGround.image.h * self.scale) / 2)
+        # p2.draw_rectangle(draw_x - (LobbyBackGround.image.w * self.scale) / 2,
+        #                   draw_y - (LobbyBackGround.image.h * self.scale) / 2,
+        #                   draw_x + (LobbyBackGround.image.w * self.scale) / 2,
+        #                   draw_y + (LobbyBackGround.image.h * self.scale) / 2)
 
 class EnterTreePortal:
     # frame lists (class-level so images are loaded only once)
@@ -716,7 +714,8 @@ class LobbyWall:
     def draw(self, draw_x, draw_y):
         # 카메라 적용 좌표로 벽 영역을 빨간색으로 표시
         try:
-            p2.draw_rectangle(draw_x, draw_y, draw_x + self.w, draw_y + self.h)
+            # p2.draw_rectangle(draw_x, draw_y, draw_x + self.w, draw_y + self.h)
+            pass
         except Exception as ex:
             print(f'[LobbyWall] draw() 실패 at ({draw_x}, {draw_y}, {self.w}, {self.h}), Exception {ex}')
 

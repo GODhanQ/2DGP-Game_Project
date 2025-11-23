@@ -35,6 +35,7 @@ class AnimatedVFX:
                 self.images.append(img)
             except Exception:
                 # 로드 실패하면 다음 프레임도 시도하지만 중단
+                print(f'\033[91m[AnimatedVFX] Failed to load frame: {path}\033[0m')
                 break
         # fallback: 만약 아무 프레임도 로드되지 않으면 try single file without index
         if not self.images:
@@ -43,7 +44,7 @@ class AnimatedVFX:
                 img = load_image(single)
                 self.images.append(img)
             except Exception:
-                pass
+                print(f'\033[91m[AnimatedVFX] Failed to load single image: {single}\033[0m')
         # adjust frames_count to actual loaded
         self.frames_count = len(self.images)
 

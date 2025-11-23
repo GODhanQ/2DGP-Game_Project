@@ -77,7 +77,7 @@ class ShieldRangeEffect:
             try:
                 ShieldRangeEffect._range_image = load_image(range_path)
             except Exception as ex:
-                print('Failed to load shield range image:', ex)
+                print(f"\033[91mFailed to load shield range image: {ex}\033[0m")
                 ShieldRangeEffect._range_image = None
 
         self.player = player

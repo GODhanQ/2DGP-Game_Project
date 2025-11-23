@@ -71,7 +71,7 @@ class LoadingScreen:
                 print(f"[LoadingScreen] 추가 애니메이션 {len(self.extra_images)}개 이미지 로드 완료")
 
         except Exception as e:
-            print(f"[LoadingScreen] 이미지 로드 실패: {e}")
+            print(f"\033[91m[LoadingScreen] 이미지 로드 실패: {e}\033[0m")
             # 로드 실패 시 빈 이미지 리스트로 계속 진행
             self.loading_images = []
 

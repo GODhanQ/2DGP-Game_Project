@@ -243,7 +243,7 @@ def _complete_stage_change():
 
             print(f"[_complete_stage_change] 카메라 맵 범위 업데이트: {map_width:.1f}x{map_height:.1f}")
         except Exception as ex:
-            print(f"[_complete_stage_change] 카메라 범위 업데이트 실패: {ex}")
+            print(f"\033[91m[_complete_stage_change] 카메라 범위 업데이트 실패: {ex}\033[0m")
 
     is_stage_cleared = False
 
@@ -273,7 +273,7 @@ def enter(player=None):
             player = Player()
         print("[play_mode] Player created successfully")
     except Exception as ex:
-        print('[play_mode] Player initialization failed, using lightweight fallback:', ex)
+        print(f"\033[91m[play_mode] Player initialization failed, using lightweight fallback: {ex}\033[0m")
         from .inventory import InventoryData, seed_debug_inventory
 
         class _FallbackPlayer:

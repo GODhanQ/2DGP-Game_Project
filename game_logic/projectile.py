@@ -56,8 +56,8 @@ class Projectile:
         self.y += self.dy * self.speed * dt
 
         # 화면 밖으로 나가면 제거
-        if (self.x < -100 or self.x > p2.get_canvas_width() + 100 or
-            self.y < -100 or self.y > p2.get_canvas_height() + 100):
+        if (self.x < -1000 or self.x > p2.get_canvas_width() + 1000 or
+            self.y < -1000 or self.y > p2.get_canvas_height() + 1000):
             return False
 
         return True

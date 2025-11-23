@@ -44,7 +44,7 @@ def draw():
                     if hasattr(o, 'draw'):
                         o.draw()
                 except Exception as e:
-                    print(f"[defeat_mode] draw error in {layer}: {e}")
+                    print(f"\033[91m[defeat_mode] draw error in {layer}: {e}\033[0m")
 
         # 화면 중앙에 "패배" 메시지 출력
         canvas_w = p2.get_canvas_width()
@@ -65,7 +65,7 @@ def draw():
         else:
             p2.draw_text(text, center_x - 40, center_y, (255, 80, 80))
     except Exception as e:
-        print(f"[defeat_mode] draw() exception: {e}")
+        print(f"\033[91m[defeat_mode] draw() exception: {e}\033[0m")
     p2.update_canvas()
 
 def handle_events():

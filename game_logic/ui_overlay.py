@@ -19,7 +19,7 @@ class InventoryOverlay:
             self.image = load_image(img_path)
             print(f'[InventoryOverlay] Loaded inventory background image: {img_path}')
         except Exception as ex:
-            print('Failed to load inventory image:', img_path, ex)
+            print(f"\033[91mFailed to load inventory image: {img_path}, {ex}\033[0m")
             self.image = None
 
         # 기본 스케일 팩터 (모든 인벤토리 요소에 일관되게 적용됨)
@@ -31,7 +31,7 @@ class InventoryOverlay:
         try:
             self.slot_image = load_image(slot_path)
         except Exception as ex:
-            print('Failed to load inventory slot image:', slot_path, ex)
+            print(f"\033[91mFailed to load inventory slot image: {slot_path}, {ex}\033[0m")
             self.slot_image = None
 
         # 수량 텍스트용 폰트 (동적 크기 캐시)
@@ -126,7 +126,7 @@ class InventoryOverlay:
                     print(f"[InventoryOverlay] F6: 당근 3개 추가 (남은 {leftover})")
                     return
             except Exception as ex:
-                print('[InventoryOverlay] 디버그 append 실패:', ex)
+                print(f"\033[91m[InventoryOverlay] 디버그 append 실패: {ex}\033[0m")
         # 우클릭: 소비 아이템 사용
         if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT:
             hit = self._hit_test(event.x, event.y)
@@ -159,7 +159,7 @@ class InventoryOverlay:
                     else:
                         print(f"[InventoryOverlay] 클릭: ({r}, {c}) 빈 슬롯")
                 except Exception as ex:
-                    print('[InventoryOverlay] 슬롯 접근 오류:', ex)
+                    print(f"\033[91m[InventoryOverlay] 슬롯 접근 오류: {ex}\033[0m")
             return
         # 마우스 모션: 드래그 중이면 위치 갱신
         if event.type == SDL_MOUSEMOTION:
@@ -177,7 +177,7 @@ class InventoryOverlay:
                         if hasattr(self.player, 'rebuild_inventory_passives'):
                             self.player.rebuild_inventory_passives()
                     except Exception as ex:
-                        print('[InventoryOverlay] 드롭 실패:', ex)
+                        print(f"\033[91m[InventoryOverlay] 드롭 실패: {ex}\033[0m")
                 else:
                     # 슬롯 외부에 드롭한 경우: 아이템을 버리고 월드에 생성
                     try:
@@ -215,9 +215,9 @@ class InventoryOverlay:
                                         target_world['entities'].append(wi)
                                         print(f"[InventoryOverlay] 아이템 버림: {getattr(item_ref, 'name', 'Unknown')} x{removed} -> world.entities")
                                     except Exception as ex:
-                                        print('[InventoryOverlay] 월드 아이템 생성 실패:', ex)
+                                        print(f"\033[91m[InventoryOverlay] 월드 아이템 생성 실패: {ex}\033[0m")
                                 else:
-                                    print('[InventoryOverlay] 월드에 접근할 수 없어 아이템을 버리지 못했습니다.')
+                                    print(f"\033[91m[InventoryOverlay] 월드에 접근할 수 없어 아이템을 버리지 못했습니다.\033[0m")
                                 # 패시브 재적용
                                 if hasattr(self.player, 'rebuild_inventory_passives'):
                                     try:
@@ -225,7 +225,7 @@ class InventoryOverlay:
                                     except Exception:
                                         pass
                     except Exception as ex:
-                        print('[InventoryOverlay] 슬롯 외부 드롭 처리 실패:', ex)
+                        print(f"\033[91m[InventoryOverlay] 슬롯 외부 드롭 처리 실패: {ex}\033[0m")
                 # 드래그 종료
                 self.dragging = False
                 self.drag_from = None
@@ -651,4 +651,3 @@ class ManaBar:
             self.font.draw(text_x - 2, text_y - 2, mana_text, (0, 0, 0))
             self.font.draw(text_x - 1, text_y - 1, mana_text, (0, 0, 0))
             self.font.draw(text_x, text_y, mana_text, (255, 255, 255))
-

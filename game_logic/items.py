@@ -66,7 +66,7 @@ class potion_red0:
                 if main_mod:
                     w = getattr(main_mod, 'world', None)
             if not w:
-                print('[items._play_consume_vfx] no world available, aborting VFX')
+                print("\033[91m[items._play_consume_vfx] no world available, aborting VFX\033[0m")
                 return
 
             # 위치 결정
@@ -76,7 +76,7 @@ class potion_red0:
             # 경로 확인
             vfx_folder = getattr(item, 'consume_vfx_path', None)
             if not vfx_folder:
-                print('[items._play_consume_vfx] item has no consume_vfx_path')
+                print("\033[91m[items._play_consume_vfx] item has no consume_vfx_path\033[0m")
                 return
             # normalize folder path
             vfx_folder = os.path.normpath(vfx_folder)
@@ -104,7 +104,7 @@ class potion_red0:
                             print(f'[items._play_consume_vfx] spawned back with prefix {bp}')
                             break
                         except Exception:
-                            print(f'[items._play_consume_vfx] spawn back failed for prefix {bp}')
+                            print(f"\033[91m[items._play_consume_vfx] spawn back failed for prefix {bp}\033[0m")
                             continue
                 except Exception:
                     pass
@@ -115,7 +115,7 @@ class potion_red0:
                             print(f'[items._play_consume_vfx] spawned front with prefix {fp}')
                             break
                         except Exception:
-                            print(f'[items._play_consume_vfx] spawn front failed for prefix {fp}')
+                            print(f"\033[91m[items._play_consume_vfx] spawn front failed for prefix {fp}\033[0m")
                             continue
                 except Exception:
                     pass
@@ -162,7 +162,7 @@ class potion_red0:
                             print(f'[items._play_consume_vfx] appended back vfx to layer {back_layer}')
                             break
                     except Exception as ex:
-                        print(f'[items._play_consume_vfx] back prefix {bp} failed:', ex)
+                        print(f"\033[91m[items._play_consume_vfx] back prefix {bp} failed: {ex}\033[0m")
                         continue
 
             # create and append front VFX
@@ -176,7 +176,7 @@ class potion_red0:
                             print(f'[items._play_consume_vfx] appended front vfx to layer {front_layer}')
                             break
                     except Exception as ex:
-                        print(f'[items._play_consume_vfx] front prefix {fp} failed:', ex)
+                        print(f"\033[91m[items._play_consume_vfx] front prefix {fp} failed: {ex}\033[0m")
                         continue
 
             # 마지막 폴백: world에 'vfx' 리스트 추가

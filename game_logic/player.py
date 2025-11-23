@@ -179,7 +179,7 @@ class Run:
             import game_logic.lobby_mode as lobby
             camera = getattr(lobby, 'camera', None)
         except Exception:
-            pass
+            print(f'\033[91m[player Run] 카메라 가져오기 실패\033[0m')
         # 마우스 좌표를 월드 좌표로 변환
         if camera is not None:
             mouse_game_x = mx.value + (camera.x - canvas_w // 2)
@@ -263,7 +263,7 @@ class Idle:
                 import game_logic.lobby_mode as lobby
                 camera = getattr(lobby, 'camera', None)
         except Exception:
-            print(f'[player Idle] 카메라 가져오기 실패')
+            print(f"\033[91m[player Idle] 카메라 가져오기 실패\033[0m")
 
         # 마우스 좌표를 월드 좌표로 변환
         if camera is not None:
@@ -315,7 +315,7 @@ class Inventory:
             try:
                 self.image = load_image(img_path)
             except Exception as ex:
-                print('Failed to load inventory image:', img_path, ex)
+                print(f"\033[91mFailed to load inventory image: {img_path}, {ex}\033[0m")
                 self.image = None
 
         # 인벤토리 표시 플래그만 설정 (이동은 유지)
@@ -358,7 +358,7 @@ class Death:
                 Death.image = load_image('resources/Texture_organize/Player_character/Adventurer/Player_Adventurer_Down00.png')
                 print(f"[Player Death] Loaded Down00 image")
             except Exception as e:
-                print(f"[Player Death] Failed to load image: {e}")
+                print(f"\033[91m[Player Death] Failed to load image: {e}\033[0m")
                 Death.image = None
 
         # PlayerHitFX 이미지 로드 (1 ~ 9)
@@ -371,7 +371,7 @@ class Death:
                     Death.hit_fx_images.append(img)
                 print(f"[Player Death] PlayerHitFX 이미지 로드 완료: {len(Death.hit_fx_images)}개")
             except Exception as e:
-                print(f"[Player Death] PlayerHitFX 이미지 로드 실패: {e}")
+                print(f"\033[91m[Player Death] PlayerHitFX 이미지 로드 실패: {e}\033[0m")
                 Death.hit_fx_images = []
 
         # HeartHit 이미지 로드 (0 ~ 8)
@@ -384,7 +384,7 @@ class Death:
                     Death.heart_hit_images.append(img)
                 print(f"[Player Death] HeartHit 이미지 로드 완료: {len(Death.heart_hit_images)}개")
             except Exception as e:
-                print(f"[Player Death] HeartHit 이미지 로드 실패: {e}")
+                print(f"\033[91m[Player Death] HeartHit 이미지 로드 실패: {e}\033[0m")
                 Death.heart_hit_images = []
 
         self.death_timer = 0.0
@@ -718,7 +718,7 @@ class Player:
                         mod_id = f'{prefix}{item.id}:{r},{c}'
                         self.stats.add_modifier(StatModifier(mod_id, values, duration=None))
         except Exception as ex:
-            print('[Player] 패시브 적용 중 오류:', ex)
+            print(f"\033[91m[Player] 패시브 적용 중 오류: {ex}\033[0m")
 
     # 소비형 아이템 사용 처리
     def consume_item_at(self, r: int, c: int):
