@@ -54,21 +54,21 @@ class FixedBackground:
 class StageMap:
     """
     스테이지 맵 이미지를 표시하는 클래스
-     L 카메라 좌표 적용하는 맵.
+    카메라 좌표가 적용되며, 플레이어가 자유롭게 돌아다닐 수 있는 맵
     """
 
     def __init__(self, image_path, width, height):
         """
         Args:
             image_path: 맵 이미지 경로
-            width: 맵 이미지 너비
-            height: 맵 이미지 높이
+            width: 맵 이미지 표시 너비 (scale 적용된 값)
+            height: 맵 이미지 표시 높이 (scale 적용된 값)
         """
         try:
             self.image = p2.load_image(image_path)
             self.width = width
             self.height = height
-            # 맵의 월드 좌표 (맵 중심 기준)
+            # 맵의 월드 좌표 (맵 중심 기준, 기본적으로 (0, 0)에 배치)
             self.x = 0
             self.y = 0
             self.scale = 1.0
@@ -94,9 +94,18 @@ class StageMap:
             draw_y: 카메라가 적용된 화면 y 좌표
         """
         if self.image:
+            # width와 height는 이미 scale이 적용된 값이므로 그대로 사용
             self.image.draw(
                 draw_x,
                 draw_y,
                 self.width,
                 self.height
             )
+
+            # 디버깅용: 맵 경계를 초록색으로 표시 (필요시 주석 해제)
+            # p2.draw_rectangle(
+            #     draw_x - self.width / 2,
+            #     draw_y - self.height / 2,
+            #     draw_x + self.width / 2,
+            #     draw_y + self.height / 2
+            # )

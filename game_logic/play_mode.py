@@ -2,6 +2,7 @@
 # minimal, compatible with existing game_logic modules
 import pico2d as p2
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE
+from PIL import Image
 
 import game_framework
 from .player import Player
@@ -186,6 +187,126 @@ def change_stage(next_stage_index):
         next_stage_to_load = next_stage_index
         _complete_stage_change()
 
+
+class PlayModeWall:
+    """플레이 모드에서 사용하는 벽 클래스 (투명 영역 감지용)"""
+    def __init__(self, x, y, w, h):
+        """
+        벽 초기화
+        Args:
+            x: 벽의 월드 x 좌표 (맵 중심 기준)
+            y: 벽의 월드 y 좌표 (맵 중심 기준)
+            w: 벽의 너비
+            h: 벽의 높이
+        """
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
+    def check_collision(self, px, py, pw, ph):
+        """
+        플레이어와 벽의 충돌 검사
+        Args:
+            px: 플레이어 x 좌표
+            py: 플레이어 y 좌표
+            pw: 플레이어 너비
+            ph: 플레이어 높이
+        Returns:
+            bool: 충돌 여부
+        """
+        return (self.x < px + pw and self.x + self.w > px and
+                self.y < py + ph and self.y + self.h > py)
+
+    def update(self):
+        """벽은 업데이트가 필요 없음"""
+        return True
+
+    def draw(self, draw_x, draw_y):
+        """
+        벽 디버깅용 그리기 (필요시 주석 해제)
+        Args:
+            draw_x: 카메라가 적용된 화면 x 좌표
+            draw_y: 카메라가 적용된 화면 y 좌표
+        """
+        # 디버깅용: 벽을 빨간색으로 표시 (벽 위치 확인용)
+        p2.draw_rectangle(draw_x - self.w/2, draw_y - self.h/2,
+                          draw_x + self.w/2, draw_y + self.h/2)
+        pass
+
+
+def generate_walls_from_png(png_path, block_size=8, map_x=0, map_y=0, map_scale=1.0):
+    """
+    PNG 이미지의 투명 영역을 감지하여 벽 블록 생성
+    Args:
+        png_path: PNG 이미지 경로
+        block_size: 벽 블록의 기본 크기 (픽셀 단위, 스케일 적용 전)
+        map_x: 맵의 월드 x 좌표 (중심 기준)
+        map_y: 맵의 월드 y 좌표 (중심 기준)
+        map_scale: 맵의 스케일
+    Returns:
+        list: 생성된 PlayModeWall 객체 리스트
+    """
+    print(f"[generate_walls_from_png] 시작: {png_path}")
+    print(f"  - block_size={block_size}, map_x={map_x}, map_y={map_y}, map_scale={map_scale}")
+
+    try:
+        img = Image.open(png_path).convert('RGBA')
+    except Exception as ex:
+        print(f"\033[91m[generate_walls_from_png] 이미지 열기 실패: {ex}\033[0m")
+        return []
+
+    width, height = img.size
+    walls = []
+    pixels = img.load()
+    transparent_count = 0
+
+    # 맵 이미지의 좌상단 기준 좌표 계산 (맵 중심 기준)
+    map_left = map_x - (width * map_scale) / 2
+    map_bottom = map_y - (height * map_scale) / 2
+
+    print(f"  - 이미지 크기: {width}x{height}")
+    print(f"  - 맵 좌하단 좌표: ({map_left:.1f}, {map_bottom:.1f})")
+
+    # 이미지를 블록 단위로 순회
+    for y in range(0, height, block_size):
+        for x in range(0, width, block_size):
+            is_transparent = False
+            # 블록 내부의 픽셀들을 검사
+            for dy in range(block_size):
+                for dx in range(block_size):
+                    if x + dx < width and y + dy < height:
+                        _, _, _, alpha = pixels[x + dx, y + dy]
+                        if alpha == 0:  # 완전 투명
+                            is_transparent = True
+                            transparent_count += 1
+                            break
+                if is_transparent:
+                    break
+
+            # 투명 블록이면 벽 생성
+            if is_transparent:
+                # 이미지 좌표를 월드 좌표로 변환
+                # 이미지 좌표계: 좌상단 (0,0), 우하단 (width, height)
+                # 월드 좌표계: 맵 중심 (0,0)
+                wall_x_img = x
+                wall_y_img = height - y - block_size  # Y축 반전 (이미지는 위에서 아래로, 월드는 아래에서 위로)
+
+                # 월드 좌표로 변환
+                wall_x_world = map_left + wall_x_img * map_scale + (block_size * map_scale) / 2
+                wall_y_world = map_bottom + wall_y_img * map_scale + (block_size * map_scale) / 2
+
+                walls.append(PlayModeWall(
+                    wall_x_world,
+                    wall_y_world,
+                    block_size * map_scale,
+                    block_size * map_scale
+                ))
+
+    print(f"  - 투명 픽셀 수: {transparent_count}, 생성된 벽 수: {len(walls)}")
+    return walls
+
+
 def _complete_stage_change():
     """로딩이 완료된 후 실제 스테이지 전환을 수행"""
     global current_stage_index, world, is_stage_cleared, loading_screen, is_loading, next_stage_to_load, camera
@@ -196,6 +317,7 @@ def _complete_stage_change():
     player = world.get('player')
     world['entities'] = [player] if player else []
     world['bg'].clear()
+    world['walls'].clear()  # 벽도 초기화
     # 다른 레이어도 필요에 따라 초기화
     world['effects_back'].clear()
     world['effects_front'].clear()
@@ -205,6 +327,35 @@ def _complete_stage_change():
 
     # 새 스테이지 로드
     stages[current_stage_index].load(world)
+
+    # 스테이지 맵에서 벽 생성 (ground 레이어의 첫 번째 객체가 맵이라고 가정)
+    try:
+        if world['ground'] and len(world['ground']) > 0:
+            stage_map = world['ground'][1]
+            if hasattr(stage_map, 'image') and hasattr(stage_map, 'x') and hasattr(stage_map, 'y'):
+                # 맵 이미지의 경로 가져오기 (StageMap 객체에서)
+                next_stage_module = stages[current_stage_index]
+                stage_data = getattr(next_stage_module, 'stage_data', None)
+
+                if stage_data and 'stage_map' in stage_data:
+                    map_image_path = stage_data['stage_map']['image']
+                    map_scale = getattr(stage_map, 'scale', 1.0)
+
+                    print(f"[_complete_stage_change] 맵 이미지에서 벽 생성 중...")
+                    wall_blocks = generate_walls_from_png(
+                        map_image_path,
+                        block_size=8,
+                        map_x=stage_map.x,
+                        map_y=stage_map.y,
+                        map_scale=map_scale
+                    )
+
+                    for wall in wall_blocks:
+                        world['walls'].append(wall)
+
+                    print(f"[_complete_stage_change] {len(wall_blocks)}개의 벽 생성 완료")
+    except Exception as ex:
+        print(f"\033[91m[_complete_stage_change] 벽 생성 실패: {ex}\033[0m")
 
     # 플레이어 위치 설정 (스테이지에 PLAYER_START_POSITION이 있으면 사용)
     if player:
@@ -278,8 +429,8 @@ def enter(player=None):
 
         class _FallbackPlayer:
             def __init__(self):
-                self.x = 400
-                self.y = 300
+                self.x = 0  # 맵 중심 기준 좌표
+                self.y = 0
                 self.face_dir = 1
                 self.scale_factor = 1.0
                 self.keys_down = {'w': False, 'a': False, 's': False, 'd': False}
@@ -308,7 +459,6 @@ def enter(player=None):
     try:
         player.world = world
     except Exception:
-        pass
         pass
     world['player'] = player # 플레이어를 world에 명시적으로 저장
     world['entities'].append(player)
@@ -409,6 +559,47 @@ def enter(player=None):
     except Exception:
         pass
 
+    print("[play_mode] Loading first stage...")
+    # 첫 번째 스테이지 로드
+    current_stage_index = 0
+    is_stage_cleared = False
+    stages[current_stage_index].load(world)
+
+    # 첫 스테이지 로드 후 벽 생성
+    try:
+        if world['ground'] and len(world['ground']) > 0:
+            stage_map = world['ground'][1]
+            if hasattr(stage_map, 'image'):
+                # 맵 이미지의 경로 가져오기
+                stage_module = stages[current_stage_index]
+                stage_data = getattr(stage_module, 'stage_data', None)
+
+                if stage_data and 'stage_map' in stage_data:
+                    map_image_path = stage_data['stage_map']['image']
+                    try:
+                        map_scale = getattr(stage_map, 'scale')
+                        print(f'[play_mode] 맵 스케일 속성 가져옴: {map_scale}')
+                    except Exception as ex:
+                        print(f"\033[91m[play_mode] 맵 스케일 속성 가져오기 실패: {ex}, 기본값 1.0 사용\033[0m")
+                        map_scale = 1.0
+                    print(f"[play_mode] 첫 스테이지 맵 이미지에서 벽 생성 중...")
+                    wall_blocks = generate_walls_from_png(
+                        map_image_path,
+                        block_size=8,
+                        map_x=stage_map.x,
+                        map_y=stage_map.y,
+                        map_scale=map_scale
+                    )
+
+                    for wall in wall_blocks:
+                        world['walls'].append(wall)
+
+                    print(f"[play_mode] {len(wall_blocks)}개의 벽 생성 완료")
+    except Exception as ex:
+        print(f"\033[91m[play_mode] 첫 스테이지 벽 생성 실패: {ex}\033[0m")
+
+    print(f"[play_mode] Entered play_mode, loaded Stage {current_stage_index + 1}")
+
     # Camera 초기화 (Player를 target으로 설정)
     # ground 레이어의 실제 배경 범위를 계산하여 카메라 제한 범위로 사용
     try:
@@ -433,13 +624,6 @@ def enter(player=None):
         print(f"[play_mode] Map size: {map_width:.1f} x {map_height:.1f}, Offset: ({camera.map_offset_x:.1f}, {camera.map_offset_y:.1f})")
     except Exception as ex:
         print(f"[play_mode] Camera initialization failed: {ex}")
-
-    print("[play_mode] Loading first stage...")
-    # 첫 번째 스테이지 로드
-    current_stage_index = 0
-    is_stage_cleared = False
-    stages[current_stage_index].load(world)
-    print(f"[play_mode] Entered play_mode, loaded Stage {current_stage_index + 1}")
 
 def exit():
     for k in list(world.keys()):

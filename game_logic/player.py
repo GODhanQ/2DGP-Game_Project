@@ -665,6 +665,10 @@ class Player:
     def update(self):
         dt = framework.get_delta_time()
 
+        # 이동 전 위치 저장 (벽 충돌 시 롤백용)
+        prev_x = self.x
+        prev_y = self.y
+
         # 넉백 효과 적용 (방패 방어 시)
         if self.knockback_timer < self.knockback_duration:
             progress = self.knockback_timer / self.knockback_duration
@@ -681,6 +685,39 @@ class Player:
                 self.invincible_timer = 0.0
 
         self.state_machine.update()
+
+        # 벽 충돌 검사 (world 참조가 있는 경우)
+        if hasattr(self, 'world') and self.world and 'walls' in self.world:
+            # 플레이어 히트박스 (중심 기준)
+            player_w = 32  # 플레이어 너비 (필요시 조정)
+            player_h = 32  # 플레이어 높이 (필요시 조정)
+            player_left = self.x - player_w / 2
+            player_right = self.x + player_w / 2
+            player_bottom = self.y - player_h / 2
+            player_top = self.y + player_h / 2
+
+            # 모든 벽과 충돌 검사
+            collision_detected = False
+            for wall in self.world['walls']:
+                if hasattr(wall, 'check_collision'):
+                    # 벽의 히트박스 (중심 기준)
+                    wall_left = wall.x - wall.w / 2
+                    wall_right = wall.x + wall.w / 2
+                    wall_bottom = wall.y - wall.h / 2
+                    wall_top = wall.y + wall.h / 2
+
+                    # AABB 충돌 검사
+                    if (player_right > wall_left and player_left < wall_right and
+                        player_top > wall_bottom and player_bottom < wall_top):
+                        collision_detected = True
+                        break
+
+            # 충돌이 감지되면 이전 위치로 롤백
+            if collision_detected:
+                self.x = prev_x
+                self.y = prev_y
+                # 디버그 출력 (필요시 주석 해제)
+                # print(f"[Player] 벽 충돌 감지! 위치 롤백: ({self.x:.1f}, {self.y:.1f})")
 
         # 스탯 버프 업데이트(소비형 지속시간 관리)
         if hasattr(self, 'stats'):
