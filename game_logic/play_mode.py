@@ -408,7 +408,7 @@ def _complete_stage_change():
     print(f"[_complete_stage_change] Changed to Stage {current_stage_index + 1}")
 
 def enter(player=None):
-    global world, current_stage_index, is_stage_cleared, loading_screen, is_loading, next_stage_to_load, camera
+    global world, current_stage_index, is_stage_cleared
     print("[play_mode] Starting enter()...")
 
     # clear existing
@@ -561,21 +561,89 @@ def enter(player=None):
     except Exception:
         pass
 
-    print("[play_mode] Initializing camera...")
-    # 카메라를 미리 초기화 (기본 맵 크기로)
-    screen_width = p2.get_canvas_width()
-    screen_height = p2.get_canvas_height()
-    camera = Camera(player, screen_width * 2, screen_height * 2, screen_width, screen_height)
-    camera.x = player.x
-    camera.y = player.y
-    print(f"[play_mode] Camera initialized (will be updated after stage load)")
-
-    print("[play_mode] Loading first stage with loading screen...")
-    # 첫 번째 스테이지를 로딩 스크린과 함께 로드
-    current_stage_index = -1  # change_stage가 0으로 설정할 것임
+    print("[play_mode] Loading first stage...")
+    # 첫 번째 스테이지 로드
+    current_stage_index = 0
     is_stage_cleared = False
-    change_stage(0)  # 로딩 스크린을 표시하면서 스테이지 0 로드
-    print("[play_mode] Loading screen initialized for Stage 1")
+    stages[current_stage_index].load(world)
+
+    # 첫 스테이지 로드 후 플레이어 시작 위치 설정
+    try:
+        stage_module = stages[current_stage_index]
+        player_start_pos = getattr(stage_module, 'PLAYER_START_POSITION', None)
+
+        if player_start_pos and player:
+            player.x = player_start_pos['x']
+            player.y = player_start_pos['y']
+            print(f"[play_mode] 플레이어 시작 위치 설정: ({player.x}, {player.y})")
+        else:
+            print(f"[play_mode] 플레이어 시작 위치 정보 없음, 기본 위치 (0, 0) 사용")
+    except Exception as ex:
+        print(f"\033[91m[play_mode] 플레이어 시작 위치 설정 실패: {ex}\033[0m")
+
+    # 첫 스테이지 로드 후 벽 생성
+    try:
+        if world['ground'] and len(world['ground']) > 0:
+            stage_map = world['ground'][1]
+            if hasattr(stage_map, 'image'):
+                # 맵 이미지의 경로 가져오기
+                stage_module = stages[current_stage_index]
+                stage_data = getattr(stage_module, 'stage_data', None)
+
+                if stage_data and 'stage_map' in stage_data:
+                    map_image_path = stage_data['stage_map']['image']
+                    try:
+                        map_scale = getattr(stage_map, 'scale')
+                        print(f'[play_mode] 맵 스케일 속성 가져옴: {map_scale}')
+                    except Exception as ex:
+                        print(f"\033[91m[play_mode] 맵 스케일 속성 가져오기 실패: {ex}, 기본값 1.0 사용\033[0m")
+                        map_scale = 1.0
+                    print(f"[play_mode] 첫 스테이지 맵 이미지에서 벽 생성 중...")
+                    wall_blocks = generate_walls_from_png(
+                        map_image_path,
+                        block_size=8,
+                        map_x=stage_map.x,
+                        map_y=stage_map.y,
+                        map_scale=map_scale
+                    )
+
+                    for wall in wall_blocks:
+                        world['walls'].append(wall)
+
+                    print(f"[play_mode] {len(wall_blocks)}개의 벽 생성 완료")
+    except Exception as ex:
+        print(f"\033[91m[play_mode] 첫 스테이지 벽 생성 실패: {ex}\033[0m")
+
+    print(f"[play_mode] Entered play_mode, loaded Stage {current_stage_index + 1}")
+
+    # Camera 초기화 (Player를 target으로 설정)
+    # ground 레이어의 실제 배경 범위를 계산하여 카메라 제한 범위로 사용
+    try:
+        # 배경 범위 계산 (ground 레이어의 모든 객체 고려)
+        min_x, max_x, min_y, max_y = calculate_background_bounds()
+
+        # 배경 전체 크기 계산
+        map_width = max_x - min_x
+        map_height = max_y - min_y
+
+        screen_width = p2.get_canvas_width()
+        screen_height = p2.get_canvas_height()
+
+        global camera
+        camera = Camera(player, map_width, map_height, screen_width, screen_height)
+
+        # 카메라에 실제 배경 범위의 중심점 정보 전달 (오프셋 계산용)
+        camera.map_offset_x = (min_x + max_x) / 2
+        camera.map_offset_y = (min_y + max_y) / 2
+
+        # 카메라를 플레이어 위치로 즉시 동기화 (부드러운 전환 없이)
+        camera.x = player.x
+        camera.y = player.y
+
+        print(f"[play_mode] Camera initialized for player at ({player.x}, {player.y})")
+        print(f"[play_mode] Map size: {map_width:.1f} x {map_height:.1f}, Offset: ({camera.map_offset_x:.1f}, {camera.map_offset_y:.1f})")
+    except Exception as ex:
+        print(f"[play_mode] Camera initialization failed: {ex}")
 
 def exit():
     for k in list(world.keys()):

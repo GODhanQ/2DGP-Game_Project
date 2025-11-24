@@ -371,7 +371,7 @@ class Shield(Weapon):
             # 방어 이펙트 생성 (투사체 위치에 생성)
             if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
                 try:
-                    from .guard_fx import GuardFX
+                    from .vfx import GuardFX
                     # 투사체(공격자) 위치에 이펙트 생성
                     guard_fx = GuardFX(projectile.x, projectile.y, scale=self.scale_factor)
                     self.player.world['effects_front'].append(guard_fx)
