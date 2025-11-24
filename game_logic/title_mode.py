@@ -5,7 +5,7 @@ import pico2d as p2
 import ctypes
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_RETURN, SDLK_SPACE, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_GetMouseState, SDL_MOUSEMOTION
 
-import game_framework
+import game_framework as framework
 from . import lobby_mode
 from .cursor import Cursor
 
@@ -261,7 +261,7 @@ class MenuButton:
                     except Exception:
                         continue
             except Exception as ex:
-                print(f"[MenuButton] 폰트 로드 실패: {ex}")
+                print(f'\033[91m[MenuButton] 폰트 로드 실패: {ex}\033[0m')
 
     def contains_point(self, px, py):
         """점이 버튼 내부에 있는지 확인"""
@@ -336,12 +336,12 @@ def start_game():
     print("[title_mode] 게임 시작")
     import game_logic.play_mode as play_mode
     import game_logic.lobby_mode as lobby_mode
-    game_framework.change_state(lobby_mode)
+    framework.change_state(lobby_mode)
 
 def quit_game():
     """게임 종료 버튼 콜백"""
     print("[title_mode] 게임 종료")
-    game_framework.quit()
+    framework.quit()
 
 def enter():
     """타이틀 모드 진입"""
@@ -367,7 +367,7 @@ def enter():
             img = p2.load_image(path)
             tree_begin_images.append(img)
         except Exception as e:
-            print(f"[title_mode] TreeBegin 이미지 로드 실패: {path}, {e}")
+            print(f'\033[91m[title_mode] TreeBegin 이미지 로드 실패: {path}, {e}\033[0m')
 
     print(f"[title_mode] TreeBegin 이미지 {len(tree_begin_images)}개 로드 완료")
 
@@ -379,7 +379,7 @@ def enter():
             img = p2.load_image(path)
             tree_loop_images.append(img)
         except Exception as e:
-            print(f"[title_mode] Tree 이미지 로드 실패: {path}, {e}")
+            print(f'\033[91m[title_mode] TreeLoop 이미지 로드 실패: {path}, {e}\033[0m')
 
     print(f"[title_mode] Tree 이미지 {len(tree_loop_images)}개 로드 완료")
 
@@ -413,7 +413,7 @@ def enter():
         world['cursor'].append(cursor)
         print("[title_mode] 타이틀 커서 생성 완료")
     except Exception as ex:
-        print('[title_mode] 타이틀 커서 생성 실패:', ex)
+        print(f'\033[91m[title_mode] 타이틀 커서 생성 실패: {ex}\033[0m')
 
     print("[title_mode] 타이틀 이미지 로드 완료")
 
@@ -446,7 +446,7 @@ def update():
                     if keep is None or keep:
                         new_list.append(obj)
             except Exception as ex:
-                print(f'[title_mode] Update error in {layer_name}:', ex)
+                print(f'\033[91m[title_mode] Update error in {layer_name}: {ex}\033[0m')
                 new_list.append(obj)
         world[layer_name] = new_list
 
@@ -464,24 +464,24 @@ def draw():
                 if hasattr(obj, 'draw'):
                     obj.draw()
             except Exception as ex:
-                print(f'[title_mode] Draw error in {layer_name}:', ex)
+                print(f'\033[91m[title_mode] Draw error in {layer_name}: {ex}\033[0m')
 
     p2.update_canvas()
 
 def handle_events():
-    """이벤트 처리 (game_framework가 호출하는 함수)"""
+    """이벤트 처리 (framework가 호출하는 함수)"""
     events = p2.get_events()
     for e in events:
         if e.type == SDL_QUIT:
-            game_framework.quit()
+            framework.quit()
         elif e.type == SDL_KEYDOWN:
             if e.key == SDLK_ESCAPE:
-                game_framework.quit()
+                framework.quit()
             elif e.key == SDLK_RETURN or e.key == SDLK_SPACE:
                 # Enter 또는 Space 키를 누르면 게임 시작 (기존 동작 유지)
                 print("[title_mode] 게임 시작")
                 import game_logic.play_mode as play_mode
-                game_framework.change_state(play_mode)
+                framework.change_state(play_mode)
         elif e.type == SDL_MOUSEBUTTONDOWN:
             if e.button == SDL_BUTTON_LEFT:
                 # 마우스 클릭 시 버튼 체크
@@ -496,7 +496,7 @@ def handle_events():
                 if hasattr(cursor, 'handle_event'):
                     cursor.handle_event(e)
             except Exception:
-                pass
+                print(f'\033[91m[title_mode] Cursor handle_event error: {e}\033[0m')
 
 def pause():
     """타이틀 모드 일시 정지"""

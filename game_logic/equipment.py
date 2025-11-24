@@ -3,7 +3,7 @@ import math
 import os
 from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
-import game_framework
+import game_framework as framework
 
 
 def get_mouse_world_position(player):

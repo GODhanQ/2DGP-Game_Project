@@ -4,7 +4,7 @@
 """
 import pico2d as p2
 import math
-import game_framework
+import game_framework as framework
 
 
 class Projectile:

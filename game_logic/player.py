@@ -15,7 +15,7 @@ from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_T
 
 from .equipment import EquipmentManager, Sword, Shield
 from .state_machine import StateMachine
-import game_framework
+import game_framework as framework
 # 인벤토리 데이터 모델 import
 from .inventory import InventoryData, seed_debug_inventory
 from .stats import PlayerStats, StatModifier

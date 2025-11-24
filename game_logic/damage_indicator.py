@@ -2,7 +2,7 @@ import pico2d as p2
 from PIL import Image, ImageDraw, ImageFont
 import io
 
-from . import game_framework
+import game_framework as framework
 
 class DamageIndicator:
     """

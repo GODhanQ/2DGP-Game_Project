@@ -2,9 +2,8 @@ import pico2d as p2
 import random
 import math
 
-import game_framework as framework
+import game_framework
 from ..state_machine import StateMachine
-from ..projectile import Projectile
 from ..stats import CatAssassinStats
 from ..damage_indicator import DamageIndicator
 from ..ui_overlay import MonsterHealthBar
@@ -21,11 +20,11 @@ class Idle:
             Idle.images = []
             try:
                 for i in range(6):  # Cat_Assassin_Idle0 ~ Idle5
-                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Idle{i}.png')
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Idle{i}.png')
                     Idle.images.append(img)
-                print(f"[CatAssassin Idle] Loaded {len(Idle.images)} images")
+                print(f"[CatThief Idle] Loaded {len(Idle.images)} images")
             except Exception as e:
-                print(f"\033[91m[CatAssassin Idle] Failed to load images: {e}\033[0m")
+                print(f"\033[91m[CatThief Idle] Failed to load images: {e}\033[0m")
                 Idle.images = []
 
         self.cat.frame = 0
@@ -41,7 +40,7 @@ class Idle:
 
     def do(self):
         # Update animation
-        self.cat.animation_time += framework.get_delta_time()
+        self.cat.animation_time += game_framework.get_delta_time()
         if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
             self.cat.frame = (self.cat.frame + 1) % len(Idle.images)
             self.cat.animation_time = 0
@@ -107,7 +106,7 @@ class Chase:
         self.sub_state_machine.cur_state.exit(e)
 
     def do(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
 
         # 공격 쿨타임 업데이트
         if not self.can_attack:
@@ -175,11 +174,11 @@ class Run:
             Run.images = []
             try:
                 for i in range(8):  # Cat_Assassin_Move0 ~ Move8
-                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Move{i}.png')
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Move{i}.png')
                     Run.images.append(img)
-                print(f"[CatAssassin Run] Loaded {len(Run.images)} images")
+                print(f"[CatThief Run] Loaded {len(Run.images)} images")
             except Exception as e:
-                print(f"\033[91m[CatAssassin Run] Failed to load images: {e}\033[0m")
+                print(f"\033[91m[CatThief Run] Failed to load images: {e}\033[0m")
                 Run.images = []
 
         # 랜덤 움직임 관련 변수
@@ -200,7 +199,7 @@ class Run:
         pass
 
     def do(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
 
         # 애니메이션 업데이트
         self.cat.animation_time += dt
@@ -278,7 +277,7 @@ class Kiting:
         pass
 
     def do(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
 
         # 애니메이션 업데이트 (Run 이미지 사용)
         self.cat.animation_time += dt
@@ -306,7 +305,7 @@ class Kiting:
                 to_player_x = dx / distance
                 to_player_y = dy / distance
 
-                # 기본 이동 속도 (1.5배)
+                # 기본 이동 속도 (1.0배)
                 base_speed = self.cat.speed * self.strafe_speed_multiplier
 
                 # 너무 가까우면 후퇴
@@ -350,29 +349,27 @@ class Attack:
             Attack.images = []
             try:
                 for i in range(7):  # Cat_Assassin_Attack0 ~ Attack6
-                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Attack{i}.png')
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Attack{i}.png')
                     Attack.images.append(img)
-                print(f"[CatAssassin Attack] Loaded {len(Attack.images)} images")
+                print(f"[CatThief Attack] Loaded {len(Attack.images)} images")
             except Exception as e:
-                print(f"\033[91m[CatAssassin Attack] Failed to load images: {e}\033[0m")
+                print(f"\033[91m[CatThief Attack] Failed to load images: {e}\033[0m")
                 Attack.images = []
 
         self.animation_finished = False
-        self.projectile_spawned = False
 
     def enter(self, e):
         self.cat.frame = 0
         self.cat.animation_time = 0
         self.cat.animation_speed = 10  # 공격 애니메이션은 빠르게
         self.animation_finished = False
-        self.projectile_spawned = False
         print("[Attack State] 공격 시작")
 
     def exit(self, e):
         pass
 
     def do(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
 
         # 애니메이션 업데이트
         self.cat.animation_time += dt
@@ -380,14 +377,7 @@ class Attack:
             self.cat.frame += 1
             self.cat.animation_time = 0
 
-            # 공격 프레임 중간쯤에 수리검 발사 (프레임 3에서 발사)
-            if self.cat.frame == 3 and not self.projectile_spawned:
-                self.projectile_spawned = True
-                if self.cat.world and 'player' in self.cat.world:
-                    player = self.cat.world['player']
-                    self.cat.attack(player)
-
-            # 애니메이션이 끝나면 Run으로 복귀
+            # 애니메이션이 끝나면 Kiting으로 복귀
             if len(Attack.images) > 0 and self.cat.frame >= len(Attack.images):
                 if not self.animation_finished:
                     self.animation_finished = True
@@ -416,11 +406,11 @@ class Hit:
             Hit.images = []
             try:
                 for i in range(3):  # Cat_Assassin_Airborne0 ~ Airborne2
-                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Airborne{i}.png')
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Airborne{i}.png')
                     Hit.images.append(img)
-                print(f"[CatAssassin Hit] Loaded {len(Hit.images)} images")
+                print(f"[CatThief Hit] Loaded {len(Hit.images)} images")
             except Exception as e:
-                print(f"\033[91m[CatAssassin Hit] Failed to load images: {e}\033[0m")
+                print(f"\033[91m[CatThief Hit] Failed to load images: {e}\033[0m")
                 Hit.images = []
 
         self.cat.animation_speed = 12  # 피격 애니메이션은 빠르게
@@ -463,13 +453,13 @@ class Hit:
             self.knockback_dx = 1.0
             self.knockback_dy = 0.0
 
-        print(f"[CatAssassin Hit State] 피격 애니메이션 시작")
+        print(f"[CatThief Hit State] 피격 애니메이션 시작")
 
     def exit(self, e):
         pass
 
     def do(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
 
         # 넉백 효과 적용
         if self.knockback_timer < self.knockback_duration:
@@ -488,7 +478,7 @@ class Hit:
             if len(Hit.images) > 0 and self.cat.frame >= len(Hit.images):
                 if not self.animation_finished:
                     self.animation_finished = True
-                    print(f"[CatAssassin Hit State] 피격 애니메이션 완료, Idle 복귀")
+                    print(f"[CatThief Hit State] 피격 애니메이션 완료, Idle 복귀")
                     self.cat.state_machine.handle_state_event(('HIT_END', None))
 
     def draw(self, draw_x, draw_y):
@@ -507,10 +497,10 @@ class Death:
 
         if Death.image is None:
             try:
-                Death.image = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/character/Cat_Assassin_Down0.png')
-                print(f"[CatAssassin Death] Loaded Down0 image")
+                Death.image = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Down0.png')
+                print(f"[CatThief Death] Loaded Down0 image")
             except Exception as e:
-                print(f"\033[91m[CatAssassin Death] Failed to load image: {e}\033[0m")
+                print(f"\033[91m[CatThief Death] Failed to load image: {e}\033[0m")
                 Death.image = None
 
         self.death_timer = 0.0
@@ -553,13 +543,13 @@ class Death:
             self.knockback_dx = 1.0
             self.knockback_dy = 0.0
 
-        print(f"[CatAssassin Death State] 사망 상태 시작 (3초 후 제거) - 넉백 적용")
+        print(f"[CatThief Death State] 사망 상태 시작 (3초 후 제거) - 넉백 적용")
 
     def exit(self, e):
         pass
 
     def do(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
 
         self.death_timer += dt
 
@@ -575,7 +565,7 @@ class Death:
         if self.death_timer >= self.death_duration and not self.mark_for_removal:
             self.mark_for_removal = True
             self.cat.mark_for_removal = True
-            print(f"[CatAssassin Death State] 3초 경과, 제거 표시 완료")
+            print(f"[CatThief Death State] 3초 경과, 제거 표시 완료")
 
     def draw(self, draw_x, draw_y):
         if Death.image is not None:
@@ -611,58 +601,8 @@ def hit_end(e):
 def die(e):
     return e[0] == 'DIE'
 
-# Shuriken (projectile)
-class Shuriken(Projectile):
-    """수리검 발사체 - Projectile을 상속받음"""
-    images = None
-
-    def __init__(self, x, y, target_x, target_y, owner=None):
-        super().__init__(x, y, target_x, target_y, speed=400, from_player=False)
-
-        self.owner = owner
-        self.scale = 3.0
-
-        if owner and hasattr(owner, 'stats'):
-            self.damage = owner.stats.get('attack_damage')
-        else:
-            self.damage = 10.0
-
-        if Shuriken.images is None:
-            Shuriken.images = []
-            try:
-                for i in range(8):
-                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Assassin/FX/Cat_Assassin_Shuriken{i}.png')
-                    Shuriken.images.append(img)
-            except Exception as e:
-                print(f"[Shuriken] Failed to load images: {e}")
-                Shuriken.images = []
-
-        self.frame = 0
-        self.animation_time = 0
-        self.animation_speed = 10
-
-    def update(self):
-        if not super().update():
-            return False
-
-        self.animation_time += framework.get_delta_time()
-        if self.animation_time >= 1.0 / self.animation_speed:
-            if len(Shuriken.images) > 0:
-                self.frame = (self.frame + 1) % len(Shuriken.images)
-            self.animation_time = 0
-
-        return True
-
-    def draw(self, draw_x, draw_y):
-        if Shuriken.images and len(Shuriken.images) > 0:
-            Shuriken.images[self.frame].draw(
-                draw_x, draw_y,
-                Shuriken.images[self.frame].w * self.scale,
-                Shuriken.images[self.frame].h * self.scale
-            )
-
-# CatAssassin (monster)
-class CatAssassin:
+# CatThief (monster)
+class CatThief:
     def __init__(self, x = 800, y = 450):
         self.x, self.y = x, y
         self.speed = 100
@@ -711,7 +651,7 @@ class CatAssassin:
     def update(self):
         # 무적시간 업데이트
         if self.invincible:
-            self.invincible_timer -= framework.get_delta_time()
+            self.invincible_timer -= game_framework.get_delta_time()
             if self.invincible_timer <= 0:
                 self.invincible = False
                 self.invincible_timer = 0.0
@@ -725,42 +665,10 @@ class CatAssassin:
         # 체력 바 그리기 (카메라 좌표 적용)
         self.health_bar.draw(draw_x, draw_y)
 
-        # Debug: Draw collision box (카메라 좌표 적용)
-        # cat_left = draw_x - self.collision_width / 2
-        # cat_right = draw_x + self.collision_width / 2
-        # cat_bottom = draw_y - self.collision_height / 2
-        # cat_top = draw_y + self.collision_height / 2
-        # p2.draw_rectangle(cat_left, cat_bottom, cat_right, cat_top)
-
     def attack(self, target):
-        """타겟을 향해 수리검 발사 (월드 좌표 사용)"""
-        if self.world:
-            # Shuriken을 CatAssassin의 월드 좌표(self.x, self.y)에서 생성
-            # target의 월드 좌표(target.x, target.y)를 향해 발사
-
-            # 수리검 생성 및 월드에 추가
-            shuriken = Shuriken(self.x, self.y, target.x, target.y, owner=self)
-            self.world['effects_front'].append(shuriken)
-
-            # 추가 수리검 생성 (원본 수리검의 양옆으로 약간씩 각도 변경)
-            angle_offsets = [15.0, -15.0, 30.0, -30.0]
-            for angle in angle_offsets:
-                rad = math.radians(angle)
-                dx = target.x - self.x
-                dy = target.y - self.y
-                distance = math.sqrt(dx**2 + dy**2)
-                if distance > 0:
-                    dir_x = dx / distance
-                    dir_y = dy / distance
-                    # 회전 변환
-                    rotated_x = dir_x * math.cos(rad) - dir_y * math.sin(rad)
-                    rotated_y = dir_x * math.sin(rad) + dir_y * math.cos(rad)
-                    new_target_x = self.x + rotated_x * distance
-                    new_target_y = self.y + rotated_y * distance
-                    extra_shuriken = Shuriken(self.x, self.y, new_target_x, new_target_y, owner=self)
-                    self.world['effects_front'].append(extra_shuriken)
-
-            print(f"[CatAssassin] 수리검 발사: 시작({int(self.x)}, {int(self.y)}) -> 목표({int(target.x)}, {int(target.y)})")
+        """공격 - 나중에 다른 공격 방식으로 구현 예정"""
+        print(f"[CatThief] 공격 - 구현 예정")
+        pass
 
     def handle_event(self, e):
         pass
@@ -798,116 +706,53 @@ class CatAssassin:
         effect_right = effect.x + effect_width / 2
         effect_bottom = effect.y - effect_height / 2
         effect_top = effect.y + effect_height / 2
-        p2.draw_rectangle(effect_left, effect_bottom, effect_right, effect_top)
 
-        # 충돌 검사
-        if (cat_left < effect_right and cat_right > effect_left and
-            cat_bottom < effect_top and cat_top > effect_bottom):
-            # 충돌 시 피격 처리
-            self.on_hit(effect)
-            return True
+        # 충돌 체크
+        collision = not (cat_right < effect_left or
+                        cat_left > effect_right or
+                        cat_top < effect_bottom or
+                        cat_bottom > effect_top)
 
-        return False
+        return collision
 
-    def check_collision_with_projectile(self, projectile):
-        """플레이어 투사체와의 충돌 감지
-
-        Args:
-            projectile: Projectile을 상속받은 발사체 객체
-
-        Returns:
-            bool: 충돌 여부
-        """
-        # 무적 상태이면 충돌 무시
-        if self.invincible:
-            return False
-
-        # 발사체 크기 (Projectile의 get_collision_box 메서드 사용)
-        if hasattr(projectile, 'get_collision_box'):
-            projectile_width, projectile_height = projectile.get_collision_box()
-        else:
-            projectile_width = 30
-            projectile_height = 30
-
-        # AABB (Axis-Aligned Bounding Box) 충돌 감지
-        cat_left = self.x - self.collision_width / 2
-        cat_right = self.x + self.collision_width / 2
-        cat_bottom = self.y - self.collision_height / 2
-        cat_top = self.y + self.collision_height / 2
-
-        proj_left = projectile.x - projectile_width / 2
-        proj_right = projectile.x + projectile_width / 2
-        proj_bottom = projectile.y - projectile_height / 2
-        proj_top = projectile.y + projectile_height / 2
-
-        # 충돌 검사
-        if (cat_left < proj_right and cat_right > proj_left and
-            cat_bottom < proj_top and cat_top > proj_bottom):
-            # 충돌 시 피격 처리
-            self.on_hit(projectile)
-            return True
-
-        return False
-
-    def on_hit(self, attacker):
-        """피격 시 호출되는 메서드
-
-        Args:
-            attacker: 공격한 객체 (투사체, 이펙트 등)
-        """
-        # 무적 상태라면 무시
-        if self.invincible:
-            print(f"[CatAssassin] 무적 상태로 피격 무시 (남은 무적시간: {self.invincible_timer:.2f}초)")
-            return
-
-        # 사망 상태면 무시
+    def take_damage(self, damage, attacker=None):
+        """데미지를 받는 메서드"""
+        # 이미 죽었으면 데미지 무시
         if isinstance(self.state_machine.cur_state, Death):
             return
 
-        # 무적시간 활성화
+        # 무적 상태면 데미지 무시
+        if self.invincible:
+            print(f"[CatThief] 무적 상태 - 데미지 무시")
+            return
+
+        # 무적 시간 활성화
         self.invincible = True
         self.invincible_timer = self.invincible_duration
 
-        # 데미지 계산
-        damage = 0
-        if hasattr(attacker, 'damage'):
-            damage = attacker.damage
-        elif hasattr(attacker, 'owner') and hasattr(attacker.owner, 'stats'):
-            # 공격자의 스탯에서 데미지 가져오기
-            damage = attacker.owner.stats.get('attack_damage')
-        else:
-            damage = 10.0  # 기본 데미지
-
-        # 방어력 적산
+        # 스탯에서 방어력 가져오기
         defense = self.stats.get('defense')
-        final_damage = max(1.0, damage - defense)
+        # 최종 데미지 계산 (방어력만큼 감소, 최소 1)
+        final_damage = max(1, damage - defense)
 
         # 체력 감소
         current_health = self.stats.get('health')
         max_health = self.stats.get('max_health')
         new_health = max(0, current_health - final_damage)
-        self.stats.set_base('health', new_health)
+        self.stats.set('health', new_health)
 
-        # 데미지 인디케이터 생성 (월드에 추가)
-        if self.world and 'effects_front' in self.world:
-            try:
-                # 몬스터 위치 위쪽에 데미지 인디케이터 생성
-                damage_indicator = DamageIndicator(
-                    self.x,
-                    self.y + 30,  # 몬스터 위치보다 30 픽셀 위에 표시
-                    final_damage,
-                    duration=1.0,
-                    font_size=30
-                )
-                self.world['effects_front'].append(damage_indicator)
-                print(f"[CatAssassin] 데미지 인디케이터 생성: {int(final_damage)} 데미지")
-            except Exception as e:
-                print(f"[CatAssassin] 데미지 인디케이터 생성 실패: {e}")
+        # 데미지 인디케이터 생성
+        try:
+            if self.world and 'damage_indicators' in self.world:
+                indicator = DamageIndicator(self.x, self.y, final_damage)
+                self.world['damage_indicators'].append(indicator)
+        except Exception as e:
+            print(f"[CatThief] 데미지 인디케이터 생성 실패: {e}")
 
         # 피격 정보 출력 (디버그)
-        attacker_name = attacker.__class__.__name__
+        attacker_name = attacker.__class__.__name__ if attacker else "Unknown"
         print(f"\n{'='*60}")
-        print(f"[CatAssassin 피격] at ({int(self.x)}, {int(self.y)})")
+        print(f"[CatThief 피격] at ({int(self.x)}, {int(self.y)})")
         print(f"  공격자: {attacker_name}")
         print(f"  원본 데미지: {damage:.1f}")
         print(f"  방어력: {defense:.1f}")
@@ -918,7 +763,7 @@ class CatAssassin:
 
         # 체력이 0 이하면 사망 상태로 전환
         if new_health <= 0:
-            print(f"  >>> CatAssassin 체력 0 - 사망 상태로 전환")
+            print(f"  >>> CatThief 체력 0 - 사망 상태로 전환")
             print(f"{'='*60}\n")
             self.state_machine.handle_state_event(('DIE', attacker))
         else:

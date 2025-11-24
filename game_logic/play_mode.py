@@ -670,18 +670,21 @@ def handle_events():
                 if hasattr(o, 'handle_event'):
                     o.handle_event(e)
             except Exception:
+                print(f'\033[91m[play_mode] handle_event error in entity {o.__class__.__name__}\033[0m')
                 pass
         for o in list(world['ui']):
             try:
                 if hasattr(o, 'handle_event'):
                     o.handle_event(e)
             except Exception:
+                print(f'\033[91m[play_mode] handle_event error in ui {o.__class__.__name__}\033[0m')
                 pass
         for o in list(world['cursor']):
             try:
                 if hasattr(o, 'handle_event'):
                     o.handle_event(e)
             except Exception:
+                print(f'\033[91m[play_mode] handle_event error in cursor {o.__class__.__name__}\033[0m')
                 pass
 
 

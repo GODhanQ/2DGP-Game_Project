@@ -1,6 +1,6 @@
 # 간단한 스탯/버프 시스템
 from typing import Dict, Optional
-from . import game_framework
+import game_framework
 
 class StatModifier:
     def __init__(self, id: str, values: Dict[str, float], duration: Optional[float] = None):

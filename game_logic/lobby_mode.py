@@ -400,8 +400,8 @@ def update():
                     alive = o.update()
                     if alive is False:
                         continue
-            except Exception:
-                print("\033[91m[lobby_mode] Failed to update object\033[0m")
+            except Exception as ex:
+                print(f"\033[91m[lobby_mode] Failed to update object : {ex}\033[0m")
 
             # mark_for_removal 플래그 확인
             if hasattr(o, 'mark_for_removal') and o.mark_for_removal:

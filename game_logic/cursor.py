@@ -3,7 +3,7 @@ import os
 import math
 from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import SDL_GetMouseState, SDL_ShowCursor, SDL_DISABLE, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
-from . import framework
+import game_framework as framework
 
 class Cursor:
     def __init__(self, player=None):
