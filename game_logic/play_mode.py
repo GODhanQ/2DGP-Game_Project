@@ -839,16 +839,16 @@ def draw():
             try:
                 if hasattr(o, 'draw'):
                     o.draw()
-            except Exception:
-                print(f'\033[91m[play_mode] UI 레이어의 {o.__class__.__name__} 그리기 오류\033[0m')
+            except Exception as ex:
+                print(f'\033[91m[play_mode] UI 레이어의 {o.__class__.__name__} 그리기 오류 : {ex}\033[0m')
                 pass
 
         for o in world['cursor']:
             try:
                 if hasattr(o, 'draw'):
                     o.draw()
-            except Exception:
-                print(f'\033[91m[play_mode] Cursor 레이어의 {o.__class__.__name__} 그리기 오류\033[0m')
+            except Exception as ex:
+                print(f'\033[91m[play_mode] Cursor 레이어의 {o.__class__.__name__} 그리기 오류 : {ex}\033[0m')
                 pass
 
     p2.update_canvas()

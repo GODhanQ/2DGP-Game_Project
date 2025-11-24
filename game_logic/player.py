@@ -19,6 +19,7 @@ from . import framework
 # 인벤토리 데이터 모델 import
 from .inventory import InventoryData, seed_debug_inventory
 from .stats import PlayerStats, StatModifier
+from .damage_indicator import DamageIndicator
 
 def Akey_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
@@ -1091,6 +1092,21 @@ class Player:
             self.particles.append(wound_particle)
 
         print(f"[Player] 피격 이펙트 생성 완료 (Wound Particle x4)")
+
+        # 데미지 인디케이터 생성
+        try:
+            if hasattr(self, 'world') and self.world and 'effects_front' in self.world:
+                dmg_indicator = DamageIndicator(
+                    x=self.x,
+                    y=self.y,
+                    damage=final_damage,
+                    font_size=20
+                )
+                self.world['effects_front'].append(dmg_indicator)
+                print(f"[Player] 데미지 인디케이터 생성: {final_damage:.1f} 데미지")
+        except Exception as ex:
+            print(f'\033[91m[Player] 데미지 인디케이터 생성 실패: {ex}\033[0m')
+            pass
 
         # TODO: 추후 추가 가능
         # - 피격 사운드

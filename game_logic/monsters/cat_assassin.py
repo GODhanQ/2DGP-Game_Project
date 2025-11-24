@@ -6,6 +6,7 @@ from .. import framework
 from ..state_machine import StateMachine
 from ..projectile import Projectile
 from ..stats import CatAssassinStats
+from ..damage_indicator import DamageIndicator  # 데미지 인디케이터 import 추가
 
 # ========== Idle State ==========
 class Idle:
@@ -736,7 +737,7 @@ class CatAssassin:
             shuriken = Shuriken(self.x, self.y, target.x, target.y, owner=self)
             self.world['effects_front'].append(shuriken)
 
-            # 추가 수리검 생성 (원본 수리검의 +22.5도, -22.5도, +45도, -45도 변형)
+            # 추가 수리검 생성 (원본 수리검의 양옆으로 약간씩 각도 변경)
             angle_offsets = [15.0, -15.0, 30.0, -30.0]
             for angle in angle_offsets:
                 rad = math.radians(angle)
@@ -881,6 +882,22 @@ class CatAssassin:
         max_health = self.stats.get('max_health')
         new_health = max(0, current_health - final_damage)
         self.stats.set_base('health', new_health)
+
+        # 데미지 인디케이터 생성 (월드에 추가)
+        if self.world and 'effects_front' in self.world:
+            try:
+                # 몬스터 위치 위쪽에 데미지 인디케이터 생성
+                damage_indicator = DamageIndicator(
+                    self.x,
+                    self.y + 30,  # 몬스터 위치보다 30 픽셀 위에 표시
+                    final_damage,
+                    duration=1.0,
+                    font_size=30
+                )
+                self.world['effects_front'].append(damage_indicator)
+                print(f"[CatAssassin] 데미지 인디케이터 생성: {int(final_damage)} 데미지")
+            except Exception as e:
+                print(f"[CatAssassin] 데미지 인디케이터 생성 실패: {e}")
 
         # 피격 정보 출력 (디버그)
         attacker_name = attacker.__class__.__name__
