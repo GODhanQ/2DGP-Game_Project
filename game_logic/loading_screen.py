@@ -2,7 +2,7 @@
 """스테이지 로딩 화면 모듈"""
 
 import pico2d as p2
-import game_framework
+import game_framework as framework
 
 class LoadingScreen:
     """스테이지 로딩 화면 클래스"""

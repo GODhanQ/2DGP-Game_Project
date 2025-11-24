@@ -332,9 +332,9 @@ class Inventory:
         active_state.do()
 
     def draw(self, draw_x, draw_y):
-        # 현재 키 상태에 따라 Idle/Run의 draw를 먼저 실행
-        # active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
-        # active_state.draw(draw_x, draw_y)
+        # 현재 키 상태에 따라 Idle/Run의 draw를 먼저 실행 (플레이어 표시)
+        active_state = self.player.RUN if any(self.player.keys_down.values()) else self.player.IDLE
+        active_state.draw(draw_x, draw_y)
         # 인벤토리 이미지를 화면 오른쪽에 표시 (카메라 스크롤 영향 없음)
         # if self.image:
         #     canvas_w = get_canvas_width()
@@ -972,6 +972,56 @@ class Player:
             player_bottom < proj_top and player_top > proj_bottom):
             # 충돌 시 피격 처리
             self.on_hit(projectile)
+            return True
+
+        return False
+
+    def check_collision_with_effect(self, effect):
+        """몬스터 공격 이펙트와의 충돌 감지 (CatThiefSwingEffect 등)
+
+        Args:
+            effect: 공격 이펙트 객체 (get_collision_box 메서드를 가진 이펙트)
+
+        Returns:
+            bool: 충돌 여부
+        """
+        # 먼저 방패로 방어할 수 있는지 체크
+        if hasattr(self, 'shield') and self.shield:
+            # 방패의 방향과 이펙트 위치를 고려하여 방어 판정
+            if hasattr(self.shield, 'check_effect_block'):
+                if self.shield.check_effect_block(effect):
+                    # 방패로 막았으면 충돌 처리 종료
+                    print(f"[Player] 방패로 {effect.__class__.__name__} 방어!")
+                    return True
+
+        # 무적 상태이면 충돌 무시
+        if hasattr(self, 'invincible') and self.invincible:
+            return False
+
+        # 이펙트 크기 (get_collision_box 메서드 사용)
+        if hasattr(effect, 'get_collision_box'):
+            effect_width, effect_height = effect.get_collision_box()
+        else:
+            # 기본값
+            effect_width = 100
+            effect_height = 100
+
+        # AABB (Axis-Aligned Bounding Box) 충돌 감지
+        player_left = self.x - self.collision_width / 2
+        player_right = self.x + self.collision_width / 2
+        player_bottom = self.y - self.collision_height / 2
+        player_top = self.y + self.collision_height / 2
+
+        effect_left = effect.x - effect_width / 2
+        effect_right = effect.x + effect_width / 2
+        effect_bottom = effect.y - effect_height / 2
+        effect_top = effect.y + effect_height / 2
+
+        # 충돌 검사
+        if (player_left < effect_right and player_right > effect_left and
+            player_bottom < effect_top and player_top > effect_bottom):
+            # 충돌 시 피격 처리
+            self.on_hit(effect)
             return True
 
         return False

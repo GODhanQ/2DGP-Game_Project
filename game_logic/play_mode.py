@@ -731,6 +731,7 @@ def update():
 
     # 충돌 검사 시스템
     from .projectile import Projectile
+    from .monsters.cat_theif import CatThiefSwingEffect  # CatThiefSwingEffect import 추가
     player = world.get('player')
 
     # 충돌한 이펙트와 투사체를 추적하기 위한 집합
@@ -753,6 +754,23 @@ def update():
                         print(f"[COLLISION] {attacker_name} 공격 이펙트 -> {target_name} 피격!")
                         # 충돌 시 이펙트는 유지 (여러 적을 동시에 타격 가능)
                         pass
+
+    # 1-2. 몬스터 공격 이펙트와 플레이어 충돌 검사 (CatThiefSwingEffect 등)
+    if player:
+        for effect in world['effects_front']:
+            # CatThiefSwingEffect 확인 (Cat Thief의 검격)
+            if isinstance(effect, CatThiefSwingEffect):
+                # 이미 맞춘 플레이어는 다시 체크하지 않음 (중복 타격 방지)
+                if not effect.has_hit_player:
+                    if hasattr(player, 'check_collision_with_effect'):
+                        if player.check_collision_with_effect(effect):
+                            # 충돌 시 플레이어 타격 처리
+                            effect.has_hit_player = True
+                            # 디버그: 충돌 정보 출력
+                            attacker_name = "Unknown"
+                            if hasattr(effect, 'owner') and effect.owner:
+                                attacker_name = effect.owner.__class__.__name__
+                            print(f"[COLLISION] {attacker_name} 검격 이펙트 -> Player 피격!")
 
     # 2. 투사체와 충돌 검사 (일반화된 Projectile 기반)
     if player:

@@ -4,7 +4,7 @@ import math
 
 import game_framework
 from ..state_machine import StateMachine
-from ..stats import CatAssassinStats
+from ..stats import CatThiefStats
 from ..damage_indicator import DamageIndicator
 from ..ui_overlay import MonsterHealthBar
 
@@ -74,9 +74,9 @@ class Chase:
         self.kiting_min_range = 250  # 너무 가까우면 후퇴할 거리
 
         # 공격 쿨타임 관련
-        self.attack_cooldown = 2.0  # 공격 후 2초 대기
+        self.attack_cooldown = 3.0  # 공격 후 2초 대기
         self.attack_cooldown_timer = 0.0  # 쿨타임 타이머
-        self.can_attack = False  # 공격 가능 여부 - 처음에는 False로 시작
+        self.can_attack = True
 
         # 하위 상태 머신 생성
         self.RUN = Run(cat)
@@ -339,31 +339,103 @@ class Kiting:
 
 # ========== Attack State (Chase의 하위 상태) ==========
 class Attack:
-    images = None
+    """2단계 공격 상태
+    - 1단계: 플레이어 방향에서 ±45도 방향으로 회전 구르기 (Spin 모션)
+    - 2단계: 플레이어 방향으로 3배속 돌진 공격 (Attack 모션 + Swing 이펙트)
+    """
+    character_images = None  # Attack 애니메이션 이미지
+    spin_images = None  # Spin 애니메이션 이미지
 
     def __init__(self, cat, chase_state = None):
         self.cat = cat
-        self.chase_state = chase_state  # Chase 상태에 대한 참조 (optional)
+        self.chase_state = chase_state  # Chase 상태에 대한 참조
 
-        if Attack.images is None:
-            Attack.images = []
+        # Attack 캐릭터 이미지 로드
+        if Attack.character_images is None:
+            Attack.character_images = []
             try:
-                for i in range(7):  # Cat_Assassin_Attack0 ~ Attack6
+                for i in range(7):  # Cat_Thief_Attack0 ~ Attack6
                     img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Attack{i}.png')
-                    Attack.images.append(img)
-                print(f"[CatThief Attack] Loaded {len(Attack.images)} images")
+                    Attack.character_images.append(img)
+                print(f"[CatThief Attack] Loaded {len(Attack.character_images)} attack images")
             except Exception as e:
-                print(f"\033[91m[CatThief Attack] Failed to load images: {e}\033[0m")
-                Attack.images = []
+                print(f"\033[91m[CatThief Attack] Failed to load attack images: {e}\033[0m")
+                Attack.character_images = []
 
+        # Spin 캐릭터 이미지 로드
+        if Attack.spin_images is None:
+            Attack.spin_images = []
+            try:
+                for i in range(7):  # Cat_Thief_Spin0 ~ Spin6
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Spin{i}.png')
+                    Attack.spin_images.append(img)
+                print(f"[CatThief Attack] Loaded {len(Attack.spin_images)} spin images")
+            except Exception as e:
+                print(f"\033[91m[CatThief Attack] Failed to load spin images: {e}\033[0m")
+                Attack.spin_images = []
+
+        # 공격 단계 (1: 회전 구르기, 2: 돌진 공격)
+        self.attack_phase = 1
         self.animation_finished = False
+
+        # 1단계: 회전 구르기 관련 변수
+        self.roll_direction_x = 0  # 구르기 방향 X
+        self.roll_direction_y = 0  # 구르기 방향 Y
+        self.roll_speed = 300  # 구르기 속도
+        self.roll_duration = 0.0  # 구르기 지속 시간 (애니메이션 기반)
+
+        # 2단계: 돌진 공격 관련 변수
+        self.dash_direction_x = 0  # 돌진 방향 X
+        self.dash_direction_y = 0  # 돌진 방향 Y
+        self.dash_speed = 0  # 돌진 속도 (기본 속도의 3배)
+        self.dash_distance = 900  # 돌진 거리
+        self.dash_traveled = 0  # 이동한 거리
+        self.swing_effect_spawned = False  # 검격 이펙트 생성 여부
 
     def enter(self, e):
         self.cat.frame = 0
         self.cat.animation_time = 0
-        self.cat.animation_speed = 10  # 공격 애니메이션은 빠르게
         self.animation_finished = False
-        print("[Attack State] 공격 시작")
+        self.attack_phase = 1
+        self.swing_effect_spawned = False
+        self.dash_traveled = 0
+
+        # 플레이어 위치 가져오기
+        if self.cat.world and 'player' in self.cat.world:
+            player = self.cat.world['player']
+            dx = player.x - self.cat.x
+            dy = player.y - self.cat.y
+            distance = math.sqrt(dx**2 + dy**2)
+
+            if distance > 0:
+                # 플레이어 방향 단위 벡터
+                to_player_x = dx / distance
+                to_player_y = dy / distance
+
+                # 1단계: 플레이어 방향에서 ±45도 랜덤 선택하여 구르기
+                angle_offset = random.choice([math.pi / 4, -math.pi / 4])  # +45도 또는 -45도
+                base_angle = math.atan2(to_player_y, to_player_x)
+                roll_angle = base_angle + angle_offset
+
+                self.roll_direction_x = math.cos(roll_angle)
+                self.roll_direction_y = math.sin(roll_angle)
+
+                # 2단계: 플레이어 방향으로 돌진 (나중에 사용)
+                self.dash_direction_x = to_player_x
+                self.dash_direction_y = to_player_y
+                self.dash_speed = self.cat.speed * 5.0  # 기본 속도의 5배
+
+                print(f"[Attack State] 1단계 시작 - 구르기 방향: ({self.roll_direction_x:.2f}, {self.roll_direction_y:.2f})")
+            else:
+                # 플레이어와 같은 위치면 기본 방향
+                self.roll_direction_x = 1.0
+                self.roll_direction_y = 0.0
+                self.dash_direction_x = 1.0
+                self.dash_direction_y = 0.0
+                self.dash_speed = self.cat.speed * 3.0
+
+        # 1단계 애니메이션 속도 설정
+        self.cat.animation_speed = 12
 
     def exit(self, e):
         pass
@@ -371,29 +443,264 @@ class Attack:
     def do(self):
         dt = game_framework.get_delta_time()
 
-        # 애니메이션 업데이트
-        self.cat.animation_time += dt
-        if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
-            self.cat.frame += 1
-            self.cat.animation_time = 0
+        # ===== 1단계: 회전 구르기 =====
+        if self.attack_phase == 1:
+            # 애니메이션 업데이트
+            self.cat.animation_time += dt
+            if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
+                self.cat.frame += 1
+                self.cat.animation_time = 0
 
-            # 애니메이션이 끝나면 Kiting으로 복귀
-            if len(Attack.images) > 0 and self.cat.frame >= len(Attack.images):
-                if not self.animation_finished:
-                    self.animation_finished = True
-                    print("[Attack State] 공격 애니메이션 완료")
-                    # Chase 상태의 can_attack을 False로 설정 (쿨타임 시작)
-                    if self.chase_state:
-                        self.chase_state.can_attack = False
+                # Spin 애니메이션이 끝나면 2단계로 전환
+                if Attack.spin_images and self.cat.frame >= len(Attack.spin_images):
+                    # 1단계 종료 시점에 플레이어 방향 재계산
+                    if self.cat.world and 'player' in self.cat.world:
+                        player = self.cat.world['player']
+                        dx = player.x - self.cat.x
+                        dy = player.y - self.cat.y
+                        distance = math.sqrt(dx**2 + dy**2)
 
-                    self.cat.state_machine.cur_state.sub_state_machine.handle_state_event(('ATTACK_END', None))
+                        if distance > 0:
+                            # 플레이어 방향으로 돌진 방향 업데이트
+                            self.dash_direction_x = dx / distance
+                            self.dash_direction_y = dy / distance
+                            print(f"[Attack State] 돌진 방향 재계산: ({self.dash_direction_x:.2f}, {self.dash_direction_y:.2f})")
+                        else:
+                            # 플레이어와 같은 위치면 기존 방향 유지
+                            print(f"[Attack State] 플레이어와 같은 위치 - 기존 방향 유지")
+
+                    self.attack_phase = 2
+                    self.cat.frame = 0
+                    self.cat.animation_time = 0
+                    self.cat.animation_speed = 10  # 2단계는 조금 느리게
+                    self.dash_traveled = 0  # 돌진 거리 초기화
+                    print(f"[Attack State] 2단계 시작 - 돌진 공격")
+
+            # 구르기 이동
+            self.cat.x += self.roll_direction_x * self.roll_speed * dt
+            self.cat.y += self.roll_direction_y * self.roll_speed * dt
+
+        # ===== 2단계: 돌진 공격 =====
+        elif self.attack_phase == 2:
+            # 애니메이션 업데이트
+            self.cat.animation_time += dt
+            if self.cat.animation_time >= 1.0 / self.cat.animation_speed:
+                self.cat.frame += 1
+                self.cat.animation_time = 0
+
+                # Attack 애니메이션이 끝나면 Kiting으로 복귀
+                if Attack.character_images and self.cat.frame >= len(Attack.character_images):
+                    if not self.animation_finished:
+                        self.animation_finished = True
+                        print("[Attack State] 공격 애니메이션 완료")
+                        # Chase 상태의 can_attack을 False로 설정 (쿨타임 시작)
+                        if self.chase_state:
+                            self.chase_state.can_attack = False
+
+                        self.cat.state_machine.cur_state.sub_state_machine.handle_state_event(('ATTACK_END', None))
+                        return
+
+            # 돌진 거리 체크 - 최대 거리에 도달하면 이동 중지
+            if self.dash_traveled < self.dash_distance:
+                move_distance = self.dash_speed * dt
+                self.cat.x += self.dash_direction_x * move_distance
+                self.cat.y += self.dash_direction_y * move_distance
+                self.dash_traveled += move_distance
+
+            # 검격 이펙트 생성 (프레임 3에서 생성)
+            if self.cat.frame == 3 and not self.swing_effect_spawned:
+                self.spawn_swing_effect()
+                self.swing_effect_spawned = True
+
+    def spawn_swing_effect(self):
+        """검격 이펙트 생성 (Cat_Thief_Swing 이펙트)"""
+        if not self.cat.world or 'effects_front' not in self.cat.world:
+            print("[Attack State] world 또는 effects_front가 없어서 검격 이펙트 생성 실패")
+            return
+
+        try:
+            # 검격 이펙트 위치 계산 (몬스터 앞쪽)
+            offset_distance = 40  # 몬스터로부터의 거리
+            effect_x = self.cat.x + self.dash_direction_x * offset_distance
+            effect_y = self.cat.y + self.dash_direction_y * offset_distance
+
+            # 검격 방향 각도 계산 (라디안)
+            effect_angle = math.atan2(self.dash_direction_y, self.dash_direction_x)
+
+            # CatThiefSwingEffect 생성
+            swing_effect = CatThiefSwingEffect(
+                effect_x,
+                effect_y,
+                effect_angle,
+                owner=self.cat,
+                scale=3.0
+            )
+
+            self.cat.world['effects_front'].append(swing_effect)
+            print(f"[Attack State] 검격 이펙트 생성 at ({int(effect_x)}, {int(effect_y)}), 각도: {math.degrees(effect_angle):.1f}도")
+
+        except Exception as e:
+            print(f"\033[91m[Attack State] 검격 이펙트 생성 실패: {e}\033[0m")
 
     def draw(self, draw_x, draw_y):
-        if Attack.images and len(Attack.images) > 0:
-            frame_idx = min(self.cat.frame, len(Attack.images) - 1)
-            Attack.images[frame_idx].draw(draw_x, draw_y,
-                                          Attack.images[frame_idx].w * self.cat.scale,
-                                          Attack.images[frame_idx].h * self.cat.scale)
+        # 1단계: Spin 이미지 그리기
+        if self.attack_phase == 1:
+            if Attack.spin_images and len(Attack.spin_images) > 0:
+                frame_idx = min(self.cat.frame, len(Attack.spin_images) - 1)
+                Attack.spin_images[frame_idx].draw(
+                    draw_x, draw_y,
+                    Attack.spin_images[frame_idx].w * self.cat.scale,
+                    Attack.spin_images[frame_idx].h * self.cat.scale
+                )
+        # 2단계: Attack 이미지 그리기
+        elif self.attack_phase == 2:
+            if Attack.character_images and len(Attack.character_images) > 0:
+                frame_idx = min(self.cat.frame, len(Attack.character_images) - 1)
+                Attack.character_images[frame_idx].draw(
+                    draw_x, draw_y,
+                    Attack.character_images[frame_idx].w * self.cat.scale,
+                    Attack.character_images[frame_idx].h * self.cat.scale
+                )
+
+
+# ========== Cat Thief Swing Effect (검격 이펙트) ==========
+class CatThiefSwingEffect:
+    """Cat Thief의 검격 이펙트 (Cat_Thief_Swing 0~3)"""
+    images = None
+
+    def __init__(self, x, y, angle, owner=None, scale=3.0, damage=15.0):
+        """
+        Args:
+            x, y: 이펙트 생성 위치 (월드 좌표)
+            angle: 검격 방향 (라디안)
+            owner: 공격 주체 (CatThief 객체)
+            scale: 이펙트 크기 배율
+            damage: 이펙트 데미지
+        """
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.owner = owner
+        self.scale = scale
+        self.damage = damage
+
+        # 이미지 로드 (클래스 변수로 한 번만 로드)
+        if CatThiefSwingEffect.images is None:
+            CatThiefSwingEffect.images = []
+            try:
+                for i in range(4):  # Cat_Thief_Swing0 ~ Swing3
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/FX/Cat_Thief_Swing{i}.png')
+                    CatThiefSwingEffect.images.append(img)
+                print(f"[CatThiefSwingEffect] Loaded {len(CatThiefSwingEffect.images)} images")
+            except Exception as e:
+                print(f"\033[91m[CatThiefSwingEffect] Failed to load images: {e}\033[0m")
+                CatThiefSwingEffect.images = []
+
+        self.frame = 0
+        self.animation_time = 0
+        self.animation_speed = 15  # 빠른 애니메이션 (15 FPS)
+        self.finished = False
+
+        # 충돌 체크용 변수
+        self.has_hit_player = False  # 플레이어를 이미 맞췄는지 여부
+
+        print(f"[CatThiefSwingEffect] 생성됨 at ({int(x)}, {int(y)}), 각도: {math.degrees(angle):.1f}도")
+
+    def update(self):
+        """이펙트 애니메이션 업데이트 (충돌 체크는 play_mode에서 처리)"""
+        if self.finished:
+            return False
+
+        dt = game_framework.get_delta_time()
+        self.animation_time += dt
+
+        # 애니메이션 업데이트
+        if self.animation_time >= 1.0 / self.animation_speed:
+            self.frame += 1
+            self.animation_time = 0
+
+            # 애니메이션이 끝나면 제거
+            if CatThiefSwingEffect.images and self.frame >= len(CatThiefSwingEffect.images):
+                self.finished = True
+                return False
+
+        return True
+
+    def get_collision_box(self):
+        """충돌 박스 크기 반환 (play_mode에서 충돌 검사에 사용)
+
+        Returns:
+            tuple: (width, height) - 이펙트의 충돌 박스 크기
+        """
+        if CatThiefSwingEffect.images and len(CatThiefSwingEffect.images) > 0:
+            effect_img = CatThiefSwingEffect.images[min(self.frame, len(CatThiefSwingEffect.images) - 1)]
+            effect_width = effect_img.w * self.scale * 0.7  # 충돌 범위를 70%로 조정
+            effect_height = effect_img.h * self.scale * 0.7
+        else:
+            effect_width = 100
+            effect_height = 100
+
+        return (effect_width, effect_height)
+
+
+    def draw(self, draw_x, draw_y):
+        """
+        이펙트 그리기
+
+        Args:
+            draw_x: 카메라가 적용된 화면 X 좌표
+            draw_y: 카메라가 적용된 화면 Y 좌표
+        """
+        if not CatThiefSwingEffect.images or len(CatThiefSwingEffect.images) == 0:
+            return
+
+        if self.finished:
+            return
+
+        frame_idx = min(self.frame, len(CatThiefSwingEffect.images) - 1)
+        try:
+            # 회전 각도를 degree로 변환 (pico2d는 degree 사용)
+            # 기본 이미지가 위쪽 방향이므로 -90도를 기본으로 보정
+            angle_deg = math.degrees(self.angle) - 90.0
+
+            # 이미지 그리기 (회전 적용)
+            CatThiefSwingEffect.images[frame_idx].composite_draw(
+                angle_deg, '',  # 각도, 플립 없음
+                draw_x, draw_y,
+                CatThiefSwingEffect.images[frame_idx].w * self.scale,
+                CatThiefSwingEffect.images[frame_idx].h * self.scale
+            )
+        except Exception as e:
+            print(f"\033[91m[CatThiefSwingEffect] draw 에러: {e}\033[0m")
+
+
+# ========== Event Predicates ==========
+def detect_player(e):
+    return e[0] == 'DETECT_PLAYER'
+
+def lose_player(e):
+    return e[0] == 'LOSE_PLAYER'
+
+def in_attack_range(e):
+    return e[0] == 'IN_ATTACK_RANGE'
+
+def out_attack_range(e):
+    return e[0] == 'OUT_ATTACK_RANGE'
+
+def ready_to_attack(e):
+    return e[0] == 'READY_TO_ATTACK'
+
+def attack_end(e):
+    return e[0] == 'ATTACK_END'
+
+def take_hit(e):
+    return e[0] == 'TAKE_HIT'
+
+def hit_end(e):
+    return e[0] == 'HIT_END'
+
+def die(e):
+    return e[0] == 'DIE'
 
 # ========== Hit State ==========
 class Hit:
@@ -405,7 +712,7 @@ class Hit:
         if Hit.images is None:
             Hit.images = []
             try:
-                for i in range(3):  # Cat_Assassin_Airborne0 ~ Airborne2
+                for i in range(3):  # Cat_Thief_Airborne0 ~ Airborne2
                     img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest/Cat_Thief/character/Cat_Thief_Airborne{i}.png')
                     Hit.images.append(img)
                 print(f"[CatThief Hit] Loaded {len(Hit.images)} images")
@@ -573,33 +880,6 @@ class Death:
                            Death.image.w * self.cat.scale,
                            Death.image.h * self.cat.scale)
 
-# ========== Event Predicates ==========
-def detect_player(e):
-    return e[0] == 'DETECT_PLAYER'
-
-def lose_player(e):
-    return e[0] == 'LOSE_PLAYER'
-
-def in_attack_range(e):
-    return e[0] == 'IN_ATTACK_RANGE'
-
-def out_attack_range(e):
-    return e[0] == 'OUT_ATTACK_RANGE'
-
-def ready_to_attack(e):
-    return e[0] == 'READY_TO_ATTACK'
-
-def attack_end(e):
-    return e[0] == 'ATTACK_END'
-
-def take_hit(e):
-    return e[0] == 'TAKE_HIT'
-
-def hit_end(e):
-    return e[0] == 'HIT_END'
-
-def die(e):
-    return e[0] == 'DIE'
 
 # CatThief (monster)
 class CatThief:
@@ -629,7 +909,7 @@ class CatThief:
         self.invincible_duration = 0.3
 
         # 스탯 시스템
-        self.stats = CatAssassinStats()
+        self.stats = CatThiefStats()
         self.health_bar = MonsterHealthBar(self)
 
         # State machine setup with rules
@@ -706,70 +986,133 @@ class CatThief:
         effect_right = effect.x + effect_width / 2
         effect_bottom = effect.y - effect_height / 2
         effect_top = effect.y + effect_height / 2
+        p2.draw_rectangle(effect_left, effect_bottom, effect_right, effect_top)
 
-        # 충돌 체크
-        collision = not (cat_right < effect_left or
-                        cat_left > effect_right or
-                        cat_top < effect_bottom or
-                        cat_bottom > effect_top)
+        # 충돌 검사
+        if (cat_left < effect_right and cat_right > effect_left and
+            cat_bottom < effect_top and cat_top > effect_bottom):
+            # 충돌 시 피격 처리
+            self.on_hit(effect)
+            return True
 
-        return collision
+        return False
 
-    def take_damage(self, damage, attacker=None):
-        """데미지를 받는 메서드"""
-        # 이미 죽었으면 데미지 무시
+    def check_collision_with_projectile(self, projectile):
+        """플레이어 투사체와의 충돌 감지
+
+        Args:
+            projectile: Projectile을 상속받은 발사체 객체
+
+        Returns:
+            bool: 충돌 여부
+        """
+        # 무적 상태이면 충돌 무시
+        if self.invincible:
+            return False
+
+        # 발사체 크기 (Projectile의 get_collision_box 메서드 사용)
+        if hasattr(projectile, 'get_collision_box'):
+            projectile_width, projectile_height = projectile.get_collision_box()
+        else:
+            projectile_width = 30
+            projectile_height = 30
+
+        # AABB (Axis-Aligned Bounding Box) 충돌 감지
+        cat_left = self.x - self.collision_width / 2
+        cat_right = self.x + self.collision_width / 2
+        cat_bottom = self.y - self.collision_height / 2
+        cat_top = self.y + self.collision_height / 2
+
+        proj_left = projectile.x - projectile_width / 2
+        proj_right = projectile.x + projectile_width / 2
+        proj_bottom = projectile.y - projectile_height / 2
+        proj_top = projectile.y + projectile_height / 2
+
+        # 충돌 검사
+        if (cat_left < proj_right and cat_right > proj_left and
+                cat_bottom < proj_top and cat_top > proj_bottom):
+            # 충돌 시 피격 처리
+            self.on_hit(projectile)
+            return True
+
+        return False
+
+    def on_hit(self, attacker):
+        """피격 시 호출되는 메서드
+
+        Args:
+            attacker: 공격한 객체 (투사체, 이펙트 등)
+        """
+        # 무적 상태라면 무시
+        if self.invincible:
+            print(f"[CatAssassin] 무적 상태로 피격 무시 (남은 무적시간: {self.invincible_timer:.2f}초)")
+            return
+
+        # 사망 상태면 무시
         if isinstance(self.state_machine.cur_state, Death):
             return
 
-        # 무적 상태면 데미지 무시
-        if self.invincible:
-            print(f"[CatThief] 무적 상태 - 데미지 무시")
-            return
-
-        # 무적 시간 활성화
+        # 무적시간 활성화
         self.invincible = True
         self.invincible_timer = self.invincible_duration
 
-        # 스탯에서 방어력 가져오기
+        # 데미지 계산
+        damage = 0
+        if hasattr(attacker, 'damage'):
+            damage = attacker.damage
+        elif hasattr(attacker, 'owner') and hasattr(attacker.owner, 'stats'):
+            # 공격자의 스탯에서 데미지 가져오기
+            damage = attacker.owner.stats.get('attack_damage')
+        else:
+            damage = 10.0  # 기본 데미지
+
+        # 방어력 적산
         defense = self.stats.get('defense')
-        # 최종 데미지 계산 (방어력만큼 감소, 최소 1)
-        final_damage = max(1, damage - defense)
+        final_damage = max(1.0, damage - defense)
 
         # 체력 감소
         current_health = self.stats.get('health')
         max_health = self.stats.get('max_health')
         new_health = max(0, current_health - final_damage)
-        self.stats.set('health', new_health)
+        self.stats.set_base('health', new_health)
 
-        # 데미지 인디케이터 생성
-        try:
-            if self.world and 'damage_indicators' in self.world:
-                indicator = DamageIndicator(self.x, self.y, final_damage)
-                self.world['damage_indicators'].append(indicator)
-        except Exception as e:
-            print(f"[CatThief] 데미지 인디케이터 생성 실패: {e}")
+        # 데미지 인디케이터 생성 (월드에 추가)
+        if self.world and 'effects_front' in self.world:
+            try:
+                # 몬스터 위치 위쪽에 데미지 인디케이터 생성
+                damage_indicator = DamageIndicator(
+                    self.x,
+                    self.y + 30,  # 몬스터 위치보다 30 픽셀 위에 표시
+                    final_damage,
+                    duration=1.0,
+                    font_size=30
+                )
+                self.world['effects_front'].append(damage_indicator)
+                print(f"[CatAssassin] 데미지 인디케이터 생성: {int(final_damage)} 데미지")
+            except Exception as e:
+                print(f"[CatAssassin] 데미지 인디케이터 생성 실패: {e}")
 
         # 피격 정보 출력 (디버그)
-        attacker_name = attacker.__class__.__name__ if attacker else "Unknown"
-        print(f"\n{'='*60}")
-        print(f"[CatThief 피격] at ({int(self.x)}, {int(self.y)})")
+        attacker_name = attacker.__class__.__name__
+        print(f"\n{'=' * 60}")
+        print(f"[CatAssassin 피격] at ({int(self.x)}, {int(self.y)})")
         print(f"  공격자: {attacker_name}")
         print(f"  원본 데미지: {damage:.1f}")
         print(f"  방어력: {defense:.1f}")
         print(f"  최종 데미지: {final_damage:.1f}")
         print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
-        print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
+        print(f"  체력 비율: {(new_health / max_health) * 100:.1f}%")
         print(f"  무적시간: {self.invincible_duration}초 활성화")
 
         # 체력이 0 이하면 사망 상태로 전환
         if new_health <= 0:
-            print(f"  >>> CatThief 체력 0 - 사망 상태로 전환")
-            print(f"{'='*60}\n")
+            print(f"  >>> CatAssassin 체력 0 - 사망 상태로 전환")
+            print(f"{'=' * 60}\n")
             self.state_machine.handle_state_event(('DIE', attacker))
         else:
             # 피격 상태로 전환 (공격자 정보를 함께 전달)
             print(f"  >>> 피격 상태로 전환")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
             self.state_machine.handle_state_event(('TAKE_HIT', attacker))
 
     def on_death(self):

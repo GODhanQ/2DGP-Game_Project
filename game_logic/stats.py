@@ -29,7 +29,7 @@ class PlayerStats:
             'mana_regen': 0.5,
             'health': 100.0,
             'mana': 50.0,
-            'move_speed': 300.0,
+            'move_speed': 250.0,
             'attack_speed': 1.0,
             'attack_damage': 10.0,
             'defense': 0.0,
@@ -120,10 +120,23 @@ class CatAssassinStats(MonsterStats):
     """CatAssassin 전용 스탯"""
     def __init__(self):
         super().__init__({
-            'max_health': 30.0,
-            'health': 30.0,
-            'move_speed': 120.0,
+            'max_health': 50.0,
+            'health': 50.0,
+            'move_speed': 100.0,
             'attack_damage': 20.0,
+            'defense': 2.0,
+            'attack_speed': 1.2,
+            'attack_range': 400.0,
+        })
+
+class CatThiefStats(MonsterStats):
+    """CatThief 전용 스탯"""
+    def __init__(self):
+        super().__init__({
+            'max_health': 70.0,
+            'health': 70.0,
+            'move_speed': 120.0,
+            'attack_damage': 30.0,
             'defense': 2.0,
             'attack_speed': 1.2,
             'attack_range': 400.0,

@@ -906,25 +906,25 @@ class CatAssassin:
 
         # 피격 정보 출력 (디버그)
         attacker_name = attacker.__class__.__name__
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"[CatAssassin 피격] at ({int(self.x)}, {int(self.y)})")
         print(f"  공격자: {attacker_name}")
         print(f"  원본 데미지: {damage:.1f}")
         print(f"  방어력: {defense:.1f}")
         print(f"  최종 데미지: {final_damage:.1f}")
         print(f"  체력 변화: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})")
-        print(f"  체력 비율: {(new_health/max_health)*100:.1f}%")
+        print(f"  체력 비율: {(new_health / max_health) * 100:.1f}%")
         print(f"  무적시간: {self.invincible_duration}초 활성화")
 
         # 체력이 0 이하면 사망 상태로 전환
         if new_health <= 0:
             print(f"  >>> CatAssassin 체력 0 - 사망 상태로 전환")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
             self.state_machine.handle_state_event(('DIE', attacker))
         else:
             # 피격 상태로 전환 (공격자 정보를 함께 전달)
             print(f"  >>> 피격 상태로 전환")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
             self.state_machine.handle_state_event(('TAKE_HIT', attacker))
 
     def on_death(self):
