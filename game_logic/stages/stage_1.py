@@ -19,7 +19,7 @@ LOADING_SCREEN_INFO = {
 # 플레이어 시작 위치 (맵 중심 기준)
 PLAYER_START_POSITION = {
     'x': 0,
-    'y': 0
+    'y': -700
 }
 
 # Stage data dictionary
@@ -37,7 +37,7 @@ stage_data = {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/Map_Askard/AskardMap.png',
         'width': 512,
         'height': 385,
-        'scale': 4.0
+        'scale': 5.0
     }
 }
 

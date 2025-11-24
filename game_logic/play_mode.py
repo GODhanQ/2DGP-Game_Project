@@ -378,6 +378,8 @@ def _complete_stage_change():
                 print(f"[_complete_stage_change] 카메라 위치 동기화: ({camera.x}, {camera.y})")
         else:
             print(f"[_complete_stage_change] 플레이어 시작 위치 정보 없음, 현재 위치 유지")
+    else:
+        print(f'\033[91m[_complete_stage_change] 플레이어 객체 없음\033[0m')
 
     # 새 스테이지의 배경 범위를 다시 계산하여 카메라 범위 업데이트
     if camera is not None:
@@ -565,6 +567,20 @@ def enter(player=None):
     is_stage_cleared = False
     stages[current_stage_index].load(world)
 
+    # 첫 스테이지 로드 후 플레이어 시작 위치 설정
+    try:
+        stage_module = stages[current_stage_index]
+        player_start_pos = getattr(stage_module, 'PLAYER_START_POSITION', None)
+
+        if player_start_pos and player:
+            player.x = player_start_pos['x']
+            player.y = player_start_pos['y']
+            print(f"[play_mode] 플레이어 시작 위치 설정: ({player.x}, {player.y})")
+        else:
+            print(f"[play_mode] 플레이어 시작 위치 정보 없음, 기본 위치 (0, 0) 사용")
+    except Exception as ex:
+        print(f"\033[91m[play_mode] 플레이어 시작 위치 설정 실패: {ex}\033[0m")
+
     # 첫 스테이지 로드 후 벽 생성
     try:
         if world['ground'] and len(world['ground']) > 0:
@@ -619,6 +635,10 @@ def enter(player=None):
         # 카메라에 실제 배경 범위의 중심점 정보 전달 (오프셋 계산용)
         camera.map_offset_x = (min_x + max_x) / 2
         camera.map_offset_y = (min_y + max_y) / 2
+
+        # 카메라를 플레이어 위치로 즉시 동기화 (부드러운 전환 없이)
+        camera.x = player.x
+        camera.y = player.y
 
         print(f"[play_mode] Camera initialized for player at ({player.x}, {player.y})")
         print(f"[play_mode] Map size: {map_width:.1f} x {map_height:.1f}, Offset: ({camera.map_offset_x:.1f}, {camera.map_offset_y:.1f})")

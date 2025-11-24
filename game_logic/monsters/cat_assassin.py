@@ -135,19 +135,21 @@ class Chase:
             if isinstance(current_sub_state, Run):
                 # Run 상태: attack_range 이하면 Kiting으로
                 if distance <= self.attack_range:
-                    print(f"[Chase State] 거리 {distance:.1f} - Kiting 상태로 전환 (현재: {current_state_name})")
+                    print(f"[Chase State] 거리 {distance:.1f} - Kiting 상태로 전환")
                     self.sub_state_machine.handle_state_event(('IN_ATTACK_RANGE', player))
 
             elif isinstance(current_sub_state, Kiting):
                 # Kiting 상태: attack_range_exit 초과하면 Run으로, can_attack이면 Attack으로
                 if distance > self.attack_range_exit:
-                    print(f"[Chase State] 거리 {distance:.1f} > {self.attack_range_exit} - Run 상태로 전환 (현재: {current_state_name})")
+                    print(f"[Chase State] 거리 {distance:.1f} > {self.attack_range_exit} - Run 상태로 전환")
                     self.sub_state_machine.handle_state_event(('OUT_ATTACK_RANGE', player))
                 elif self.can_attack:
                     # 쿨타임 끝나고 공격 가능 - Attack 상태로
-                    print(f"[Chase State] 거리 {distance:.1f} - 공격 준비! (현재: {current_state_name}, can_attack: {self.can_attack})")
+                    print(f"[Chase State] 거리 {distance:.1f} - 공격 준비! (can_attack: {self.can_attack})")
                     self.sub_state_machine.handle_state_event(('READY_TO_ATTACK', player))
-                    print(f"[Chase State] 상태 전환 후: {self.sub_state_machine.cur_state.__class__.__name__}")
+                    # 공격 쿨타임 시작 (Attack 상태 진입 시점에 쿨타임 시작)
+                    self.can_attack = False
+                    print(f"[Chase State] 공격 쿨타임 시작 - 다음 공격까지 {self.attack_cooldown}초")
 
             elif isinstance(current_sub_state, Attack):
                 # Attack 상태는 애니메이션이 끝나면 자동으로 Kiting으로 복귀
