@@ -614,6 +614,9 @@ class Player:
         self.knockback_duration = 0.0
         self.knockback_timer = 0.0
 
+        # 방패 깨짐 상태 변수
+        self.shield_broken = False  # 방패가 깨졌는지 여부
+
         # 인벤토리 데이터 생성 및 디버그 아이템 채우기
         self.inventory = InventoryData(cols=6, rows=5)
         try:
@@ -722,7 +725,18 @@ class Player:
 
         # 스탯 버프 업데이트(소비형 지속시간 관리)
         if hasattr(self, 'stats'):
+            old_mana = self.stats.get('mana')
             self.stats.update()
+            new_mana = self.stats.get('mana')
+
+            # 마나가 0에서 최대로 회복되면 방패 복구
+            if hasattr(self, 'shield_broken') and self.shield_broken:
+                if new_mana >= 50:
+                    self.shield_broken = False
+                    print(f'\033[92m[Player] 방패 복구됨 (마나 회복)\033[0m')
+                else:
+                    # 마나가 아직 최대가 아니면 복구 불가
+                    pass
 
         # 파티클 업데이트 (상태와 무관하게 항상 실행)
         for p in self.particles:
@@ -1087,7 +1101,7 @@ class Player:
         self.knockback_duration = knockback_duration
         self.knockback_timer = 0.0
 
-        # 체력 감소
+        # 스텟 업데이트 - 체력 감소, 마나 감소 등
         if hasattr(self, 'stats'):
             current_health = self.stats.get('health')
             max_health = self.stats.get('max_health')

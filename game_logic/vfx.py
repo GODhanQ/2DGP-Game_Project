@@ -143,3 +143,101 @@ class GuardFX:
             )
         except Exception as e:
             print(f"\033[91m[GuardFX] draw 에러: {e}\033[0m")
+
+
+class ShieldCrashEffect:
+    """방패가 깨질 때 표시되는 이펙트 (Crash_Blue)"""
+    front_images = None
+    back_images = None
+
+    def __init__(self, x, y, scale=3.0):
+        # 월드 좌표 저장 (카메라 적용 전 좌표)
+        self.x = x
+        self.y = y
+        self.scale = scale
+
+        # 이미지 로드 (클래스 변수로 한 번만 로드)
+        if ShieldCrashEffect.front_images is None:
+            ShieldCrashEffect.front_images = []
+            try:
+                for i in range(11):  # Crash_Blue_Front_FX00 ~ FX10 (0~10)
+                    img = p2.load_image(f'resources/Texture_organize/VFX/Crash_Effect/Crash_Blue_Front_FX0{i}.png')
+                    ShieldCrashEffect.front_images.append(img)
+                print(f"[ShieldCrashEffect] Loaded {len(ShieldCrashEffect.front_images)} front images")
+            except Exception as e:
+                print(f"\033[91m[ShieldCrashEffect] Failed to load front images: {e}\033[0m")
+                ShieldCrashEffect.front_images = []
+
+        if ShieldCrashEffect.back_images is None:
+            ShieldCrashEffect.back_images = []
+            try:
+                for i in range(3, 9):  # Crash_Blue_Back_FX03 ~ FX08 (3~8)
+                    img = p2.load_image(f'resources/Texture_organize/VFX/Crash_Effect/Crash_Blue_Back_FX0{i}.png')
+                    ShieldCrashEffect.back_images.append(img)
+                print(f"[ShieldCrashEffect] Loaded {len(ShieldCrashEffect.back_images)} back images")
+            except Exception as e:
+                print(f"\033[91m[ShieldCrashEffect] Failed to load back images: {e}\033[0m")
+                ShieldCrashEffect.back_images = []
+
+        self.frame = 0
+        self.animation_time = 0
+        self.animation_speed = 20  # 빠른 애니메이션 (20 FPS)
+        self.finished = False
+
+        print(f"[ShieldCrashEffect] 생성됨 at world({int(x)}, {int(y)})")
+
+    def update(self):
+        """이펙트 애니메이션 업데이트"""
+        if self.finished:
+            return False
+
+        dt = game_framework.get_delta_time()
+        self.animation_time += dt
+
+        if self.animation_time >= 1.0 / self.animation_speed:
+            self.frame += 1
+            self.animation_time = 0
+
+            # Front 이미지 기준으로 애니메이션이 끝나면 제거
+            if ShieldCrashEffect.front_images and self.frame >= len(ShieldCrashEffect.front_images):
+                self.finished = True
+                return False
+
+        return True
+
+    def draw(self, draw_x, draw_y):
+        """
+        이펙트 그리기 (Front와 Back을 레이어링)
+
+        Args:
+            draw_x: 카메라가 적용된 화면 X 좌표
+            draw_y: 카메라가 적용된 화면 Y 좌표
+        """
+        if self.finished:
+            return
+
+        # Front 이미지 그리기 (0~10 프레임)
+        if ShieldCrashEffect.front_images and self.frame < len(ShieldCrashEffect.front_images):
+            try:
+                ShieldCrashEffect.front_images[self.frame].draw(
+                    draw_x, draw_y,
+                    ShieldCrashEffect.front_images[self.frame].w * self.scale,
+                    ShieldCrashEffect.front_images[self.frame].h * self.scale
+                )
+            except Exception as e:
+                print(f"\033[91m[ShieldCrashEffect] front draw 에러: {e}\033[0m")
+
+        # Back 이미지 그리기 (Front 프레임 3부터 시작)
+        # Front frame 3 = Back index 0 (Back_FX03)
+        # Front frame 4 = Back index 1 (Back_FX04) ...
+        if self.frame >= 3:
+            back_index = self.frame - 3
+            if ShieldCrashEffect.back_images and back_index < len(ShieldCrashEffect.back_images):
+                try:
+                    ShieldCrashEffect.back_images[back_index].draw(
+                        draw_x, draw_y,
+                        ShieldCrashEffect.back_images[back_index].w * self.scale,
+                        ShieldCrashEffect.back_images[back_index].h * self.scale
+                    )
+                except Exception as e:
+                    print(f"\033[91m[ShieldCrashEffect] back draw 에러: {e}\033[0m")

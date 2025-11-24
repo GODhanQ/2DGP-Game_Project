@@ -477,6 +477,9 @@ def update():
 def draw():
     global camera
     p2.clear_canvas()
+
+    from .equipment import ShieldRangeEffect
+
     # 하늘을 가장 먼저 그리기 (배경 뒤)
     for obj in world['sky']:
         if hasattr(obj, 'x') and hasattr(obj, 'y'):
@@ -493,7 +496,16 @@ def draw():
     # 나머지 레이어들 (배경, 벽, 엔티티 등)
     for layer in ['ground', 'walls', 'upper_ground', 'entities', 'effects_back', 'effects_front', 'extra_bg', 'extras']:
         for obj in world[layer]:
-            if hasattr(obj, 'x') and hasattr(obj, 'y'):
+            # ShieldRangeEffect는 특별 처리 (플레이어 위치 기준)
+            if isinstance(obj, ShieldRangeEffect):
+                if hasattr(obj, 'player') and obj.player:
+                    if camera is not None:
+                        draw_x, draw_y = camera.apply(obj.player.x, obj.player.y)
+                    else:
+                        draw_x, draw_y = obj.player.x, obj.player.y
+                    if hasattr(obj, 'draw'):
+                        obj.draw(draw_x, draw_y)
+            elif hasattr(obj, 'x') and hasattr(obj, 'y'):
                 if camera is not None:
                     draw_x, draw_y = camera.apply(obj.x, obj.y)
                 else:

@@ -233,6 +233,31 @@ class Shield(Weapon):
                     self.attack_timer = 0.0
             return
 
+        # 방패가 깨진 상태이면 blocking 불가 및 이펙트 제거
+        if getattr(self.player, 'shield_broken', False):
+            # 방패 전개 강제 해제
+            self.blocking = False
+
+            # 쉴드 이펙트가 존재하면 월드에서 제거
+            if self.range_effect is not None:
+                if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                    try:
+                        if self.range_effect in self.player.world['effects_front']:
+                            self.player.world['effects_front'].remove(self.range_effect)
+                            print(f"[Shield] 방패 깨짐으로 인해 ShieldRangeEffect 제거됨")
+                    except Exception as ex:
+                        print(f'\033[91m[Shield] ShieldRangeEffect 제거 실패: {ex}\033[0m')
+                self.range_effect = None
+
+            # 공격 타이머 업데이트만 처리
+            if self.is_attacking:
+                dt = framework.get_delta_time()
+                self.attack_timer += dt
+                if self.attack_timer >= self.attack_duration:
+                    self.is_attacking = False
+                    self.attack_timer = 0.0
+            return
+
         # 마우스 월드 좌표 계산 (카메라 오프셋 고려)
         world_mouse_x, world_mouse_y = get_mouse_world_position(self.player)
 
@@ -392,9 +417,156 @@ class Shield(Weapon):
                 self.player.knockback_timer = 0.0  # 타이머 초기화
                 print(f"[Shield] 방어 이펙트에 의한 넉백 발생: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
 
+            # 막히면 투사체 데미지의 50%만큼의 수치를 마나로 소비 (투사체 막기 비용)
+            if hasattr(projectile, 'damage'):
+                mana_cost = projectile.damage * 0.5
+                shield_broken = False
+                if hasattr(self.player, 'stats'):
+                    current_mana = self.player.stats.get('mana')
+                    new_mana = max(0, current_mana - mana_cost)
+                    self.player.stats.set_base('mana', new_mana)
+
+                    print(f"[Shield] 투사체 방어 마나 소비: {mana_cost:.1f} (현재 마나: {new_mana:.1f}/{self.player.stats.get('max_mana'):.1f})")
+
+                    # 마나가 0 이하면 방패가 깨짐
+                    if new_mana <= 0:
+                        shield_broken = True
+                        # 방패 사용 불가 상태로 전환
+                        self.player.shield_broken = True
+
+                        # 방패 깨짐 이펙트 생성 (플레이어 위치에 생성)
+                        if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                            try:
+                                from .vfx import ShieldCrashEffect
+                                crash_fx = ShieldCrashEffect(self.player.x, self.player.y, scale=1.0)
+                                self.player.world['effects_front'].append(crash_fx)
+                                print(f"[Shield] 방패 깨짐 이펙트 생성 at ({int(self.player.x)}, {int(self.player.y)})")
+                            except Exception as ex:
+                                print(f'\033[91m[Shield] 방패 깨짐 이펙트 생성 실패: {ex}\033[0m')
+
+                        # 방패 깨짐 상태에서는 방어 실패 (데미지를 받음)
+                        print(f"[Shield] 마나 부족으로 방패가 깨짐! 방어 실패")
+                        return False
+
             return True
 
         # print(f"[Shield] 충돌 감지 안됨")
+        return False
+
+    def check_effect_block(self, effect):
+        """몬스터 공격 이펙트가 방패에 막혔는지 확인
+
+        Args:
+            effect: 몬스터 공격 이펙트 객체 (CatThiefSwingEffect 등)
+
+        Returns:
+            bool: 방패에 막혔으면 True, 아니면 False
+        """
+        # 방패를 전개하지 않았으면 막을 수 없음
+        if not self.blocking:
+            return False
+
+        # 방패 중심 위치 계산
+        if self.blocking:
+            local_offset_x = self.forward_offset if self.player.face_dir == 1 else -self.forward_offset
+        else:
+            local_offset_x = 10 if self.player.face_dir == -1 else -10
+        shield_x = self.player.x + local_offset_x
+        shield_y = self.player.y + self.offset_y
+
+        # 방패 크기 (이미지 크기 * scale) - 충돌 범위를 매우 넓게
+        shield_width = self.image.w * self.scale_factor * 2.5  # 2.5배로 확대
+        shield_height = self.image.h * self.scale_factor * 2.5
+
+        # 이펙트 크기
+        if hasattr(effect, 'get_collision_box'):
+            effect_width, effect_height = effect.get_collision_box()
+        else:
+            effect_width = 100
+            effect_height = 100
+
+        # AABB 충돌 감지
+        shield_left = shield_x - shield_width / 2
+        shield_right = shield_x + shield_width / 2
+        shield_bottom = shield_y - shield_height / 2
+        shield_top = shield_y + shield_height / 2
+
+        effect_left = effect.x - effect_width / 2
+        effect_right = effect.x + effect_width / 2
+        effect_bottom = effect.y - effect_height / 2
+        effect_top = effect.y + effect_height / 2
+
+        # 충돌 검사
+        if (shield_left < effect_right and shield_right > effect_left and
+            shield_bottom < effect_top and shield_top > effect_bottom):
+
+            print(f"[Shield] 이펙트 AABB 충돌 감지! ({effect.__class__.__name__})")
+
+            # 이펙트가 플레이어 방향으로 날아오는지 확인 (선택적)
+            effect_to_player_x = self.player.x - effect.x
+            effect_to_player_y = self.player.y - effect.y
+
+            # 방어 이펙트 생성 (이펙트 위치에 생성)
+            if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                try:
+                    from .vfx import GuardFX
+                    # 이펙트 위치에 방어 이펙트 생성
+                    guard_fx = GuardFX(effect.x, effect.y, scale=self.scale_factor)
+                    self.player.world['effects_front'].append(guard_fx)
+                    print(f"[Shield] 방어 이펙트 생성 완료 at ({int(effect.x)}, {int(effect.y)})")
+                except Exception as ex:
+                    print(f'\033[91m[Shield] 방어 이펙트 생성 실패: {ex}\033[0m')
+
+            # 플레이어 넉백 (부드럽게)
+            knockback_strength = 100  # 픽셀 (초기 속도 기반)
+            distance = math.sqrt(effect_to_player_x**2 + effect_to_player_y**2)
+            if distance > 0:
+                # 넉백 방향 계산 (이펙트에서 멀어지는 방향)
+                self.player.knockback_dx = effect_to_player_x / distance
+                self.player.knockback_dy = effect_to_player_y / distance
+                # 넉백 속도 및 지속시간 설정
+                self.player.knockback_speed = knockback_strength
+                self.player.knockback_duration = 0.2  # 0.2초 동안 넉백
+                self.player.knockback_timer = 0.0  # 타이머 초기화
+                print(f"[Shield] 방어 이펙트에 의한 넉백 발생: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
+
+            # 막히면 데미지의 50%만큼의 수치를 마나 소비 (예: 몬스터 공격 이펙트 막기)
+            if hasattr(effect, 'damage'):
+                mana_cost = effect.damage * 0.5
+                shield_broken = False
+                if hasattr(self.player, 'stats'):
+                    current_mana = self.player.stats.get('mana')
+                    new_mana = max(0, current_mana - mana_cost)
+                    self.player.stats.set_base('mana', new_mana)
+
+                    print(f"[Shield] 방어 마나 소비: {mana_cost:.1f} (현재 마나: {new_mana:.1f}/{self.player.stats.get('max_mana'):.1f})")
+
+                    # 마나가 0 이하면 방패가 깨짐
+                    if new_mana <= 0:
+                        shield_broken = True
+                        # 방패 사용 불가 상태로 전환
+                        self.player.shield_broken = True
+
+                        # 방패 깨짐 이펙트 생성 (플레이어 위치에 생성)
+                        if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+                            try:
+                                from .vfx import ShieldCrashEffect
+                                crash_fx = ShieldCrashEffect(self.player.x, self.player.y, scale=1.0)
+                                self.player.world['effects_front'].append(crash_fx)
+                                print(f"[Shield] 방패 깨짐 이펙트 생성 at ({int(self.player.x)}, {int(self.player.y)})")
+                            except Exception as ex:
+                                print(f'\033[91m[Shield] 방패 깨짐 이펙트 생성 실패: {ex}\033[0m')
+
+                        # 강제로 방패 전개 해제
+                        self.blocking = False
+                        if self.range_effect:
+                            self.range_effect = None
+
+                if shield_broken:
+                    print(f"\033[93m[Shield] 마나 부족으로 방패가 깨졌습니다! 마나 회복 후 다시 사용 가능합니다.\033[0m")
+
+            return True
+
         return False
 
 

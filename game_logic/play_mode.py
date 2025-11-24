@@ -762,15 +762,27 @@ def update():
             if isinstance(effect, CatThiefSwingEffect):
                 # 이미 맞춘 플레이어는 다시 체크하지 않음 (중복 타격 방지)
                 if not effect.has_hit_player:
-                    if hasattr(player, 'check_collision_with_effect'):
-                        if player.check_collision_with_effect(effect):
-                            # 충돌 시 플레이어 타격 처리
-                            effect.has_hit_player = True
-                            # 디버그: 충돌 정보 출력
-                            attacker_name = "Unknown"
-                            if hasattr(effect, 'owner') and effect.owner:
-                                attacker_name = effect.owner.__class__.__name__
-                            print(f"[COLLISION] {attacker_name} 검격 이펙트 -> Player 피격!")
+                    # 먼저 방패로 방어할 수 있는지 체크
+                    shield_blocked = False
+                    if hasattr(player, 'shield') and player.shield:
+                        if hasattr(player.shield, 'check_effect_block'):
+                            if player.shield.check_effect_block(effect):
+                                # 방패로 막았으면 막은 것으로 판정, 이펙트는 지우지 않음
+                                effect.has_hit_player = True
+                                shield_blocked = True
+                                print(f"[COLLISION] Player가 방패로 {effect.__class__.__name__} 방어!")
+
+                    # 방패로 막지 못했을 때만 플레이어와 충돌 검사
+                    if not shield_blocked:
+                        if hasattr(player, 'check_collision_with_effect'):
+                            if player.check_collision_with_effect(effect):
+                                # 충돌 시 플레이어 타격 처리
+                                effect.has_hit_player = True
+                                # 디버그: 충돌 정보 출력
+                                attacker_name = "Unknown"
+                                if hasattr(effect, 'owner') and effect.owner:
+                                    attacker_name = effect.owner.__class__.__name__
+                                print(f"[COLLISION] {attacker_name} 검격 이펙트 -> Player 피격!")
 
     # 2. 투사체와 충돌 검사 (일반화된 Projectile 기반)
     if player:
@@ -823,6 +835,8 @@ def draw():
         # 일반 게임 화면 그리기
         # 1. FixedBackground 먼저 그리기 (카메라 영향 없음)
         from .background import FixedBackground
+        from .equipment import ShieldRangeEffect
+
         for o in world['bg']:
             if isinstance(o, FixedBackground):
                 try:
@@ -841,8 +855,16 @@ def draw():
 
                 try:
                     if hasattr(o, 'draw'):
+                        # ShieldRangeEffect는 특별 처리 (플레이어 위치 기준)
+                        if isinstance(o, ShieldRangeEffect):
+                            if hasattr(o, 'player') and o.player:
+                                if camera is not None:
+                                    draw_x, draw_y = camera.apply(o.player.x, o.player.y)
+                                else:
+                                    draw_x, draw_y = o.player.x, o.player.y
+                                o.draw(draw_x, draw_y)
                         # x, y 속성이 있는 객체는 카메라 좌표로 변환하여 그리기
-                        if hasattr(o, 'x') and hasattr(o, 'y'):
+                        elif hasattr(o, 'x') and hasattr(o, 'y'):
                             if camera is not None:
                                 draw_x, draw_y = camera.apply(o.x, o.y)
                             else:
