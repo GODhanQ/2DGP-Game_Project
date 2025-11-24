@@ -105,13 +105,15 @@ class LoadingScreen:
         # 캔버스 클리어
         p2.clear_canvas()
 
-        # 검정 배경 이미지로 전체 화면 채우기 (192x108을 화면 크기로 늘림)
+        # 검정 배경 이미지로 전체 화면 채우기 (위치를 아래로 이동)
         if self.black_bg:
-            self.black_bg.draw(center_x, center_y, canvas_width, canvas_height)
+            # center_y 값을 줄여서 아래로 이동 (0.8을 곱하면 화면 중앙보다 아래로)
+            bg_y = center_y * 0.05  # 값을 줄일수록 더 아래로 내려감
+            self.black_bg.draw(center_x, bg_y, canvas_width, canvas_height)
 
         # 배경 그리기
         if self.bg_image:
-            self.bg_image.draw(center_x, center_y * 1.656, canvas_width, canvas_height // 2)
+            self.bg_image.draw(center_x, center_y * 1.55, canvas_width, canvas_height // 2)
 
         # 로딩 애니메이션 그리기
         if len(self.loading_images) > 0:
@@ -148,7 +150,7 @@ class LoadingScreen:
                 extra_y = center_y
             elif position == 'Cart':
                 extra_x = canvas_width // 2 * 1.1
-                extra_y = canvas_height // 2 * 1.3
+                extra_y = canvas_height // 2 * 1.23
             else:
                 extra_x = canvas_width // 4
                 extra_y = canvas_height // 4

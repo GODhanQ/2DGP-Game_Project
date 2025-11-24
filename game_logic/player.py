@@ -924,11 +924,11 @@ class Player:
             pass
 
         # 화면에 표시되는 히트박스 (카메라 적용된 좌표 사용)
-        player_left = draw_x - self.collision_width / 2
-        player_right = draw_x + self.collision_width / 2
-        player_bottom = draw_y - self.collision_height / 2
-        player_top = draw_y + self.collision_height / 2
-        draw_rectangle(player_left, player_bottom, player_right, player_top)
+        # player_left = draw_x - self.collision_width / 2
+        # player_right = draw_x + self.collision_width / 2
+        # player_bottom = draw_y - self.collision_height / 2
+        # player_top = draw_y + self.collision_height / 2
+        # draw_rectangle(player_left, player_bottom, player_right, player_top)
 
     def check_collision_with_projectile(self, projectile):
         """몬스터 발사체와의 충돌 감지

@@ -6,7 +6,8 @@ from .. import framework
 from ..state_machine import StateMachine
 from ..projectile import Projectile
 from ..stats import CatAssassinStats
-from ..damage_indicator import DamageIndicator  # 데미지 인디케이터 import 추가
+from ..damage_indicator import DamageIndicator
+from ..ui_overlay import MonsterHealthBar
 
 # ========== Idle State ==========
 class Idle:
@@ -689,6 +690,7 @@ class CatAssassin:
 
         # 스탯 시스템
         self.stats = CatAssassinStats()
+        self.health_bar = MonsterHealthBar(self)
 
         # State machine setup with rules
         self.IDLE = Idle(self)
@@ -720,12 +722,15 @@ class CatAssassin:
     def draw(self, draw_x, draw_y):
         self.state_machine.draw(draw_x, draw_y)
 
+        # 체력 바 그리기 (카메라 좌표 적용)
+        self.health_bar.draw(draw_x, draw_y)
+
         # Debug: Draw collision box (카메라 좌표 적용)
-        cat_left = draw_x - self.collision_width / 2
-        cat_right = draw_x + self.collision_width / 2
-        cat_bottom = draw_y - self.collision_height / 2
-        cat_top = draw_y + self.collision_height / 2
-        p2.draw_rectangle(cat_left, cat_bottom, cat_right, cat_top)
+        # cat_left = draw_x - self.collision_width / 2
+        # cat_right = draw_x + self.collision_width / 2
+        # cat_bottom = draw_y - self.collision_height / 2
+        # cat_top = draw_y + self.collision_height / 2
+        # p2.draw_rectangle(cat_left, cat_bottom, cat_right, cat_top)
 
     def attack(self, target):
         """타겟을 향해 수리검 발사 (월드 좌표 사용)"""

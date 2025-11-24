@@ -19,7 +19,9 @@ LOADING_SCREEN_INFO = {
         'count': 12,  # 0~11
         'position': 'Cart',  # 위치 지정
         'scale': 5.0
-    }
+    },
+    # 로딩 메시지 : [0] 제목, [1] 부제, [2] 팁
+    'loading_message': ["Stage 2: Bad Lands 2", "The Forsaken Zone", "Tip: Use ranged attacks to defeat agile enemies!"]
 }
 
 # 플레이어 시작 위치 (맵 중심 기준)

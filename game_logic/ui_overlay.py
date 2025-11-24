@@ -651,3 +651,62 @@ class ManaBar:
             self.font.draw(text_x - 2, text_y - 2, mana_text, (0, 0, 0))
             self.font.draw(text_x - 1, text_y - 1, mana_text, (0, 0, 0))
             self.font.draw(text_x, text_y, mana_text, (255, 255, 255))
+
+class MonsterHealthBar:
+    """ 몬스터 아래에 표시되는 체력 바 UI """
+    def __init__(self, monster):
+        self.monster = monster
+        self.width = 50
+        self.height = 5
+        self.offset_y = -20
+        self.color = (200, 0, 0)
+
+    def update(self):
+        pass  # 현재는 업데이트할 내용 없음
+
+    def draw(self, draw_x, draw_y):
+        """
+        몬스터 체력 바 그리기
+
+        Args:
+            draw_x: 카메라가 적용된 화면 x 좌표 (정수)
+            draw_y: 카메라가 적용된 화면 y 좌표 (정수)
+        """
+        try:
+            current_health = self.monster.stats.get('health')
+            max_health = self.monster.stats.get('max_health')
+            health_ratio = current_health / max_health if max_health > 0 else 0
+        except Exception as ex:
+            current_health = 100
+            max_health = 100
+            health_ratio = 1.0
+            print(f'\033[91m[MonsterHealthBar] 체력 정보 접근 오류: {ex}\033[0m')
+
+        # 몬스터 위치 기반으로 체력 바 위치 계산
+        bar_x = float(draw_x)
+        bar_y = float(draw_y) + self.offset_y
+
+        # pico2d의 draw_rectangle은 색상 인자를 받지 않으므로
+        # 색상을 설정하려면 set_color를 먼저 호출해야 함
+        from pico2d import draw_rectangle
+
+        # 체력 바 배경 (회색) - 테두리만 그리기
+        draw_rectangle(
+            bar_x - self.width / 2,
+            bar_y - self.height / 2,
+            bar_x + self.width / 2,
+            bar_y + self.height / 2,
+            100, 100, 100, filled = True
+        )
+
+        # 체력 바 전경 (빨간색) - 체력 비율만큼 채우기
+        if health_ratio > 0:
+            # 채워진 사각형을 그리기 위해 작은 사각형들을 그림
+            filled_width = self.width * health_ratio
+            draw_rectangle(
+                bar_x - self.width / 2,
+                bar_y - self.height / 2,
+                bar_x - self.width / 2 + filled_width,
+                bar_y + self.height / 2,
+                *self.color, filled = True
+            )
