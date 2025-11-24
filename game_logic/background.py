@@ -5,23 +5,24 @@ import pico2d as p2
 
 
 class FixedBackground:
-    """고정된 배경 이미지를 표시하는 클래스"""
+    """화면에 고정된 배경 이미지를 표시하는 클래스 (카메라 스크롤에 영향받지 않음)"""
 
-    def __init__(self, image_path, width, height):
+    def __init__(self, image_path, width, height, scale=1.0):
         """
         Args:
             image_path: 배경 이미지 경로
             width: 배경 이미지 너비
             height: 배경 이미지 높이
+            scale: 배경 이미지 스케일
         """
         try:
             self.image = p2.load_image(image_path)
             self.width = width
             self.height = height
-            # 배경의 월드 좌표 (맵 중심 기준)
+            # 배경은 카메라에 영향받지 않으므로 x, y는 화면 중앙 기준
             self.x = 0
             self.y = 0
-            self.scale = 1.0
+            self.scale = scale
             print(f"[FixedBackground] 배경 이미지 로드 성공: {image_path}")
         except Exception as e:
             print(f"\033[91m[FixedBackground] 배경 이미지 로드 실패: {image_path}, 에러: {e}\033[0m")
@@ -36,20 +37,21 @@ class FixedBackground:
         """배경은 업데이트가 필요 없음"""
         return True
 
-    def draw(self, draw_x, draw_y):
-        """배경 이미지 그리기 (카메라 좌표 적용)
+    def draw(self):
+        """배경 이미지 그리기 (카메라 영향 없이 화면 중앙에 고정)
 
-        Args:
-            draw_x: 카메라가 적용된 화면 x 좌표
-            draw_y: 카메라가 적용된 화면 y 좌표
+        Note:
+            FixedBackground는 카메라 스크롤의 영향을 받지 않고
+            항상 화면 중앙에 고정되어 표시됩니다.
         """
         if self.image:
-            self.image.draw(
-                draw_x,
-                draw_y,
-                self.width,
-                self.height
-            )
+            # 화면 중앙 좌표 계산
+            screen_center_x = p2.get_canvas_width() // 2
+            screen_center_y = p2.get_canvas_height() // 2
+
+            self.image.draw(screen_center_x, screen_center_y,
+                            self.width * self.scale, self.height * self.scale)
+
 
 class StageMap:
     """

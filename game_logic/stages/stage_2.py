@@ -35,15 +35,15 @@ stage_data = {
     ],
     'background': {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/badlandBG.png',
-        'width': window_width,
-        'height': window_height,
-        'scale': 1.0
+        'width': 320 * window_scale,
+        'height': 180 * window_scale,
+        'scale': 0.5
     },
     'stage_map': {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/Map_Askard/AskardMap.png',
         'width': 512,
         'height': 368,
-        'scale': 4.0  # 맵 스케일
+        'scale': 5.0
     }
 }
 
@@ -61,13 +61,9 @@ def load(world):
         background = FixedBackground(
             bg_info['image'],
             bg_info['width'],
-            bg_info['height']
+            bg_info['height'],
+            bg_info['scale']
         )
-        try:
-            background.scale = bg_info.get('scale', 1.0)
-        except Exception as ex:
-            print(f"\033[91m[Stage 2] 배경 스케일 설정 오류: {ex}\033[0m")
-            background.scale = 1.0
         world['bg'].append(background)
         print(f"[Stage 2] 배경 이미지 추가됨: {bg_info['image']}")
 

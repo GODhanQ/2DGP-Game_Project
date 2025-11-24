@@ -230,8 +230,8 @@ class PlayModeWall:
             draw_y: 카메라가 적용된 화면 y 좌표
         """
         # 디버깅용: 벽을 빨간색으로 표시 (벽 위치 확인용)
-        p2.draw_rectangle(draw_x - self.w/2, draw_y - self.h/2,
-                          draw_x + self.w/2, draw_y + self.h/2)
+        # p2.draw_rectangle(draw_x - self.w/2, draw_y - self.h/2,
+        #                   draw_x + self.w/2, draw_y + self.h/2)
         pass
 
 
@@ -799,10 +799,25 @@ def draw():
     if is_loading and loading_screen:
         loading_screen.draw()
     else:
-        # 일반 게임 화면 그리기 (카메라 적용)
-        # 배경, 벽, 엔티티 등은 카메라 위치를 적용하여 그리기
+        # 일반 게임 화면 그리기
+        # 1. FixedBackground 먼저 그리기 (카메라 영향 없음)
+        from .background import FixedBackground
+        for o in world['bg']:
+            if isinstance(o, FixedBackground):
+                try:
+                    if hasattr(o, 'draw'):
+                        o.draw()  # FixedBackground는 인자 없이 호출
+                except Exception as ex:
+                    print(f'\033[91m[play_mode] FixedBackground 그리기 오류: {ex}\033[0m')
+                    pass
+
+        # 2. 나머지 객체들은 카메라 좌표 적용하여 그리기
         for layer_name in ['bg', 'walls', 'upper_ground', 'effects_back', 'entities', 'effects_front', 'extra_bg', 'extras']:
             for o in world[layer_name]:
+                # FixedBackground는 이미 그렸으므로 스킵
+                if isinstance(o, FixedBackground):
+                    continue
+
                 try:
                     if hasattr(o, 'draw'):
                         # x, y 속성이 있는 객체는 카메라 좌표로 변환하여 그리기
@@ -815,15 +830,17 @@ def draw():
                         else:
                             # x, y 속성이 없는 객체는 그대로 그리기
                             o.draw()
-                except Exception:
+                except Exception as ex:
+                    print(f'\033[91m[play_mode] {layer_name} 레이어의 {o.__class__.__name__} 그리기 오류: {ex}\033[0m')
                     pass
 
-        # UI와 커서는 카메라 적용하지 않음 (고정 UI)
+        # 3. UI와 커서는 카메라 적용하지 않음 (고정 UI)
         for o in world['ui']:
             try:
                 if hasattr(o, 'draw'):
                     o.draw()
             except Exception:
+                print(f'\033[91m[play_mode] UI 레이어의 {o.__class__.__name__} 그리기 오류\033[0m')
                 pass
 
         for o in world['cursor']:
@@ -831,6 +848,7 @@ def draw():
                 if hasattr(o, 'draw'):
                     o.draw()
             except Exception:
+                print(f'\033[91m[play_mode] Cursor 레이어의 {o.__class__.__name__} 그리기 오류\033[0m')
                 pass
 
     p2.update_canvas()
