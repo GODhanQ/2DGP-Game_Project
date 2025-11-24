@@ -25,7 +25,7 @@ LOADING_SCREEN_INFO = {
 # 플레이어 시작 위치 (맵 중심 기준)
 PLAYER_START_POSITION = {
     'x': 0,
-    'y': 0
+    'y': -700
 }
 
 # Stage data dictionary

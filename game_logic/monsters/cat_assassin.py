@@ -731,8 +731,29 @@ class CatAssassin:
         if self.world:
             # Shuriken을 CatAssassin의 월드 좌표(self.x, self.y)에서 생성
             # target의 월드 좌표(target.x, target.y)를 향해 발사
+
+            # 수리검 생성 및 월드에 추가
             shuriken = Shuriken(self.x, self.y, target.x, target.y, owner=self)
             self.world['effects_front'].append(shuriken)
+
+            # 추가 수리검 생성 (원본 수리검의 +22.5도, -22.5도, +45도, -45도 변형)
+            angle_offsets = [15.0, -15.0, 30.0, -30.0]
+            for angle in angle_offsets:
+                rad = math.radians(angle)
+                dx = target.x - self.x
+                dy = target.y - self.y
+                distance = math.sqrt(dx**2 + dy**2)
+                if distance > 0:
+                    dir_x = dx / distance
+                    dir_y = dy / distance
+                    # 회전 변환
+                    rotated_x = dir_x * math.cos(rad) - dir_y * math.sin(rad)
+                    rotated_y = dir_x * math.sin(rad) + dir_y * math.cos(rad)
+                    new_target_x = self.x + rotated_x * distance
+                    new_target_y = self.y + rotated_y * distance
+                    extra_shuriken = Shuriken(self.x, self.y, new_target_x, new_target_y, owner=self)
+                    self.world['effects_front'].append(extra_shuriken)
+
             print(f"[CatAssassin] 수리검 발사: 시작({int(self.x)}, {int(self.y)}) -> 목표({int(target.x)}, {int(target.y)})")
 
     def handle_event(self, e):
