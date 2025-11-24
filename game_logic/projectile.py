@@ -4,7 +4,7 @@
 """
 import pico2d as p2
 import math
-from . import framework
+import game_framework
 
 
 class Projectile:
@@ -73,4 +73,3 @@ class Projectile:
             tuple: (width, height) 충돌 박스 크기
         """
         return (30, 30)  # 기본 크기
-

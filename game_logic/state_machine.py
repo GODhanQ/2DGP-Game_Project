@@ -1,5 +1,5 @@
 from .event_to_string import event_to_string
-from . import framework
+import game_framework
 from .inventory import InventoryData
 
 

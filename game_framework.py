@@ -1,8 +1,31 @@
 import time
-import game_logic.framework as gl_framework
 
 current_state = None
 _running = False
+
+# 게임 전역 프레임워크 변수 (구 game_logic.framework.py에서 통합)
+delta_time = 0.0
+frame_time = 0.01  # 기본 프레임 시간
+paused = False  # 시뮬레이션 일시정지 플래그
+
+
+def set_delta_time(dt):
+    global delta_time
+    delta_time = dt
+
+
+def get_delta_time():
+    # 시뮬레이션이 일시정지 되어 있으면 dt는 0으로 반환하여 업데이트가 멈추게 함
+    return 0.0 if paused else delta_time
+
+
+def set_paused(flag: bool):
+    global paused
+    paused = bool(flag)
+
+
+def get_paused():
+    return paused
 
 
 def change_state(new_state, *args, **kwargs):
@@ -41,9 +64,9 @@ def run(start_state, *args, **kwargs):
             now = time.time()
             dt = now - last_time
             last_time = now
-            # update global delta_time used by game_logic modules
+            # update global delta_time
             try:
-                gl_framework.set_delta_time(dt)
+                set_delta_time(dt)
             except Exception as ex:
                 print(f'\033[91m[game_framework] Exception {ex} during set_delta_time() with dt={dt}\033[0m')
 
@@ -74,7 +97,7 @@ def run(start_state, *args, **kwargs):
                 print(f'\033[91m[game_framework] Exception {ex} during draw() of state {current_state}\033[0m')
 
             # small sleep to avoid 100% CPU (frame limiter is handled by resource loads)
-            time.sleep(gl_framework.frame_time if hasattr(gl_framework, 'frame_time') else 0.01)
+            time.sleep(frame_time)
     finally:
         try:
             if current_state and hasattr(current_state, 'exit'):

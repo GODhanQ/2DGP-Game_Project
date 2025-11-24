@@ -1,6 +1,6 @@
 # 간단한 스탯/버프 시스템
 from typing import Dict, Optional
-from . import framework
+from . import game_framework
 
 class StatModifier:
     def __init__(self, id: str, values: Dict[str, float], duration: Optional[float] = None):
@@ -60,7 +60,7 @@ class PlayerStats:
         return v
 
     def update(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
         to_remove = []
         for k, mod in self._mods.items():
             if mod.duration is not None:
@@ -106,7 +106,7 @@ class MonsterStats:
         return v
 
     def update(self):
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
         to_remove = []
         for k, mod in self._mods.items():
             if mod.duration is not None:

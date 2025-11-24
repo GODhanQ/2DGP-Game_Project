@@ -3,7 +3,7 @@ import math
 import os
 from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import SDL_GetMouseState, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
-from . import framework
+import game_framework
 
 
 def get_mouse_world_position(player):
@@ -513,7 +513,7 @@ class Sword(Weapon):
 
         동작 요약:
         - 비공격 중이면 1스테이지 공격 시작
-        - 공격 중(후딜 영역)에 클릭하면 즉시 2스테이지(콤보) 공격으로 전환
+        - 공격 중(후딜레이 영역)에 클릭하면 즉시 2스테이지(콤보) 공격으로 전환
         """
         # 비공격 상태에서 시작
         if not self.is_attacking:

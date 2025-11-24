@@ -1,7 +1,7 @@
 import os
 from pico2d import load_image
 import pico2d as p2
-from . import framework
+import game_framework
 
 class AnimatedVFX:
     """간단한 프레임 애니메이션 VFX 엔티티
@@ -52,7 +52,7 @@ class AnimatedVFX:
     def update(self, dt=None):
         # dt None이면 framework에서 값을 가져옴 (main.update_world가 인자로 주지 않으므로)
         if dt is None:
-            dt = framework.get_delta_time()
+            dt = game_framework.get_delta_time()
         if self.life <= 0:
             return False
         self.life -= dt
@@ -104,7 +104,7 @@ class GuardFX:
         if self.finished:
             return False
 
-        dt = framework.get_delta_time()
+        dt = game_framework.get_delta_time()
         self.animation_time += dt
 
         if self.animation_time >= 1.0 / self.animation_speed:

@@ -6,7 +6,7 @@ import ctypes
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_RETURN, SDLK_SPACE, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_GetMouseState, SDL_MOUSEMOTION
 
 import game_framework
-from . import framework
+from . import lobby_mode
 from .cursor import Cursor
 
 # 타이틀 화면 이미지

@@ -2,7 +2,7 @@ import pico2d as p2
 import random
 import math
 
-from .. import framework
+import game_framework
 from ..state_machine import StateMachine
 from ..projectile import Projectile
 from ..stats import CatAssassinStats
