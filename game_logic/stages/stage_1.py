@@ -11,11 +11,15 @@ window_width, window_height = 160 * window_scale, 90 * window_scale
 # 로딩 화면 정보
 LOADING_SCREEN_INFO = {
     'stage_number': 1,
-    'bg_image': 'resources/Texture_organize/UI/Stage_1/St1Loading_BG.png',
+    'bg_image': None,
     'animation_prefix': 'resources/Texture_organize/UI/Stage_Loading/Stage_1/St1Loading_',
     'animation_count': 12,  # 0~11
-    # 로딩 메시지 : [0] 제목, [1] 부제, [2] 팁
-    'loading_message': ["Stage 2: Bad Lands 2", "The Forsaken Zone", "Tip: Use ranged attacks to defeat agile enemies!"]
+    # 로딩 메시지: 제목, 부제목, 팁 순서로 표시
+    'loading_message': {
+        'title': 'Stage 1: Bad Lands',
+        'subtitle': 'The Forsaken Zone',
+        'tip': 'Tip: Keep your distance from agile enemies!'
+    }
 }
 
 # 플레이어 시작 위치 (맵 중심 기준)

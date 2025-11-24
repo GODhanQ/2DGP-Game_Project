@@ -16,6 +16,7 @@ class LoadingScreen:
                 - animation_prefix: 애니메이션 이미지 경로 접두사
                 - animation_count: 애니메이션 프레임 수
                 - extra_animation (optional): 추가 애니메이션 정보
+                - loading_message (optional): 로딩 메시지 {'title', 'subtitle', 'tip'}
         """
         self.loading_info = loading_info
         self.stage_number = loading_info['stage_number']
@@ -30,10 +31,31 @@ class LoadingScreen:
         self.loading_duration = 0.0  # 로딩 경과 시간
         self.min_loading_time = 3.0  # 최소 로딩 시간 (초)
 
+        # 폰트 로드 (텍스트 렌더링용)
+        self.font_title = None
+        self.font_subtitle = None
+        self.font_tip = None
+        self._load_fonts()
+
         # 이미지 로드
         self._load_images()
 
         print(f"[LoadingScreen] Stage {self.stage_number} 로딩 화면 초기화 완료")
+
+    def _load_fonts(self):
+        """로딩 화면에 사용할 폰트 로드"""
+        font_path = 'resources/Fonts/pixelroborobo.otf'
+        try:
+            # 제목용 폰트 (큰 크기)
+            self.font_title = p2.load_font(font_path, 60)
+            # 부제목용 폰트 (중간 크기)
+            self.font_subtitle = p2.load_font(font_path, 40)
+            # 팁용 폰트 (작은 크기)
+            self.font_tip = p2.load_font(font_path, 30)
+            print(f"[LoadingScreen] 폰트 로드 완료: {font_path}")
+        except Exception as e:
+            print(f"\033[91m[LoadingScreen] 폰트 로드 실패: {e}\033[0m")
+            # 폰트 로드 실패 시 None 유지
 
     def _load_images(self):
         """로딩 화면 이미지들을 로드"""
@@ -44,13 +66,22 @@ class LoadingScreen:
             print(f"[LoadingScreen] 검정 배경 이미지 로드 완료: {black_bg_path}")
 
             # 배경 이미지 로드
-            bg_path = self.loading_info['bg_image']
-            self.bg_image = p2.load_image(bg_path)
-            print(f"[LoadingScreen] 배경 이미지 로드 완료: {bg_path}")
+            if self.loading_info['bg_image'] is not None:
+                bg_path = self.loading_info['bg_image']
+                self.bg_image = p2.load_image(bg_path)
+                print(f"[LoadingScreen] 배경 이미지 로드 완료: {bg_path}")
+            else:
+                print(f'\033[93m[LoadingScreen] 배경 이미지가 없습니다.\033[0m')
+                self.bg_image = None
 
             # 로딩 애니메이션 이미지 로드
-            animation_prefix = self.loading_info['animation_prefix']
-            animation_count = self.loading_info['animation_count']
+            try:
+                animation_prefix = self.loading_info['animation_prefix']
+                animation_count = self.loading_info['animation_count']
+            except Exception as ex:
+                print(f'\033[93m[LoadingScreen] 애니메이션 정보가 없습니다. : {ex}\033[0m')
+                animation_prefix = None
+                animation_count = 0
 
             for i in range(animation_count):
                 img_path = f'{animation_prefix}{i:02d}.png'
@@ -157,8 +188,51 @@ class LoadingScreen:
 
             extra_img.draw(extra_x, extra_y, extra_width, extra_height)
 
-        # 로딩 텍스트 (옵션)
-        # p2.draw_text를 사용하려면 폰트 설정이 필요합니다
+        # 로딩 메시지 텍스트 그리기 (검정 배경 위에 표시)
+        loading_message = self.loading_info.get('loading_message')
+        if loading_message:
+            title = loading_message.get('title', '')
+            subtitle = loading_message.get('subtitle', '')
+            tip = loading_message.get('tip', '')
+
+            # 텍스트 색상 (흰색)
+            text_color = (255, 255, 255)
+
+            # 제목 그리기 (화면 중앙)
+            if title and self.font_title:
+                # 텍스트 길이 추정 (대략적으로 계산)
+                title_width = len(title) * 35  # 폰트 크기 60 기준 대략적인 너비
+                title_x = center_x - title_width // 2
+                title_y = center_y * 0.8
+
+                # 그림자 효과 (가독성 향상)
+                self.font_title.draw(title_x - 2, title_y - 2, title, (0, 0, 0))
+                # 실제 텍스트
+                self.font_title.draw(title_x, title_y, title, text_color)
+
+            # 부제목 그리기 (제목 아래)
+            if subtitle and self.font_subtitle:
+                # 텍스트 길이 추정
+                subtitle_width = len(subtitle) * 24  # 폰트 크기 40 기준
+                subtitle_x = center_x - subtitle_width // 2
+                subtitle_y = center_y * 0.65
+
+                # 그림자 효과
+                self.font_subtitle.draw(subtitle_x - 2, subtitle_y - 2, subtitle, (0, 0, 0))
+                # 실제 텍스트
+                self.font_subtitle.draw(subtitle_x, subtitle_y, subtitle, text_color)
+
+            # 팁 그리기 (부제목 아래)
+            if tip and self.font_tip:
+                # 텍스트 길이 추정
+                tip_width = len(tip) * 18  # 폰트 크기 30 기준
+                tip_x = center_x - tip_width // 2
+                tip_y = center_y * 0.5
+
+                # 그림자 효과
+                self.font_tip.draw(tip_x - 2, tip_y - 2, tip, (0, 0, 0))
+                # 실제 텍스트 (노란색으로 표시)
+                self.font_tip.draw(tip_x, tip_y, tip, (255, 255, 100))
 
     def handle_event(self, e):
         """이벤트 처리 (로딩 중에는 입력 무시)"""

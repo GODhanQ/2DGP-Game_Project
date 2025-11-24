@@ -20,8 +20,12 @@ LOADING_SCREEN_INFO = {
         'position': 'Cart',  # 위치 지정
         'scale': 5.0
     },
-    # 로딩 메시지 : [0] 제목, [1] 부제, [2] 팁
-    'loading_message': ["Stage 2: Bad Lands 2", "The Forsaken Zone", "Tip: Use ranged attacks to defeat agile enemies!"]
+    # 로딩 메시지: 제목, 부제목, 팁 순서로 표시
+    'loading_message': {
+        'title': 'Stage 2: Deep Forest',
+        'subtitle': 'The Ancient Woods',
+        'tip': 'Tip: Watch out for ranged attacks from enemies!'
+    }
 }
 
 # 플레이어 시작 위치 (맵 중심 기준)
