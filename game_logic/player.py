@@ -166,21 +166,27 @@ class Run:
 
 
     def draw(self, draw_x, draw_y):
-        # 파티클은 Player에서 그림
-
         # 마우스 위치 읽기
         mx = ctypes.c_int(0)
         my = ctypes.c_int(0)
         SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
         canvas_w = get_canvas_width()
         canvas_h = get_canvas_height()
-        # camera 가져오기
+
+        # camera 가져오기 - play_mode 우선, lobby_mode로 폴백
         camera = None
         try:
-            import game_logic.lobby_mode as lobby
-            camera = getattr(lobby, 'camera', None)
+            # 먼저 play_mode에서 카메라 가져오기 시도
+            import game_logic.play_mode as play
+            camera = getattr(play, 'camera', None)
+
+            # play_mode 카메라가 없으면 lobby_mode에서 시도
+            if camera is None:
+                import game_logic.lobby_mode as lobby
+                camera = getattr(lobby, 'camera', None)
         except Exception:
-            print(f'\033[91m[player Run] 카메라 가져오기 실패\033[0m')
+            print(f"\033[91m[player Idle] 카메라 가져오기 실패\033[0m")
+
         # 마우스 좌표를 월드 좌표로 변환
         if camera is not None:
             mouse_game_x = mx.value + (camera.x - canvas_w // 2)
@@ -188,6 +194,7 @@ class Run:
         else:
             mouse_game_x = mx.value
             mouse_game_y = canvas_h - my.value
+
         # 마우스 x좌표 기준 face_dir 결정
         if mouse_game_x < self.player.x:
             self.player.face_dir = -1
@@ -198,6 +205,7 @@ class Run:
         upper = self.upper_frames[self.frame]
         lw, lh = lower.w, lower.h
         uw, uh = upper.w, upper.h
+
         # 마우스 y좌표 기준 upper/lower 순서 결정
         if mouse_game_y > self.player.y:
             lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,
@@ -617,6 +625,10 @@ class Player:
         # 방패 깨짐 상태 변수
         self.shield_broken = False  # 방패가 깨졌는지 여부
 
+        # 아이템별 개별 쿨타임 관리 시스템
+        # key: item.id (아이템 고유 ID), value: 남은 쿨타임 시간(초)
+        self.item_cooldowns = {}  # 각 아이템의 남은 쿨타임을 저장
+
         # 인벤토리 데이터 생성 및 디버그 아이템 채우기
         self.inventory = InventoryData(cols=6, rows=5)
         try:
@@ -687,6 +699,15 @@ class Player:
             if self.invincible_timer <= 0:
                 self.invincible = False
                 self.invincible_timer = 0.0
+
+        # 아이템별 개별 쿨타임 업데이트
+        # item_cooldowns 딕셔너리의 각 아이템 ID에 대해 쿨타임 감소
+        for item_id in list(self.item_cooldowns.keys()):
+            self.item_cooldowns[item_id] -= dt
+            if self.item_cooldowns[item_id] <= 0:
+                # 쿨타임이 끝나면 딕셔너리에서 제거
+                del self.item_cooldowns[item_id]
+                print(f'\033[92m[Player] 아이템 사용 가능: {item_id} (쿨타임 종료)\033[0m')
 
         self.state_machine.update()
 
@@ -779,15 +800,34 @@ class Player:
         except Exception as ex:
             print('[Player] 소비 실패: 잘못된 슬롯', ex)
             return False
+
         if slot.is_empty() or not getattr(slot.item, 'consumable', None):
             return False
+
         item = slot.item
+
+        # 아이템별 개별 쿨타임 체크
+        if item.id in self.item_cooldowns:
+            remaining_time = self.item_cooldowns[item.id]
+            print(f'\033[93m[Player] {item.name} 쿨타임 중! (남은 시간: {remaining_time:.1f}초)\033[0m')
+            return False
+
+        # 소비형 스탯 적용
         values = dict(item.consumable)
         duration = item.consume_duration
         mod_id = f'consumable:{item.id}:{r},{c}:{int(time.time()*1000)%100000}'
         self.stats.add_modifier(StatModifier(mod_id, values, duration=duration))
+
         # 1개 소모
         self.inventory.remove_from(r, c, 1)
+
+        # 아이템별 쿨타임 시작 (아이템에 cooldown 속성이 있는 경우)
+        if hasattr(item, 'cooldown') and item.cooldown is not None and item.cooldown > 0:
+            self.item_cooldowns[item.id] = item.cooldown
+            print(f'\033[93m[Player] {item.name} 사용! 쿨타임 시작 ({item.cooldown}초)\033[0m')
+        else:
+            print(f'\033[93m[Player] {item.name} 사용! (쿨타임 없음)\033[0m')
+
         # 아이템의 이펙트 재생(있다면)
         vfx_fn = (getattr(item, 'on_consume_vfx', None)
                   or getattr(item, '_play_consume_vfx', None)
@@ -804,6 +844,7 @@ class Player:
                 vfx_fn(self, world=vfx_world, x=getattr(self, 'x', None), y=getattr(self, 'y', None))
             except Exception as ex:
                 print(f'[Player] 아이템 소비 이펙트 오류 ({item.name}):', ex)
+
         # 패시브 재적용(수량 변화로 인한 패시브 변경 가능성 고려)
         self.rebuild_inventory_passives()
         print(f"[Player] 소비: {item.name} -> {values} ({duration}s)")

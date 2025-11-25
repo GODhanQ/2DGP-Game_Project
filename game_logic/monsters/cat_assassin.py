@@ -239,9 +239,34 @@ class Run:
                 move_dx = math.cos(final_angle)
                 move_dy = math.sin(final_angle)
 
-                # 위치 업데이트
-                self.cat.x += move_dx * self.cat.speed * dt
-                self.cat.y += move_dy * self.cat.speed * dt
+                # 새 위치 계산 (이동 전에 벽 충돌 체크용)
+                new_x = self.cat.x + move_dx * self.cat.speed * dt
+                new_y = self.cat.y + move_dy * self.cat.speed * dt
+
+                # 벽 충돌 체크 (몬스터 크기: 32x48 픽셀로 가정)
+                monster_width = 32
+                monster_height = 48
+                collided = False
+
+                # world의 walls 레이어에서 벽과 충돌 체크
+                if 'walls' in self.cat.world:
+                    for wall in self.cat.world['walls']:
+                        if hasattr(wall, 'check_collision'):
+                            # 몬스터의 바운딩 박스로 충돌 검사
+                            if wall.check_collision(
+                                new_x - monster_width // 2,
+                                new_y - monster_height // 2,
+                                monster_width,
+                                monster_height
+                            ):
+                                collided = True
+                                break
+
+                # 벽과 충돌하지 않았을 때만 위치 업데이트
+                if not collided:
+                    self.cat.x = new_x
+                    self.cat.y = new_y
+                # 충돌했을 때는 이동하지 않음 (벽에 막힘)
 
     def draw(self, draw_x, draw_y):
         if Run.images and len(Run.images) > 0:
@@ -306,21 +331,25 @@ class Kiting:
                 to_player_x = dx / distance
                 to_player_y = dy / distance
 
-                # 기본 이동 속도 (1.5배)
+                # 기본 이동 속도 (1.0배)
                 base_speed = self.cat.speed * self.strafe_speed_multiplier
+
+                # 이동 벡터 계산
+                move_x = 0
+                move_y = 0
 
                 # 너무 가까우면 후퇴
                 if distance < self.chase_state.kiting_min_range:
                     # 후퇴 (플레이어 반대 방향으로) - 빠르게
                     flee_dx = -to_player_x
                     flee_dy = -to_player_y
-                    self.cat.x += flee_dx * base_speed * dt
-                    self.cat.y += flee_dy * base_speed * dt
+                    move_x = flee_dx * base_speed * dt
+                    move_y = flee_dy * base_speed * dt
 
                 elif distance > self.chase_state.attack_range:
                     # 너무 멀면 조금 다가가기 (적당한 속도로)
-                    self.cat.x += to_player_x * base_speed * 0.5 * dt
-                    self.cat.y += to_player_y * base_speed * 0.5 * dt
+                    move_x = to_player_x * base_speed * 0.5 * dt
+                    move_y = to_player_y * base_speed * 0.5 * dt
 
                 else:
                     # 적정 거리 - 측면으로 이동 (strafing)
@@ -328,8 +357,37 @@ class Kiting:
                     perpendicular_x = -to_player_y * self.strafe_direction
                     perpendicular_y = to_player_x * self.strafe_direction
 
-                    self.cat.x += perpendicular_x * base_speed * dt
-                    self.cat.y += perpendicular_y * base_speed * dt
+                    move_x = perpendicular_x * base_speed * dt
+                    move_y = perpendicular_y * base_speed * dt
+
+                # 새 위치 계산 (벽 충돌 체크용)
+                new_x = self.cat.x + move_x
+                new_y = self.cat.y + move_y
+
+                # 벽 충돌 체크 (몬스터 크기: 32x48 픽셀로 가정)
+                monster_width = 32
+                monster_height = 48
+                collided = False
+
+                # world의 walls 레이어에서 벽과 충돌 체크
+                if 'walls' in self.cat.world:
+                    for wall in self.cat.world['walls']:
+                        if hasattr(wall, 'check_collision'):
+                            # 몬스터의 바운딩 박스로 충돌 검사
+                            if wall.check_collision(
+                                new_x - monster_width // 2,
+                                new_y - monster_height // 2,
+                                monster_width,
+                                monster_height
+                            ):
+                                collided = True
+                                break
+
+                # 벽과 충돌하지 않았을 때만 위치 업데이트
+                if not collided:
+                    self.cat.x = new_x
+                    self.cat.y = new_y
+                # 충돌했을 때는 이동하지 않음 (벽에 막힘)
 
     def draw(self, draw_x, draw_y):
         # Run 이미지 사용
@@ -620,7 +678,7 @@ class Shuriken(Projectile):
         super().__init__(x, y, target_x, target_y, speed=400, from_player=False)
 
         self.owner = owner
-        self.scale = 3.0
+        self.scale = 2.5
 
         if owner and hasattr(owner, 'stats'):
             self.damage = owner.stats.get('attack_damage')
@@ -640,6 +698,10 @@ class Shuriken(Projectile):
         self.frame = 0
         self.animation_time = 0
         self.animation_speed = 10
+
+        # 충돌 박스 크기 설정 (super가 아닌 self 사용)
+        self.collision_width = 10 * self.scale
+        self.collision_height = 10 * self.scale
 
     def update(self):
         if not super().update():
@@ -738,12 +800,8 @@ class CatAssassin:
             # Shuriken을 CatAssassin의 월드 좌표(self.x, self.y)에서 생성
             # target의 월드 좌표(target.x, target.y)를 향해 발사
 
-            # 수리검 생성 및 월드에 추가
-            shuriken = Shuriken(self.x, self.y, target.x, target.y, owner=self)
-            self.world['effects_front'].append(shuriken)
-
-            # 추가 수리검 생성 (원본 수리검의 양옆으로 약간씩 각도 변경)
-            angle_offsets = [15.0, -15.0, 30.0, -30.0]
+            # 추가 수리검 생성 (총 5개, 중앙 + 4방향)
+            angle_offsets = [0.0, 22.5, -22.5, 45.0, -45.0]
             for angle in angle_offsets:
                 rad = math.radians(angle)
                 dx = target.x - self.x

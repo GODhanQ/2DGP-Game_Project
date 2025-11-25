@@ -21,12 +21,14 @@ class Item:
     - passive: 인벤토리에 존재하는 동안 적용되는 스탯 가산값(dict)
     - consumable: 소비 시 일시적으로 적용되는 스탯 가산값(dict)
     - consume_duration: 소비 버프 지속 시간(초); None이면 영구 적용
+    - cooldown: 아이템 사용 후 재사용 대기 시간(초); None이면 쿨타임 없음
     """
     def __init__(self, id: str, name: str, icon_path: str,
                  stackable: bool = True, max_stack: int = 99,
                  passive: Optional[dict] = None,
                  consumable: Optional[dict] = None,
-                 consume_duration: Optional[float] = None):
+                 consume_duration: Optional[float] = None,
+                 cooldown: Optional[float] = None):
         self.id = id
         self.name = name
         self.icon_path = icon_path
@@ -35,6 +37,7 @@ class Item:
         self.passive = dict(passive) if passive else None
         self.consumable = dict(consumable) if consumable else None
         self.consume_duration = consume_duration
+        self.cooldown = cooldown  # 아이템별 쿨타임 (초)
         self._icon_image = None  # 지연 로드
 
     def get_icon(self):
@@ -48,7 +51,8 @@ class Item:
 
     @classmethod
     def from_filename(cls, filename: str, name: Optional[str] = None, stackable: bool = True, max_stack: int = 99,
-                      passive: Optional[dict] = None, consumable: Optional[dict] = None, consume_duration: Optional[float] = None):
+                      passive: Optional[dict] = None, consumable: Optional[dict] = None,
+                      consume_duration: Optional[float] = None, cooldown: Optional[float] = None):
         path = os.path.join(ITEMS_BASE, filename)
         item_id = os.path.splitext(os.path.basename(filename))[0]
         # 규칙: Potion 폴더 내부만 스택 가능(최대 99), 그 외는 1개 제한
@@ -62,7 +66,8 @@ class Item:
             eff_max_stack = 1
         return cls(item_id, name or item_id, path,
                    stackable=eff_stackable, max_stack=eff_max_stack,
-                   passive=passive, consumable=consumable, consume_duration=consume_duration)
+                   passive=passive, consumable=consumable, consume_duration=consume_duration,
+                   cooldown=cooldown)
 
     def append_to(self, inventory: 'InventoryData', qty: int = 1, prefer_stack: bool = True) -> int:
         """해당 아이템을 주어진 인벤토리에 추가한다.

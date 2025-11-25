@@ -33,6 +33,9 @@ class Projectile:
         self.speed = speed
         self.from_player = from_player
 
+        # Bounding box 크기 초기화
+        self.collision_width, self.collision_height = 30, 30
+
         # 방향 벡터 계산
         dx = target_x - self.x
         dy = target_y - self.y
@@ -62,8 +65,13 @@ class Projectile:
 
         return True
 
-    def draw(self):
-        """투사체 렌더링 (서브클래스에서 구현)"""
+    def draw(self, draw_x, draw_y):
+        """투사체 렌더링 (서브클래스에서 구현)
+
+        Args:
+            draw_x: 카메라 좌표가 적용된 x 위치
+            draw_y: 카메라 좌표가 적용된 y 위치
+        """
         pass
 
     def get_collision_box(self):
@@ -72,4 +80,4 @@ class Projectile:
         Returns:
             tuple: (width, height) 충돌 박스 크기
         """
-        return (30, 30)  # 기본 크기
+        return (self.collision_width, self.collision_height)

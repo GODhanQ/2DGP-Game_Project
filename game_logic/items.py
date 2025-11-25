@@ -21,7 +21,8 @@ class rabbit_guard_helm:
 class carrot:
     def __new__(cls):
         return Item.from_filename('Carrot.png', '당근',
-                                  consumable={'move_speed': 50.0}, consume_duration=8.0)
+                                  consumable={'move_speed': 50.0}, consume_duration=8.0,
+                                  cooldown=3.0)  # 3초 쿨타임
 
 class amber:
     def __new__(cls):
@@ -36,12 +37,14 @@ class ruby:
 class white_bread:
     def __new__(cls):
         return Item.from_filename('WhiteCrustedBread.png', '하얀 빵',
-                                  consumable={'defense': 2.0}, consume_duration=10.0)
+                                  consumable={'defense': 2.0}, consume_duration=10.0,
+                                  cooldown=5.0)  # 5초 쿨타임
 
 class potion_red0:
     def __new__(cls):
         item = Item.from_filename('Potion/Item_RedPotion0.png', '빨간 포션',
-                                  consumable={'attack_damage': 5.0}, consume_duration=15.0)
+                                  consumable={'attack_damage': 5.0}, consume_duration=15.0,
+                                  cooldown=2.0)  # 2초 쿨타임
 
         # VFX 리소스 경로
         item.consume_vfx_path = r'resources\Texture_organize\VFX\Potion_Common'
