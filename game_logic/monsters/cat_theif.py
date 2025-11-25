@@ -591,7 +591,8 @@ class Attack:
                 effect_y,
                 effect_angle,
                 owner=self.cat,
-                scale=3.0
+                scale=3.0,
+                damage=self.cat.stats.get('attack_damage')
             )
 
             self.cat.world['effects_front'].append(swing_effect)

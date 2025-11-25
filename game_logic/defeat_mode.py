@@ -38,11 +38,17 @@ def draw():
     try:
         p2.clear_canvas()
         # (원한다면 player 등 그리기)
+
         for layer in ['backgrounds', 'entities', 'ui']:
             for o in world[layer]:
                 try:
                     if hasattr(o, 'draw'):
-                        o.draw()
+                        if hasattr(o, 'x') and hasattr(o, 'y'):
+                            draw_x = o.x
+                            draw_y = o.y
+                            o.draw(draw_x, draw_y)
+                        else:
+                            o.draw()
                 except Exception as e:
                     print(f"\033[91m[defeat_mode] draw error in {layer}: {e}\033[0m")
 
@@ -79,10 +85,10 @@ def handle_events():
             # 필요시 엔터 등으로 타이틀로 복귀 등 추가 가능
 
 def pause():
-    pass
+    game_framework.paused = True
 
 def resume():
-    pass
+    game_framework.paused = False
 
 class BGimage:
     """패배 모드용 배경 이미지 클래스"""

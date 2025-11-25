@@ -426,7 +426,7 @@ def enter(player=None):
             if isinstance(world[k], list):
                 world[k].clear()
         except Exception:
-            pass
+            print(f'\033[91m[play_mode] Failed to clear world layer: {k}\033[0m')
 
     print("[play_mode] Creating player...")
     # create player (use fallback if heavy Player init fails)
