@@ -401,7 +401,6 @@ class Death:
         self.death_duration = 6.0  # 6초 후 종료
         self.game_over_conversion_triggered = False
         self.game_over_triggered = False
-        self.player_transform = False
 
         # 넉백 관련 변수 (강한 넉백)
         self.knockback_dx = 0
@@ -418,6 +417,10 @@ class Death:
         self.heart_hit_frame = 0
         self.heart_hit_time = 0.0
         self.heart_hit_duration = 0.1  # 각 프레임당 0.1초
+
+        # 사망 위치 저장 (이동 제거, 죽은 자리에서 유지)
+        self.death_x = 0
+        self.death_y = 0
 
         # 사망 모드용 배경 이미지 클래스
         class BGimage:
@@ -464,6 +467,10 @@ class Death:
         self.heart_hit_frame = 0
         self.heart_hit_time = 0.0
 
+        # 사망 위치 저장 (현재 월드 좌표 그대로 유지)
+        self.death_x = self.player.x
+        self.death_y = self.player.y
+
         # 플레이어 무장 해제
         self.player.equipment_manager.unequip_all()
 
@@ -492,7 +499,8 @@ class Death:
             self.knockback_dx = 1.0
             self.knockback_dy = 0.0
 
-        print(f"[Player Death State] 사망 상태 시작 (5초 후 게임 종료) - 넉백 적용")
+        print(f"[Player Death State] 사망 상태 시작 (6초 후 defeat_mode로 전환) - 넉백 적용")
+        print(f"[Player Death State] 사망 위치: ({self.death_x:.1f}, {self.death_y:.1f})")
 
     def exit(self, e):
         pass
@@ -502,7 +510,7 @@ class Death:
 
         self.death_timer += dt
 
-        # 넉백 효과 적용 (사망 시에도 밀려남)
+        # 넉백 효과 적용 (사망 초기 0.5초만, 이후엔 그 자리에 고정)
         if self.knockback_timer < self.knockback_duration:
             progress = self.knockback_timer / self.knockback_duration
             # 부드러운 감속
@@ -510,6 +518,7 @@ class Death:
             self.player.x += self.knockback_dx * current_speed * dt
             self.player.y += self.knockback_dy * current_speed * dt
             self.knockback_timer += dt
+        # 넉백 끝난 후에는 위치 고정 (중앙 이동 로직 제거)
 
         # PlayerHitFX 애니메이션 업데이트
         if Death.hit_fx_images and self.hit_fx_frame < len(Death.hit_fx_images):
@@ -525,23 +534,22 @@ class Death:
                 self.heart_hit_time -= self.heart_hit_duration
                 self.heart_hit_frame += 1
 
-        # 2초 후 사망 이미지로 전환(변환처리)
+        # 2초 후 배경 어둡게 시작 (extra_bg 레이어에 배경 추가)
         if self.death_timer >= self.death_conversion and not self.game_over_conversion_triggered:
             self.game_over_conversion_triggered = True
-            self.player_transform = True
-            # 사망 애니메이션 시작 위치 저장
-            self.death_start_x = self.player.x
-            self.death_start_y = self.player.y
+            print(f"[Player Death State] 2초 경과, 배경 어둡게 시작")
             from .play_mode import world
+            # 배경을 extra_bg 레이어에 추가하여 점진적으로 어둡게
             world['extra_bg'].append(self.BG)
+            # 플레이어를 extras 레이어로 이동 (UI보다 아래, 배경보다 위에 그려지도록)
             world['extras'].append(self.player)
             if self.player in self.world['entities']:
                 world['entities'].remove(self.player)
 
-        # 5초 후 게임 종료
+        # 6초 후 defeat_mode로 전환
         if self.death_timer >= self.death_duration and not self.game_over_triggered:
             self.game_over_triggered = True
-            print(f"[Player Death State] 5초 경과, 패배 모드로 전환")
+            print(f"[Player Death State] 6초 경과, 패배 모드로 전환")
             import game_framework
             from . import defeat_mode, play_mode
             # play_mode의 경과 시간을 가져와서 defeat_mode로 전달
@@ -549,18 +557,9 @@ class Death:
             print(f"[Player Death State] 생존 시간: {survival_time:.2f}초")
             game_framework.change_state(defeat_mode, self.player, survival_time)
 
-        # 플레이어 사망시 중앙으로 서서히 이동 (3초 동안)
-        if self.player_transform:
-            target_x = get_canvas_width() // 2
-            target_y = get_canvas_height() // 2
-            move_duration = 3.0
-            progress = min((self.death_timer - self.death_conversion) / move_duration, 1.0)
-            # 선형 보간으로 위치 계산
-            self.player.x = self.death_start_x + (target_x - self.death_start_x) * progress
-            self.player.y = self.death_start_y + (target_y - self.death_start_y) * progress
-
     def draw(self, draw_x, draw_y):
         # 플레이어 사망 이미지 (바닥에 누운 모습)
+        # draw_x, draw_y는 이미 카메라가 적용된 화면 좌표이므로 그대로 사용
         if Death.image is not None:
             Death.image.draw(draw_x, draw_y,
                            Death.image.w * self.player.scale_factor,
@@ -577,11 +576,9 @@ class Death:
                 hit_fx_img.h * scale
             )
 
-        # HeartHit 이펙트 (화면 중앙 상단에 크게)
+        # HeartHit 이펙트 (플레이어 위치 기준)
         if Death.heart_hit_images and self.heart_hit_frame < len(Death.heart_hit_images):
             heart_hit_img = Death.heart_hit_images[self.heart_hit_frame]
-            canvas_w = get_canvas_width()
-            canvas_h = get_canvas_height()
             scale = 3.0
             heart_hit_img.draw(
                 draw_x,
@@ -600,6 +597,8 @@ class Player:
     def __init__(self):
         self.x = get_canvas_width() // 2
         self.y = get_canvas_height() // 2
+        self.death_x = self.x
+        self.death_y = self.y
         self.frame = 0
         self.dir = [0, 0]  # x, y 방향 벡터
         self.face_dir = 1
@@ -937,7 +936,7 @@ class Player:
                 import game_logic.lobby_mode as lobby
                 camera = getattr(lobby, 'camera', None)
         except:
-            pass
+            print(f'\033[93m[Player] 카메라 정보 가져오기 실패 (디버그 로그 생략)\033[0m')
 
         # if camera is not None:
         #     print(f'[Player] draw at screen ({draw_x:.1f}, {draw_y:.1f}), '
@@ -953,9 +952,11 @@ class Player:
         # 2) 현재 상태 스프라이트(Idle/Run/Inventory)
         try:
             if hasattr(self, 'state_machine'):
+                if self.state_machine.current_state is not self.DEATH:
+                    self.death_x, self.death_y = draw_x, draw_y
                 self.state_machine.draw(draw_x, draw_y)
-        except Exception:
-            pass
+        except Exception as ex:
+            print(f'\033[91m[Player] 상태머신 그리기 오류 발생 : {ex}\033[0m')
 
         # 3) 장비(앞쪽) 그리기
         if hasattr(self, 'equipment_manager'):
@@ -979,7 +980,7 @@ class Player:
                     else:
                         e.draw(e.x, e.y)
         except Exception:
-            pass
+            print(f'\033[91m[Player] 파티클/이펙트 그리기 오류 발생 : {ex}\033[0m')
 
         # 화면에 표시되는 히트박스 (카메라 적용된 좌표 사용)
         # player_left = draw_x - self.collision_width / 2

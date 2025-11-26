@@ -15,6 +15,9 @@ class StateMachine:
     def draw(self, draw_x = None, draw_y = None):
         self.cur_state.draw(draw_x, draw_y)
 
+    def current_state(self):
+        return self.cur_state
+
     def handle_state_event(self, state_event):
         processed_event = False
         for check_event in self.rules[self.cur_state].keys():

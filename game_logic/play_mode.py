@@ -9,7 +9,7 @@ from .player import Player
 from .ui_overlay import InventoryOverlay, HealthBar, ManaBar
 from .cursor import Cursor
 from .loading_screen import LoadingScreen
-from . import defeat_mode
+from . import defeat_mode, victory_mode
 # 사용할 스테이지 모듈들을 import 합니다.
 from .stages import stage_1, stage_2
 
@@ -29,7 +29,8 @@ world = {
 world['bg'] = world['ground']
 
 # 스테이지 관리
-stages = [stage_1, stage_2] # 모든 스테이지 모듈을 리스트로 관리
+# stages = [stage_1, stage_2]
+stages = [stage_1]
 current_stage_index = 0
 is_stage_cleared = False
 
@@ -40,6 +41,12 @@ next_stage_to_load = None
 
 # 경과 시간 추적 (play_mode 진입 후 경과 시간)
 elapsed_time = 0.0
+
+# 승리 페이드인 효과 관련 변수
+is_fading_to_victory = False  # 승리 페이드인 진행 중 플래그
+victory_fade_elapsed = 0.0    # 페이드인 경과 시간
+victory_fade_duration = 3.0   # 페이드인 지속 시간 (3초)
+victory_fade_image = None     # 페이드인 이미지
 
 
 class Camera:
@@ -166,13 +173,30 @@ def calculate_background_bounds():
 
 def change_stage(next_stage_index):
     """다음 스테이지로 변경하는 함수"""
-    global current_stage_index, loading_screen, is_loading, next_stage_to_load
+    global current_stage_index, loading_screen, is_loading, next_stage_to_load, is_fading_to_victory, victory_fade_elapsed, victory_fade_image
 
     # 다음 스테이지 인덱스 확인
     if next_stage_index >= len(stages):
-        # 모든 스테이지 클리어 시 게임 종료 또는 다른 모드로 전환
-        print("All stages cleared!")
-        game_framework.quit()
+        # 모든 스테이지 클리어 시 페이드인 효과 시작
+        print("All stages cleared! Starting fade-in effect...")
+        is_fading_to_victory = True
+        victory_fade_elapsed = 0.0
+
+        # 플레이어를 entities에서 extras 레이어로 즉시 이동
+        player = world.get('player')
+        if player and player in world['entities']:
+            world['entities'].remove(player)
+            world['extras'].append(player)
+            print("[change_stage] 플레이어를 extras 레이어로 이동")
+
+        # 페이드인 이미지 로드
+        try:
+            victory_fade_image = p2.load_image('resources/Texture_organize/IDK_2/Square.png')
+            print("[change_stage] 승리 페이드인 이미지 로드 성공")
+        except Exception as ex:
+            print(f'\033[91m[change_stage] 승리 페이드인 이미지 로드 실패: {ex}\033[0m')
+            victory_fade_image = None
+
         return
 
     # 로딩 화면 시작 - 스테이지 모듈의 LOADING_SCREEN_INFO 사용
@@ -607,7 +631,30 @@ def handle_events():
         if e.type == SDL_KEYDOWN and getattr(e, 'key', None) == SDLK_ESCAPE:
             app_framework.quit()
             return
-        # broadcast to entities -> ui -> cursor
+
+        # 페이드인 중일 때는 플레이어 이동 이벤트만 무시하고 나머지는 처리
+        if is_fading_to_victory:
+            # extras 레이어의 플레이어는 이동 이벤트 무시 (하지만 다른 이벤트는 처리 가능)
+            # UI와 커서 이벤트는 처리 (인벤토리 조작 등)
+            for o in list(world['ui']):
+                try:
+                    if hasattr(o, 'handle_event'):
+                        o.handle_event(e)
+                except Exception:
+                    print(f'\033[91m[play_mode] handle_event error in ui {o.__class__.__name__}\033[0m')
+                    pass
+            for o in list(world['cursor']):
+                try:
+                    if hasattr(o, 'handle_event'):
+                        o.handle_event(e)
+                except Exception:
+                    print(f'\033[91m[play_mode] handle_event error in cursor {o.__class__.__name__}\033[0m')
+                    pass
+            # 페이드인 중에는 다음 이벤트로 넘어감 (entities와 extras의 이동 이벤트 무시)
+            continue
+
+        # 일반 게임 플레이 중에는 모든 이벤트 처리
+        # broadcast to entities -> extras -> ui -> cursor
         for o in list(world['entities']):
             try:
                 if hasattr(o, 'handle_event'):
@@ -615,6 +662,16 @@ def handle_events():
             except Exception:
                 print(f'\033[91m[play_mode] handle_event error in entity {o.__class__.__name__}\033[0m')
                 pass
+
+        # extras 레이어의 객체들도 이벤트 처리
+        for o in list(world['extras']):
+            try:
+                if hasattr(o, 'handle_event'):
+                    o.handle_event(e)
+            except Exception:
+                print(f'\033[91m[play_mode] handle_event error in extras {o.__class__.__name__}\033[0m')
+                pass
+
         for o in list(world['ui']):
             try:
                 if hasattr(o, 'handle_event'):
@@ -632,7 +689,7 @@ def handle_events():
 
 
 def update():
-    global is_stage_cleared, loading_screen, is_loading, camera, elapsed_time
+    global is_stage_cleared, loading_screen, is_loading, camera, elapsed_time, is_fading_to_victory, victory_fade_elapsed
 
     # 로딩 중이면 로딩 화면만 업데이트
     if is_loading and loading_screen:
@@ -644,6 +701,20 @@ def update():
             print(f'[play_mode] 스테이지 {current_stage_index + 1} 로딩 완료, 전환 완료')
 
         return  # 로딩 중에는 게임 로직 업데이트 안 함
+
+    # 승리 페이드인 중이면 페이드인 타이머만 업데이트
+    if is_fading_to_victory:
+        dt = game_framework.get_delta_time()
+        victory_fade_elapsed += dt
+
+        # 페이드인이 완료되면 victory_mode로 전환
+        if victory_fade_elapsed >= victory_fade_duration:
+            print("[play_mode] 페이드인 완료, victory_mode로 전환")
+            player = world.get('player')
+            survival_time = elapsed_time
+            game_framework.change_state(victory_mode, player, survival_time)
+
+        return  # 페이드인 중에는 게임 로직 업데이트 안 함
 
     # 경과 시간 누적 (로딩 중이 아닐 때만)
     dt = game_framework.get_delta_time()
@@ -772,7 +843,7 @@ def update():
 
 
 def draw():
-    global camera
+    global camera, victory_fade_image, victory_fade_elapsed, victory_fade_duration
     p2.clear_canvas()
 
     # 로딩 중이면 로딩 화면만 그리기
@@ -840,5 +911,17 @@ def draw():
             except Exception as ex:
                 print(f'\033[91m[play_mode] Cursor 레이어의 {o.__class__.__name__} 그리기 오류 : {ex}\033[0m')
                 pass
+
+        # 4. 승리 페이드인 효과 그리기 (기존 화면 위에 오버레이)
+        if is_fading_to_victory and victory_fade_image:
+            canvas_w = p2.get_canvas_width()
+            canvas_h = p2.get_canvas_height()
+
+            # 페이드인 진행률 계산 (0.0 ~ 1.0)
+            fade_progress = min(victory_fade_elapsed / victory_fade_duration, 1.0)
+
+            # 이미지 투명도 설정 및 그리기
+            victory_fade_image.opacify(fade_progress)
+            victory_fade_image.draw(canvas_w // 2, canvas_h // 2, canvas_w, canvas_h)
 
     p2.update_canvas()

@@ -7,39 +7,41 @@ import game_framework
 from .cursor import TitleCursor
 from . import title_mode  # title_mode 모듈 import 추가
 
-# defeat_mode의 world 레이어 구조 (play_mode와 유사)
+# victory_mode의 world 레이어 구조
 world = {
-    'backgrounds': [],
-    'entities': [],  # player 등
-    'ui': [],
-    'cursor': []
+    'backgrounds': [],   # 기존 배경 레이어
+    'extras': [],        # 플레이어용 레이어
+    'entities': [],      # 기타 엔티티
+    'ui': [],           # UI 요소
+    'cursor': []        # 커서
 }
-world_layers = ['backgrounds', 'entities', 'ui', 'cursor']
+world_layers = ['backgrounds', 'extras', 'entities', 'ui', 'cursor']
 
 # 생존 시간 저장 변수
 elapsed_time = 0.0
 
 def enter(player, survival_time=0.0):
-    """패배 모드 진입. 기존 player 객체와 생존 시간을 전달받음."""
-    print(f"[defeat_mode] enter() - player 객체 및 생존 시간({survival_time:.2f}초) 전달받음")
+    """승리 모드 진입. 기존 player 객체와 생존 시간을 전달받음."""
+    print(f"[victory_mode] enter() - player 객체 및 생존 시간({survival_time:.2f}초) 전달받음")
 
     # 생존 시간을 전역 변수에 저장
     global elapsed_time
     elapsed_time = survival_time
 
     # world 레이어 초기화
+    world['backgrounds'].clear()
+    world['extras'].clear()
     world['entities'].clear()
     world['ui'].clear()
-    world['backgrounds'].clear()
     world['cursor'].clear()
 
-    # 플레이어 추가
-    world['entities'].append(player)
+    # 플레이어를 extras 레이어에 추가
+    world['extras'].append(player)
     player.x = p2.get_canvas_width() // 2
     player.y = p2.get_canvas_height() // 2
 
-    # 배경 이미지 추가
-    BG = BGimage('resources/Texture_organize/UI/Stage_Loading/BlackBG.png')
+    # 배경 이미지 추가 (Square.png를 backgrounds 레이어에 추가)
+    BG = BGimage('resources/Texture_organize/IDK_2/Square.png')
     world['backgrounds'].append(BG)
 
     # "메인 메뉴로 돌아가기" 버튼 (title_mode 모듈 객체 전달)
@@ -49,7 +51,7 @@ def enter(player, survival_time=0.0):
         y=p2.get_canvas_height() // 7,
         width=300,
         height=80,
-        callback=lambda: game_framework.change_state(title_mode)  # 문자열 -> 모듈 객체로 수정
+        callback=lambda: game_framework.change_state(title_mode)
     )
     world['ui'].append(ReturnButton)
 
@@ -68,22 +70,23 @@ def enter(player, survival_time=0.0):
     try:
         cursor = TitleCursor()  # 타이틀 전용 커서 (인벤토리 커서 애니메이션 사용)
         world['cursor'].append(cursor)
-        print("[defeat_mode] 타이틀 커서 생성 완료")
+        print("[victory_mode] 타이틀 커서 생성 완료")
     except Exception as ex:
-        print(f'\033[91m[defeat_mode] 타이틀 커서 생성 실패: {ex}\033[0m')
+        print(f'\033[91m[victory_mode] 타이틀 커서 생성 실패: {ex}\033[0m')
 
 def exit():
-    """defeat_mode 종료 시 world 정리"""
-    print("[defeat_mode] exit() - world 정리")
+    """victory_mode 종료 시 world 정리"""
+    print("[victory_mode] exit() - world 정리")
+    world['backgrounds'].clear()
+    world['extras'].clear()
     world['entities'].clear()
     world['ui'].clear()
-    world['backgrounds'].clear()
     world['cursor'].clear()
 
 def update():
-    """패배 화면 업데이트"""
+    """승리 화면 업데이트"""
     # 모든 레이어의 객체 업데이트
-    for layer_name in ['backgrounds', 'entities', 'ui', 'cursor']:
+    for layer_name in world_layers:
         layer = world.get(layer_name, [])
         new_list = []
         for obj in layer:
@@ -93,37 +96,58 @@ def update():
                     if keep is None or keep:
                         new_list.append(obj)
             except Exception as ex:
-                print(f'\033[91m[title_mode] Update error in {layer_name}: {ex}\033[0m')
+                print(f'\033[91m[victory_mode] Update error in {layer_name}: {ex}\033[0m')
                 new_list.append(obj)
         world[layer_name] = new_list
 
 def draw():
     try:
         p2.clear_canvas()
-        # (원한다면 player 등 그리기)
 
-        for layer in ['backgrounds', 'entities']:
-            for o in world[layer]:
-                try:
-                    if hasattr(o, 'draw'):
-                        if hasattr(o, 'x') and hasattr(o, 'y'):
-                            draw_x = o.x
-                            draw_y = o.y
-                            o.draw(draw_x, draw_y)
-                        else:
-                            o.draw()
-                except Exception as e:
-                    print(f"\033[91m[defeat_mode] draw error in {layer}: {e}\033[0m")
+        # backgrounds 레이어 그리기
+        for o in world['backgrounds']:
+            try:
+                if hasattr(o, 'draw'):
+                    o.draw()
+            except Exception as e:
+                print(f"\033[91m[victory_mode] draw error in backgrounds: {e}\033[0m")
 
+        # extras 레이어 그리기 (플레이어)
+        for o in world['extras']:
+            try:
+                if hasattr(o, 'draw'):
+                    if hasattr(o, 'x') and hasattr(o, 'y'):
+                        draw_x = o.x
+                        draw_y = o.y
+                        o.draw(draw_x, draw_y)
+                    else:
+                        o.draw()
+            except Exception as e:
+                print(f"\033[91m[victory_mode] draw error in extras: {e}\033[0m")
+
+        # entities 레이어 그리기
+        for o in world['entities']:
+            try:
+                if hasattr(o, 'draw'):
+                    if hasattr(o, 'x') and hasattr(o, 'y'):
+                        draw_x = o.x
+                        draw_y = o.y
+                        o.draw(draw_x, draw_y)
+                    else:
+                        o.draw()
+            except Exception as e:
+                print(f"\033[91m[victory_mode] draw error in entities: {e}\033[0m")
+
+        # ui와 cursor 레이어 그리기
         for layer in ['ui', 'cursor']:
             for o in world[layer]:
                 try:
                     if hasattr(o, 'draw'):
                         o.draw()
                 except Exception as e:
-                    print(f"\033[91m[defeat_mode] draw error in {layer}: {e}\033[0m")
+                    print(f"\033[91m[victory_mode] draw error in {layer}: {e}\033[0m")
 
-        # 화면 중앙에 "패배" 메시지 출력
+        # 화면 중앙에 "승리" 메시지 출력
         canvas_w = p2.get_canvas_width()
         canvas_h = p2.get_canvas_height()
         center_x = canvas_w // 2
@@ -134,21 +158,21 @@ def draw():
             font_large = p2.load_font('resources/Fonts/pixelroborobo.otf', 80)
             font_small = p2.load_font('resources/Fonts/pixelroborobo.otf', 40)
         except Exception:
-            print(f'\033[91m[defeat_mode] draw() 폰트 로드 실패: pixelroborobo.otf\033[0m')
+            print(f'\033[91m[victory_mode] draw() 폰트 로드 실패: pixelroborobo.otf\033[0m')
             font_large = None
             font_small = None
 
-        # "패배" 메시지
-        text = "패배"
+        # "승리" 메시지
+        text = "승리 !"
         font_size = 80
         approx_width = int(len(text) * font_size * 1.0)
 
         if font_large:
-            font_large.draw(center_x - approx_width // 2, center_y, text, (255, 80, 80))
+            font_large.draw(center_x - approx_width // 2, center_y, text, (80, 255, 80))
         else:
-            print(f'\033[91m[defeat_mode] draw() 폰트 로드 실패로 "패배" 메시지를 그릴 수 없습니다.\033[0m')
+            print(f'\033[91m[victory_mode] draw() 폰트 로드 실패로 "승리" 메시지를 그릴 수 없습니다.\033[0m')
 
-        # 생존 시간 표시
+        # 클리어 시간 표시
         if font_small:
             # 시간을 분:초 형식으로 변환
             minutes = int(elapsed_time // 60)
@@ -159,16 +183,18 @@ def draw():
             time_font_size = 50
             time_text_width = int(len(time_text) * time_font_size * 0.6)
 
-            # 패배 메시지 아래 100px에 표시
+            # 승리 메시지 아래 100px에 표시
             time_y = center_y - 100
 
-            # 그림자 효과
-            font_small.draw(center_x - time_text_width // 2 - 2, time_y - 2, time_text, (50, 50, 50))
-            # 실제 텍스트
-            font_small.draw(center_x - time_text_width // 2, time_y, time_text, (255, 255, 255))
+            # 그림자 효과 (검은색)
+            font_small.draw(center_x - time_text_width // 2 - 2, time_y - 2, time_text, (0, 0, 0))
+            # 실제 텍스트 (노란색)
+            font_small.draw(center_x - time_text_width // 2, time_y, time_text, (255, 255, 0))
+        else:
+            print(f'\033[91m[victory_mode] draw() 폰트 로드 실패로 클리어 시간을 그릴 수 없습니다.\033[0m')
 
     except Exception as e:
-        print(f"\033[91m[defeat_mode] draw() exception: {e}\033[0m")
+        print(f"\033[91m[victory_mode] draw() exception: {e}\033[0m")
 
     p2.update_canvas()
 
@@ -195,7 +221,7 @@ def handle_events():
                 if hasattr(cursor, 'handle_event'):
                     cursor.handle_event(e)
             except Exception:
-                print(f'\033[91m[title_mode] Cursor handle_event error: {e}\033[0m')
+                print(f'\033[91m[victory_mode] Cursor handle_event error: {e}\033[0m')
 
 def pause():
     game_framework.paused = True
@@ -204,7 +230,7 @@ def resume():
     game_framework.paused = False
 
 class BGimage:
-    """패배 모드용 배경 이미지 클래스"""
+    """승리 모드용 배경 이미지 클래스"""
     def __init__(self, image_path):
         try:
             self.image = p2.load_image(image_path)
