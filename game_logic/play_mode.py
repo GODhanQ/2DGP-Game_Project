@@ -38,6 +38,9 @@ loading_screen = None
 is_loading = False
 next_stage_to_load = None
 
+# 경과 시간 추적 (play_mode 진입 후 경과 시간)
+elapsed_time = 0.0
+
 
 class Camera:
     """
@@ -417,8 +420,11 @@ def _complete_stage_change():
     print(f"[_complete_stage_change] Changed to Stage {current_stage_index + 1}")
 
 def enter(player=None):
-    global world, current_stage_index, is_stage_cleared, loading_screen, is_loading, next_stage_to_load
+    global world, current_stage_index, is_stage_cleared, loading_screen, is_loading, next_stage_to_load, elapsed_time
     print("[play_mode] Starting enter()...")
+
+    # 경과 시간 초기화
+    elapsed_time = 0.0
 
     # clear existing
     for k in list(world.keys()):
@@ -626,7 +632,7 @@ def handle_events():
 
 
 def update():
-    global is_stage_cleared, loading_screen, is_loading, camera
+    global is_stage_cleared, loading_screen, is_loading, camera, elapsed_time
 
     # 로딩 중이면 로딩 화면만 업데이트
     if is_loading and loading_screen:
@@ -638,6 +644,10 @@ def update():
             print(f'[play_mode] 스테이지 {current_stage_index + 1} 로딩 완료, 전환 완료')
 
         return  # 로딩 중에는 게임 로직 업데이트 안 함
+
+    # 경과 시간 누적 (로딩 중이 아닐 때만)
+    dt = game_framework.get_delta_time()
+    elapsed_time += dt
 
     # 카메라 업데이트 추가
     if camera is not None:

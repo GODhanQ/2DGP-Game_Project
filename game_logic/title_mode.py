@@ -7,7 +7,7 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_RETURN, SDLK_SPACE, SD
 
 import game_framework as framework
 from . import lobby_mode
-from .cursor import Cursor
+from .cursor import TitleCursor
 
 # 타이틀 화면 이미지
 title_image = None
@@ -124,111 +124,6 @@ class TitleRenderer:
             title_width = int(self.image.w * self.scale)
             title_height = int(self.image.h * self.scale)
             self.image.draw(center_x, int(center_y * 0.7), title_width, title_height)
-
-# 타이틀 화면 전용 커서
-class TitleCursor:
-    """타이틀 화면용 커서 - 인벤토리 커서 이미지 사용"""
-    def __init__(self):
-        self.x, self.y = 0, 0
-        self.scale_factor = 2.0
-        from sdl2 import SDL_ShowCursor, SDL_DISABLE
-        SDL_ShowCursor(SDL_DISABLE)  # 시스템 커서 숨기기
-
-        # 인벤토리 커서 애니메이션 프레임 로드
-        import os
-        mouse_folder = os.path.join('resources', 'Texture_organize', 'UI', 'Mouse_Arrow')
-        self.frames = []
-        for i in range(0, 7):
-            path = os.path.join(mouse_folder, f'Multi_Arrow_UI_14_Mouse_{i}.png')
-            try:
-                self.frames.append(p2.load_image(path))
-            except Exception as ex:
-                print(f"\033[91m[TitleCursor] Failed to load cursor frame: {path}, {ex}\033[0m")
-                self.frames = []
-                break
-
-        # 애니메이션 상태
-        self.frame_idx = 6  # idle 상태 (마지막 프레임)
-        self.frame_timer = 0.0
-        self.frame_duration = 0.06
-        self.anim_state = 'idle_up'  # 'down', 'up', 'idle_up'
-        self.mouse_down = False
-
-        # 커서 핫스팟 (팁 위치)
-        self.anchor = (0.10, 0.90)
-
-        print(f"[TitleCursor] 커서 프레임 {len(self.frames)}개 로드 완료")
-
-    def update(self):
-        """마우스 위치 업데이트 및 애니메이션"""
-        # 마우스 위치 갱신
-        mx_ptr = ctypes.c_int(0)
-        my_ptr = ctypes.c_int(0)
-        SDL_GetMouseState(ctypes.byref(mx_ptr), ctypes.byref(my_ptr))
-        self.x = mx_ptr.value
-        self.y = p2.get_canvas_height() - my_ptr.value
-
-        # 애니메이션 업데이트
-        if self.frames:
-            dt = framework.delta_time if hasattr(framework, 'delta_time') else 0.016
-            self.frame_timer += dt
-
-            if self.anim_state == 'down':
-                # 0 -> 1 재생
-                if self.frame_timer >= self.frame_duration:
-                    self.frame_timer -= self.frame_duration
-                    if self.frame_idx < 1:
-                        self.frame_idx += 1
-
-                if self.mouse_down:
-                    self.frame_idx = max(self.frame_idx, 1)
-                else:
-                    # 버튼 해제되면 up 애니메이션으로
-                    self.anim_state = 'up'
-                    self.frame_idx = 2
-                    self.frame_timer = 0.0
-
-            elif self.anim_state == 'up':
-                # 2 -> 6 재생
-                if self.frame_timer >= self.frame_duration:
-                    self.frame_timer -= self.frame_duration
-                    if self.frame_idx < 6:
-                        self.frame_idx += 1
-                    if self.frame_idx >= 6:
-                        self.anim_state = 'idle_up'
-                        self.frame_idx = 6
-
-            else:
-                # idle_up: 프레임 6 유지
-                self.frame_idx = 6
-
-        return True
-
-    def draw(self):
-        """커서 그리기"""
-        if self.frames and 0 <= self.frame_idx < len(self.frames):
-            img = self.frames[self.frame_idx]
-            w = img.w * self.scale_factor
-            h = img.h * self.scale_factor
-
-            # 핫스팟(팁) 위치를 마우스 좌표에 맞추기
-            ax, ay = self.anchor
-            draw_x = self.x - w * ax
-            draw_y = self.y - h * ay
-
-            img.draw(draw_x + w * 0.5, draw_y + h * 0.5, w, h)
-
-    def handle_event(self, e):
-        """마우스 이벤트 처리"""
-        if e.type == SDL_MOUSEBUTTONDOWN:
-            if e.button == SDL_BUTTON_LEFT:
-                self.mouse_down = True
-                self.anim_state = 'down'
-                self.frame_idx = 0
-                self.frame_timer = 0.0
-        elif e.type == SDL_MOUSEBUTTONUP:
-            if e.button == SDL_BUTTON_LEFT:
-                self.mouse_down = False
 
 # 메뉴 버튼
 class MenuButton:
@@ -355,65 +250,70 @@ def enter():
         if isinstance(layer, list):
             layer.clear()
 
-    # 이미지 로드
-    title_back_image = p2.load_image('resources/Texture_organize/IDK_2/Title/N_Title_Back.png')
-    title_image = p2.load_image('resources/Texture_organize/IDK_2/Title/N_Title.png')
+    # 이미지 로드 (예외 방지)
+    try:
+        title_back_image = p2.load_image('resources/Texture_organize/IDK_2/Title/N_Title_Back.png')
+    except Exception as ex:
+        print(f'\033[91m[title_mode] 타이틀 배경 이미지 로드 실패: {ex}\033[0m')
+        title_back_image = None
+    try:
+        title_image = p2.load_image('resources/Texture_organize/IDK_2/Title/N_Title.png')
+    except Exception as ex:
+        print(f'\033[91m[title_mode] 타이틀 로고 이미지 로드 실패: {ex}\033[0m')
+        title_image = None
 
     # Tree Begin 애니메이션 로드 (00~29)
     tree_begin_images = []
     for i in range(30):
         path = f'resources/Texture_organize/IDK_2/Title/N_Title_TreeBegin{i:02d}.png'
         try:
-            img = p2.load_image(path)
-            tree_begin_images.append(img)
-        except Exception as e:
-            print(f'\033[91m[title_mode] TreeBegin 이미지 로드 실패: {path}, {e}\033[0m')
+            tree_begin_images.append(p2.load_image(path))
+        except Exception as ex:
+            print(f'\033[91m[title_mode] TreeBegin 이미지 로드 실패: {path}, {ex}\033[0m')
 
-    print(f"[title_mode] TreeBegin 이미지 {len(tree_begin_images)}개 로드 완료")
-
-    # Tree Loop 애니메이션 로드 (00~15)
+    # Tree 루프 애니메이션 로드 (00~15)
     tree_loop_images = []
     for i in range(16):
         path = f'resources/Texture_organize/IDK_2/Title/N_Title_Tree{i:02d}.png'
         try:
-            img = p2.load_image(path)
-            tree_loop_images.append(img)
-        except Exception as e:
-            print(f'\033[91m[title_mode] TreeLoop 이미지 로드 실패: {path}, {e}\033[0m')
+            tree_loop_images.append(p2.load_image(path))
+        except Exception as ex:
+            print(f'\033[91m[title_mode] TreeLoop 이미지 로드 실패: {path}, {ex}\033[0m')
 
-    print(f"[title_mode] Tree 이미지 {len(tree_loop_images)}개 로드 완료")
+    # world에 렌더러 추가
+    if title_back_image:
+        world['background'].append(BackgroundRenderer(title_back_image))
+    if tree_begin_images or tree_loop_images:
+        world['tree_animation'].append(TreeAnimationRenderer(tree_begin_images, tree_loop_images, tree_scale))
+    if title_image:
+        world['title'].append(TitleRenderer(title_image, title_scale))
 
-    # 월드 레이어에 객체 추가
-    # 1. 배경
-    world['background'].append(BackgroundRenderer(title_back_image))
+    # 버튼 추가
+    start_btn = MenuButton(
+        text="게임 시작",
+        x=p2.get_canvas_width() // 2 - 300,
+        y=p2.get_canvas_height() // 7,
+        width=300,
+        height=80,
+        callback=start_game
+    )
+    quit_btn = MenuButton(
+        text="게임 종료",
+        x=p2.get_canvas_width() // 2 + 100,
+        y=p2.get_canvas_height() // 7,
+        width=300,
+        height=80,
+        callback=quit_game
+    )
+    world['buttons'].append(start_btn)
+    world['buttons'].append(quit_btn)
 
-    # 2. Tree 애니메이션
-    tree_animator = TreeAnimationRenderer(tree_begin_images, tree_loop_images, tree_scale)
-    world['tree_animation'].append(tree_animator)
-
-    # 3. 타이틀 로고
-    world['title'].append(TitleRenderer(title_image, title_scale))
-
-    # 4. 메뉴 버튼 생성 (가로 정렬)
-    canvas_width = p2.get_canvas_width()
-    canvas_height = p2.get_canvas_height()
-    center_x = canvas_width // 2
-    button_y = canvas_height // 5.5  # 두 버튼 모두 같은 y 좌표
-    button_spacing = 220  # 버튼 간격(가로)
-    button_width = 200
-    button_height = 60
-
-    # 왼쪽: 시작, 오른쪽: 종료
-    world['buttons'].append(MenuButton("시작", center_x - button_spacing // 1.5, button_y, button_width, button_height, start_game))
-    world['buttons'].append(MenuButton("종료", center_x + button_spacing // 1.5, button_y, button_width, button_height, quit_game))
-
-    # 5. 커서
+    # 커서
     try:
-        cursor = TitleCursor()  # 타이틀 전용 커서 (인벤토리 커서 애니메이션 사용)
+        cursor = TitleCursor()
         world['cursor'].append(cursor)
-        print("[title_mode] 타이틀 커서 생성 완료")
     except Exception as ex:
-        print(f'\033[91m[title_mode] 타이틀 커서 생성 실패: {ex}\033[0m')
+        print(f'\033[91m[title_mode] 커서 생성 실패: {ex}\033[0m')
 
     print("[title_mode] 타이틀 이미지 로드 완료")
 

@@ -1,6 +1,7 @@
 import ctypes
 import os
 import math
+import pico2d as p2
 from pico2d import load_image, get_canvas_height, get_canvas_width
 from sdl2 import SDL_GetMouseState, SDL_ShowCursor, SDL_DISABLE, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT
 import game_framework as framework
@@ -239,3 +240,109 @@ class Cursor:
             self.anim_state = 'up'
             self.frame_idx = 2
             self.frame_timer = 0.0
+
+
+# 타이틀 화면 전용 커서
+class TitleCursor:
+    """타이틀 화면용 커서 - 인벤토리 커서 이미지 사용"""
+    def __init__(self):
+        self.x, self.y = 0, 0
+        self.scale_factor = 2.0
+        from sdl2 import SDL_ShowCursor, SDL_DISABLE
+        SDL_ShowCursor(SDL_DISABLE)  # 시스템 커서 숨기기
+
+        # 인벤토리 커서 애니메이션 프레임 로드
+        import os
+        mouse_folder = os.path.join('resources', 'Texture_organize', 'UI', 'Mouse_Arrow')
+        self.frames = []
+        for i in range(0, 7):
+            path = os.path.join(mouse_folder, f'Multi_Arrow_UI_14_Mouse_{i}.png')
+            try:
+                self.frames.append(p2.load_image(path))
+            except Exception as ex:
+                print(f"\033[91m[TitleCursor] Failed to load cursor frame: {path}, {ex}\033[0m")
+                self.frames = []
+                break
+
+        # 애니메이션 상태
+        self.frame_idx = 6  # idle 상태 (마지막 프레임)
+        self.frame_timer = 0.0
+        self.frame_duration = 0.06
+        self.anim_state = 'idle_up'  # 'down', 'up', 'idle_up'
+        self.mouse_down = False
+
+        # 커서 핫스팟 (팁 위치)
+        self.anchor = (0.10, 0.90)
+
+        print(f"[TitleCursor] 커서 프레임 {len(self.frames)}개 로드 완료")
+
+    def update(self):
+        """마우스 위치 업데이트 및 애니메이션"""
+        # 마우스 위치 갱신
+        mx_ptr = ctypes.c_int(0)
+        my_ptr = ctypes.c_int(0)
+        SDL_GetMouseState(ctypes.byref(mx_ptr), ctypes.byref(my_ptr))
+        self.x = mx_ptr.value
+        self.y = p2.get_canvas_height() - my_ptr.value
+
+        # 애니메이션 업데이트
+        if self.frames:
+            dt = framework.delta_time if hasattr(framework, 'delta_time') else 0.016
+            self.frame_timer += dt
+
+            if self.anim_state == 'down':
+                # 0 -> 1 재생
+                if self.frame_timer >= self.frame_duration:
+                    self.frame_timer -= self.frame_duration
+                    if self.frame_idx < 1:
+                        self.frame_idx += 1
+
+                if self.mouse_down:
+                    self.frame_idx = max(self.frame_idx, 1)
+                else:
+                    # 버튼 해제되면 up 애니메이션으로
+                    self.anim_state = 'up'
+                    self.frame_idx = 2
+                    self.frame_timer = 0.0
+
+            elif self.anim_state == 'up':
+                # 2 -> 6 재생
+                if self.frame_timer >= self.frame_duration:
+                    self.frame_timer -= self.frame_duration
+                    if self.frame_idx < 6:
+                        self.frame_idx += 1
+                    if self.frame_idx >= 6:
+                        self.anim_state = 'idle_up'
+                        self.frame_idx = 6
+
+            else:
+                # idle_up: 프레임 6 유지
+                self.frame_idx = 6
+
+        return True
+
+    def draw(self):
+        """커서 그리기"""
+        if self.frames and 0 <= self.frame_idx < len(self.frames):
+            img = self.frames[self.frame_idx]
+            w = img.w * self.scale_factor
+            h = img.h * self.scale_factor
+
+            # 핫스팟(팁) 위치를 마우스 좌표에 맞추기
+            ax, ay = self.anchor
+            draw_x = self.x - w * ax
+            draw_y = self.y - h * ay
+
+            img.draw(draw_x + w * 0.5, draw_y + h * 0.5, w, h)
+
+    def handle_event(self, e):
+        """마우스 이벤트 처리"""
+        if e.type == SDL_MOUSEBUTTONDOWN:
+            if e.button == SDL_BUTTON_LEFT:
+                self.mouse_down = True
+                self.anim_state = 'down'
+                self.frame_idx = 0
+                self.frame_timer = 0.0
+        elif e.type == SDL_MOUSEBUTTONUP:
+            if e.button == SDL_BUTTON_LEFT:
+                self.mouse_down = False

@@ -3,7 +3,7 @@ Minimal launcher: open pico2d canvas, run framework with title_mode, close canva
 """
 from pico2d import open_canvas, close_canvas
 import game_framework
-import game_logic.title_mode as init_mode
+import game_logic.play_mode as init_mode
 
 window_scale = 8
 window_width, window_height = 160 * window_scale, 90 * window_scale

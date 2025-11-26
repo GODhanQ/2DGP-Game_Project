@@ -543,8 +543,11 @@ class Death:
             self.game_over_triggered = True
             print(f"[Player Death State] 5초 경과, 패배 모드로 전환")
             import game_framework
-            from . import defeat_mode
-            game_framework.change_state(defeat_mode, self.player)
+            from . import defeat_mode, play_mode
+            # play_mode의 경과 시간을 가져와서 defeat_mode로 전달
+            survival_time = getattr(play_mode, 'elapsed_time', 0.0)
+            print(f"[Player Death State] 생존 시간: {survival_time:.2f}초")
+            game_framework.change_state(defeat_mode, self.player, survival_time)
 
         # 플레이어 사망시 중앙으로 서서히 이동 (3초 동안)
         if self.player_transform:

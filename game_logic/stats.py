@@ -27,7 +27,7 @@ class PlayerStats:
             'max_mana': 50.0,
             'health_regen': 0.2,
             'mana_regen': 0.5,
-            'health': 100.0,
+            'health': 0.0,
             'mana': 50.0,
             'move_speed': 250.0,
             'attack_speed': 1.0,
