@@ -50,14 +50,25 @@ class Node:
     행동 트리 노드의 베이스 클래스
     """
 
-    def add_child(self, child):
-        """자식 노드 추가"""
-        self.children.append(child)
+    def add_child(self, child, probability=1.0):
+        """
+        자식 노드와 실행 확률을 추가합니다.
+        :param child: 추가할 자식 노드
+        :param probability: 자식 노드의 실행 확률 (0.0 ~ 1.0, 기본값 1.0)
+        """
+        self.children.append((child, probability))
 
-    def add_children(self, *children):
-        """여러 자식 노드를 한 번에 추가"""
-        for child in children:
-            self.children.append(child)
+    def add_children(self, *children_with_probs):
+        """
+        여러 자식 노드와 실행 확률을 한 번에 추가합니다.
+        인자는 (노드, 확률) 튜플이거나 노드 단독일 수 있습니다.
+        """
+        for item in children_with_probs:
+            if isinstance(item, tuple) and len(item) == 2:
+                child, prob = item
+                self.add_child(child, prob)
+            else: # 노드만 있는 경우
+                self.add_child(item)
 
     @staticmethod
     def show_result(f):
@@ -83,9 +94,10 @@ class Selector(Node):
         """
         Selector 노드 초기화
         :param name: 노드 이름 (디버깅용)
-        :param nodes: 자식 노드들
+        :param nodes: 자식 노드들. (노드, 확률) 튜플 또는 노드 단독으로 구성.
         """
-        self.children = list(nodes)
+        self.children = []
+        self.add_children(*nodes)
         self.name = name
         self.value = BehaviorTree.UNDEF
         self.has_condition = False
@@ -93,14 +105,14 @@ class Selector(Node):
     def reset(self):
         """노드와 모든 자식 노드의 상태를 초기화"""
         self.value = BehaviorTree.UNDEF
-        for child in self.children:
-            child.reset()
+        for child_node, _ in self.children:
+            child_node.reset()
 
     def tag_condition(self):
         """조건 노드가 있는지 하위 트리를 탐색하여 태그"""
-        for child in self.children:
-            child.tag_condition()
-            if child.has_condition:
+        for child_node, _ in self.children:
+            child_node.tag_condition()
+            if child_node.has_condition:
                 self.has_condition = True
 
     @Node.show_result
@@ -109,10 +121,14 @@ class Selector(Node):
         Selector 실행: 자식 노드들을 순서대로 실행
         하나라도 SUCCESS 또는 RUNNING이면 즉시 반환
         """
-        for child in self.children:
+        for child_node, probability in self.children:
+            # 확률 체크
+            if random.random() > probability:
+                continue
+
             # 실행이 필요한 노드만 실행 (UNDEF, RUNNING 상태이거나 조건 노드)
-            if (child.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child.has_condition:
-                result = child.run()
+            if (child_node.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child_node.has_condition:
+                result = child_node.run()
                 if result in (BehaviorTree.RUNNING, BehaviorTree.SUCCESS):
                     self.value = result
                     return self.value
@@ -132,9 +148,10 @@ class RandomSelector(Node):
         """
         RandomSelector 노드 초기화
         :param name: 노드 이름 (디버깅용)
-        :param nodes: 자식 노드들
+        :param nodes: 자식 노드들. (노드, 확률) 튜플 또는 노드 단독으로 구성.
         """
-        self.children = list(nodes)
+        self.children = []
+        self.add_children(*nodes)
         self.name = name
         self.value = BehaviorTree.UNDEF
         self.has_condition = False
@@ -142,14 +159,14 @@ class RandomSelector(Node):
     def reset(self):
         """노드와 모든 자식 노드의 상태를 초기화"""
         self.value = BehaviorTree.UNDEF
-        for child in self.children:
-            child.reset()
+        for child_node, _ in self.children:
+            child_node.reset()
 
     def tag_condition(self):
         """조건 노드가 있는지 하위 트리를 탐색하여 태그"""
-        for child in self.children:
-            child.tag_condition()
-            if child.has_condition:
+        for child_node, _ in self.children:
+            child_node.tag_condition()
+            if child_node.has_condition:
                 self.has_condition = True
 
     @Node.show_result
@@ -159,13 +176,17 @@ class RandomSelector(Node):
         하나라도 SUCCESS 또는 RUNNING이면 즉시 반환
         """
         # 원본 children 순서는 보존하고 섞인 복사본으로 순회
-        children = self.children[:]
-        random.shuffle(children)
+        shuffled_children = self.children[:]
+        random.shuffle(shuffled_children)
 
-        for child in children:
+        for child_node, probability in shuffled_children:
+            # 확률 체크
+            if random.random() > probability:
+                continue
+
             # 실행이 필요한 노드만 실행 (UNDEF, RUNNING 상태이거나 조건 노드)
-            if (child.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child.has_condition:
-                result = child.run()
+            if (child_node.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child_node.has_condition:
+                result = child_node.run()
                 # 안전성: child.run이 None을 반환하면 FAIL로 처리
                 if result is None:
                     result = BehaviorTree.FAIL
@@ -190,9 +211,10 @@ class Sequence(Node):
         """
         Sequence 노드 초기화
         :param name: 노드 이름 (디버깅용)
-        :param nodes: 자식 노드들
+        :param nodes: 자식 노드들. (노드, 확률) 튜플 또는 노드 단독으로 구성.
         """
-        self.children = list(nodes)
+        self.children = []
+        self.add_children(*nodes)
         self.name = name
         self.value = BehaviorTree.UNDEF
         self.has_condition = False
@@ -200,14 +222,14 @@ class Sequence(Node):
     def reset(self):
         """노드와 모든 자식 노드의 상태를 초기화"""
         self.value = BehaviorTree.UNDEF
-        for child in self.children:
-            child.reset()
+        for child_node, _ in self.children:
+            child_node.reset()
 
     def tag_condition(self):
         """조건 노드가 있는지 하위 트리를 탐색하여 태그"""
-        for child in self.children:
-            child.tag_condition()
-            if child.has_condition:
+        for child_node, _ in self.children:
+            child_node.tag_condition()
+            if child_node.has_condition:
                 self.has_condition = True
 
     @Node.show_result
@@ -216,10 +238,16 @@ class Sequence(Node):
         Sequence 실행: 자식 노드들을 순서대로 실행
         하나라도 FAIL 또는 RUNNING이면 즉시 반환
         """
-        for child in self.children:
+        for child_node, probability in self.children:
+            # 확률 체크
+            if random.random() > probability:
+                # 확률적으로 실행되지 않으면 Sequence는 즉시 실패해야 함
+                self.value = BehaviorTree.FAIL
+                return self.value
+
             # 실행이 필요한 노드만 실행 (UNDEF, RUNNING 상태이거나 조건 노드)
-            if (child.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child.has_condition:
-                result = child.run()
+            if (child_node.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child_node.has_condition:
+                result = child_node.run()
                 if result in (BehaviorTree.RUNNING, BehaviorTree.FAIL):
                     self.value = result
                     return self.value
@@ -256,7 +284,7 @@ class Action(Node):
         """노드 상태 초기화"""
         self.value = BehaviorTree.UNDEF
 
-    def add_child(self, child):
+    def add_child(self, child, probability=1.0):
         """Leaf 노드에는 자식을 추가할 수 없음"""
         print("ERROR: you cannot add child node to leaf node")
 
@@ -300,7 +328,7 @@ class Condition(Node):
         """이 노드가 조건 노드임을 표시"""
         self.has_condition = True
 
-    def add_child(self, child):
+    def add_child(self, child, probability=1.0):
         """Leaf 노드에는 자식을 추가할 수 없음"""
         print("ERROR: you cannot add child node to leaf node")
 
@@ -320,3 +348,4 @@ class Condition(Node):
             raise ValueError("Condition node returned RUNNING")
 
         return self.value
+
