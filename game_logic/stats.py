@@ -27,7 +27,7 @@ class PlayerStats:
             'max_mana': 50.0,
             'health_regen': 0.2,
             'mana_regen': 0.5,
-            'health': 0.0,
+            'health': 100.0,
             'mana': 50.0,
             'move_speed': 250.0,
             'attack_speed': 1.0,
@@ -79,17 +79,7 @@ class PlayerStats:
 
         # 자연 회복 처리
         self.base['health'] = min(self.get('max_health'), self.base['health'] + self.get('health_regen') * dt)
-
-        # 마나 회복 처리 (방패 복구 로직 포함)
-        old_mana = self.base['mana']
         self.base['mana'] = min(self.get('max_mana'), self.base['mana'] + self.get('mana_regen') * dt)
-
-        # 마나가 0에서 0 초과로 회복되면 방패 복구
-        if old_mana <= 0 and self.base['mana'] > 0:
-            # 플레이어 객체를 찾아서 shield_broken 플래그 해제
-            # 이 메서드는 PlayerStats의 인스턴스이므로, self를 가진 플레이어를 역참조해야 함
-            # 하지만 이는 순환 참조 문제가 있으므로, 대신 외부에서 처리하도록 함
-            print(f"[PlayerStats] 마나가 회복되었습니다! ({old_mana:.1f} -> {self.base['mana']:.1f})")
 
 
 class MonsterStats:

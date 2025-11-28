@@ -36,6 +36,7 @@ def enter(player, survival_time=0.0):
     world['cursor'].clear()
 
     # 플레이어를 extras 레이어에 추가
+    player.state_machine.set_state(player.IDLE)
     world['extras'].append(player)
     player.x = p2.get_canvas_width() // 2
     player.y = p2.get_canvas_height() // 2
@@ -165,7 +166,7 @@ def draw():
         # "승리" 메시지
         text = "승리 !"
         font_size = 80
-        approx_width = int(len(text) * font_size * 1.0)
+        approx_width = int(len(text) * font_size * 0.8)
 
         if font_large:
             font_large.draw(center_x - approx_width // 2, center_y, text, (80, 255, 80))
@@ -177,11 +178,11 @@ def draw():
             # 시간을 분:초 형식으로 변환
             minutes = int(elapsed_time // 60)
             seconds = int(elapsed_time % 60)
-            time_text = f"생존 시간: {minutes}분 {seconds}초"
+            time_text = f"클리어 시간: {minutes}분 {seconds}초"
 
             # 텍스트 길이 계산
             time_font_size = 50
-            time_text_width = int(len(time_text) * time_font_size * 0.6)
+            time_text_width = int(len(time_text) * time_font_size * 0.65)
 
             # 승리 메시지 아래 100px에 표시
             time_y = center_y - 100

@@ -34,6 +34,7 @@ def enter(player, survival_time=0.0):
     world['cursor'].clear()
 
     # 플레이어 추가
+    player.state_machine.set_state(player.IDLE)
     world['entities'].append(player)
     player.x = p2.get_canvas_width() // 2
     player.y = p2.get_canvas_height() // 2

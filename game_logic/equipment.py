@@ -233,10 +233,26 @@ class Shield(Weapon):
                     self.attack_timer = 0.0
             return
 
+        # 마나가 10이상으로 회복 되면 쉴드 복구
+        if self.player.stats.get('mana') > 10 and getattr(self.player, 'shield_broken', False):
+            self.player.shield_broken = False
+
+            # 증폭된 마나 회복 원래대로 복구
+            original_mana_regen = self.player.stats.get('mana_regen')
+            self.player.stats.set_base('mana_regen', original_mana_regen / 4.0)
+
+            print(f'\033[92m[Shield] 마나 회복으로 방패가 복구되었습니다!\033[0m')
+
+
         # 방패가 깨진 상태이면 blocking 불가 및 이펙트 제거
         if getattr(self.player, 'shield_broken', False):
             # 방패 전개 강제 해제
             self.blocking = False
+
+            # 쉴드가 깨진 상태라면 마나 회복 속도 증가
+            current_mana_regen = self.player.stats.get('mana_regen')
+            boosted_mana_regen = max(current_mana_regen, 2.0)
+            self.player.stats.set_base('mana_regen', boosted_mana_regen)
 
             # 쉴드 이펙트가 존재하면 월드에서 제거
             if self.range_effect is not None:
@@ -417,9 +433,9 @@ class Shield(Weapon):
                 self.player.knockback_timer = 0.0  # 타이머 초기화
                 print(f"[Shield] 방어 이펙트에 의한 넉백 발생: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
 
-            # 막히면 투사체 데미지의 50%만큼의 수치를 마나로 소비 (투사체 막기 비용)
+            # 막히면 투사체 데미지의 30%만큼의 수치를 마나로 소비 (투사체 막기 비용)
             if hasattr(projectile, 'damage'):
-                mana_cost = projectile.damage * 0.5
+                mana_cost = projectile.damage * 0.3
                 shield_broken = False
                 if hasattr(self.player, 'stats'):
                     current_mana = self.player.stats.get('mana')
@@ -430,7 +446,6 @@ class Shield(Weapon):
 
                     # 마나가 0 이하면 방패가 깨짐
                     if new_mana <= 0:
-                        shield_broken = True
                         # 방패 사용 불가 상태로 전환
                         self.player.shield_broken = True
 
@@ -530,9 +545,9 @@ class Shield(Weapon):
                 self.player.knockback_timer = 0.0  # 타이머 초기화
                 print(f"[Shield] 방어 이펙트에 의한 넉백 발생: 방향=({self.player.knockback_dx:.2f}, {self.player.knockback_dy:.2f}), 속도={knockback_strength}")
 
-            # 막히면 데미지의 50%만큼의 수치를 마나 소비 (예: 몬스터 공격 이펙트 막기)
+            # 막히면 데미지의 30%만큼의 수치를 마나 소비 (예: 몬스터 공격 이펙트 막기)
             if hasattr(effect, 'damage'):
-                mana_cost = effect.damage * 0.5
+                mana_cost = effect.damage * 0.3
                 shield_broken = False
                 if hasattr(self.player, 'stats'):
                     current_mana = self.player.stats.get('mana')
