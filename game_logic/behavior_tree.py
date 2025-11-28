@@ -101,10 +101,12 @@ class Selector(Node):
         self.name = name
         self.value = BehaviorTree.UNDEF
         self.has_condition = False
+        self.running_child_index = -1  # 추가: 현재 실행 중인 자식 인덱스
 
     def reset(self):
         """노드와 모든 자식 노드의 상태를 초기화"""
         self.value = BehaviorTree.UNDEF
+        self.running_child_index = -1  # 추가: 실행 중인 자식 인덱스 초기화
         for child_node, _ in self.children:
             child_node.reset()
 
@@ -121,20 +123,31 @@ class Selector(Node):
         Selector 실행: 자식 노드들을 순서대로 실행
         하나라도 SUCCESS 또는 RUNNING이면 즉시 반환
         """
-        for child_node, probability in self.children:
-            # 확률 체크
-            if random.random() > probability:
+        # 실행 중인 자식이 있으면 해당 자식부터 실행
+        start_index = self.running_child_index if self.running_child_index != -1 else 0
+
+        for i in range(start_index, len(self.children)):
+            child_node, probability = self.children[i]
+
+            # 확률 체크 (실행 재개가 아닌 첫 실행 시에만)
+            if self.running_child_index == -1 and random.random() > probability:
                 continue
 
-            # 실행이 필요한 노드만 실행 (UNDEF, RUNNING 상태이거나 조건 노드)
-            if (child_node.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child_node.has_condition:
-                result = child_node.run()
-                if result in (BehaviorTree.RUNNING, BehaviorTree.SUCCESS):
-                    self.value = result
-                    return self.value
+            result = child_node.run()
 
-        # 모든 자식이 FAIL이면 FAIL 반환
+            if result == BehaviorTree.SUCCESS:
+                self.value = BehaviorTree.SUCCESS
+                self.running_child_index = -1
+                return self.value
+            elif result == BehaviorTree.RUNNING:
+                self.value = BehaviorTree.RUNNING
+                self.running_child_index = i
+                return self.value
+            # FAIL이면 다음 자식을 시도 (루프 계속)
+
+        # 모든 자식을 시도했지만 성공/실행을 못 찾은 경우
         self.value = BehaviorTree.FAIL
+        self.running_child_index = -1
         return self.value
 
 
@@ -155,12 +168,14 @@ class RandomSelector(Node):
         self.name = name
         self.value = BehaviorTree.UNDEF
         self.has_condition = False
+        self.running_child_index = -1  # 추가: 현재 실행 중인 자식 인덱스
 
     def reset(self):
         """노드와 모든 자식 노드의 상태를 초기화"""
         self.value = BehaviorTree.UNDEF
         for child_node, _ in self.children:
             child_node.reset()
+        self.running_child_index = -1  # 추가: 실행 중인 자식 인덱스 초기화
 
     def tag_condition(self):
         """조건 노드가 있는지 하위 트리를 탐색하여 태그"""
@@ -175,28 +190,48 @@ class RandomSelector(Node):
         RandomSelector 실행: 자식 노드들을 랜덤한 순서로 실행
         하나라도 SUCCESS 또는 RUNNING이면 즉시 반환
         """
-        # 원본 children 순서는 보존하고 섞인 복사본으로 순회
-        shuffled_children = self.children[:]
-        random.shuffle(shuffled_children)
+        # 실행 중인 자식이 있으면 해당 자식부터 실행
+        if self.running_child_index != -1:
+            child_node, _ = self.children[self.running_child_index]
+            result = child_node.run()
 
-        for child_node, probability in shuffled_children:
+            if result == BehaviorTree.SUCCESS:
+                self.value = BehaviorTree.SUCCESS
+                self.running_child_index = -1
+                return self.value
+            elif result == BehaviorTree.RUNNING:
+                self.value = BehaviorTree.RUNNING
+                # running_child_index는 이미 설정되어 있으므로 변경하지 않음
+                return self.value
+            else:  # FAIL
+                # 실행 중이던 자식이 실패했으므로, 이번 틱에서는 RandomSelector도 실패 처리
+                self.value = BehaviorTree.FAIL
+                self.running_child_index = -1
+                return self.value
+
+        # 실행 중인 자식이 없는 경우, 자식들을 랜덤하게 섞어 하나를 선택해 실행
+        indexed_children = list(enumerate(self.children))
+        random.shuffle(indexed_children)
+
+        for i, (child_node, probability) in indexed_children:
             # 확률 체크
             if random.random() > probability:
                 continue
 
-            # 실행이 필요한 노드만 실행 (UNDEF, RUNNING 상태이거나 조건 노드)
-            if (child_node.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child_node.has_condition:
-                result = child_node.run()
-                # 안전성: child.run이 None을 반환하면 FAIL로 처리
-                if result is None:
-                    result = BehaviorTree.FAIL
+            result = child_node.run()
+            if result == BehaviorTree.SUCCESS:
+                self.value = BehaviorTree.SUCCESS
+                self.running_child_index = -1
+                return self.value
+            elif result == BehaviorTree.RUNNING:
+                self.value = BehaviorTree.RUNNING
+                self.running_child_index = i # 실행된 자식의 원래 인덱스를 저장
+                return self.value
+            # FAIL이면 다음 자식을 시도 (루프 계속)
 
-                if result in (BehaviorTree.RUNNING, BehaviorTree.SUCCESS):
-                    self.value = result
-                    return self.value
-
-        # 모든 자식이 FAIL이면 FAIL 반환
+        # 모든 자식을 시도했지만 성공/실행을 못 찾은 경우
         self.value = BehaviorTree.FAIL
+        self.running_child_index = -1
         return self.value
 
 
@@ -218,10 +253,12 @@ class Sequence(Node):
         self.name = name
         self.value = BehaviorTree.UNDEF
         self.has_condition = False
+        self.running_child_index = -1  # 추가: 현재 실행 중인 자식 인덱스
 
     def reset(self):
         """노드와 모든 자식 노드의 상태를 초기화"""
         self.value = BehaviorTree.UNDEF
+        self.running_child_index = -1  # 추가: 실행 중인 자식 인덱스 초기화
         for child_node, _ in self.children:
             child_node.reset()
 
@@ -238,22 +275,31 @@ class Sequence(Node):
         Sequence 실행: 자식 노드들을 순서대로 실행
         하나라도 FAIL 또는 RUNNING이면 즉시 반환
         """
-        for child_node, probability in self.children:
-            # 확률 체크
-            if random.random() > probability:
-                # 확률적으로 실행되지 않으면 Sequence는 즉시 실패해야 함
+        # 실행 중인 자식이 있으면 해당 자식부터 실행
+        start_index = self.running_child_index if self.running_child_index != -1 else 0
+
+        for i in range(start_index, len(self.children)):
+            child_node, probability = self.children[i]
+
+            # 확률 체크 (실행 재개가 아닌 첫 실행 시에만)
+            if self.running_child_index == -1 and random.random() > probability:
+                continue  # 확률 실패 시 다음 자식으로 넘어감
+
+            result = child_node.run()
+
+            if result == BehaviorTree.FAIL:
                 self.value = BehaviorTree.FAIL
+                self.running_child_index = -1
                 return self.value
+            elif result == BehaviorTree.RUNNING:
+                self.value = BehaviorTree.RUNNING
+                self.running_child_index = i
+                return self.value
+            # SUCCESS이면 다음 자식을 계속 실행 (루프 계속)
 
-            # 실행이 필요한 노드만 실행 (UNDEF, RUNNING 상태이거나 조건 노드)
-            if (child_node.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child_node.has_condition:
-                result = child_node.run()
-                if result in (BehaviorTree.RUNNING, BehaviorTree.FAIL):
-                    self.value = result
-                    return self.value
-
-        # 모든 자식이 SUCCESS이면 SUCCESS 반환
+        # 모든 자식이 성공적으로 실행(또는 확률에 의해 건너뜀)되면 SUCCESS 반환
         self.value = BehaviorTree.SUCCESS
+        self.running_child_index = -1
         return self.value
 
 
@@ -342,10 +388,16 @@ class Condition(Node):
         Condition 실행: 조건을 검사하고 SUCCESS 또는 FAIL 반환
         RUNNING을 반환하면 에러 발생
         """
-        self.value = self.func(*self.args)
+        result = self.func(*self.args)
+
+        # func의 반환값이 True/False일 수 있으므로 명시적으로 상태로 변환
+        if result is True or result == BehaviorTree.SUCCESS:
+            self.value = BehaviorTree.SUCCESS
+        else:
+            self.value = BehaviorTree.FAIL
+
         if self.value == BehaviorTree.RUNNING:
             print("ERROR: condition node cannot return RUNNING")
             raise ValueError("Condition node returned RUNNING")
 
         return self.value
-
