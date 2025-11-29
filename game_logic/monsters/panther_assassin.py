@@ -82,11 +82,12 @@ class AttackPattern1Action:
         self.panther = panther
         self.phase = 0
         self.timer = 0.0
-        # 돌진 관련 변수
-        self.dash_dx = 0.0
-        self.dash_dy = 0.0
-        self.dash_speed = 0.0
-        self.dash_duration = 0.0
+        # 표창 투척 관련 변수
+        self.shot_count = 0  # 현재 투척 단계 (1단, 2단)
+        self.max_shots = 2  # 총 투척 단계
+        self.shot_interval = 0.0  # 투척 간격
+        self.spread_angle = 90  # 방사형 각도 (90도)
+        self.projectiles_per_shot = 0  # 한 번에 발사하는 표창 개수
 
     def update(self):
         """패턴 1 로직 실행"""
@@ -168,10 +169,16 @@ class AttackPattern2Action:
         self.panther = panther
         self.phase = 0
         self.timer = 0.0
-        # 수리검 발사 관련 변수
-        self.shot_count = 0
-        self.max_shots = 0
-        self.shot_interval = 0.0
+        # 은신 및 텔레포트 관련 변수
+        self.stealth_duration = 0.0  # 은신 시간
+        self.teleport_offset = 0  # 텔레포트 거리
+        # 돌진 공격 관련 변수
+        self.dash_count = 0  # 현재 돌진 횟수
+        self.max_dash_count = 2  # 최대 돌진 횟수
+        self.dash_dx = 0.0
+        self.dash_dy = 0.0
+        self.dash_speed = 0.0
+        self.dash_duration = 0.0
 
         # 이미지 시퀀스 로드
         if not AttackPattern2Action.dash_img_seq:
@@ -247,7 +254,7 @@ class AttackPattern2Action:
 
 class AttackPattern3Action:
     """
-    BTActionWrapper: 패턴3 - 은신 후 다른 곳에서 나타나 플레이어를 향해 돌 진 후 8방향 방사형으로 수리검 투척
+    BTActionWrapper: 패턴3 - 은신 후 다른 곳에서 나타나 플레이어를 향해 돌진 후 8방향 방사형으로 수리검 투척
     """
 
     def __init__(self, panther):
@@ -258,8 +265,17 @@ class AttackPattern3Action:
         self.panther = panther
         self.phase = 0
         self.timer = 0.0
-        # 차징 관련 변수
-        self.charge_time = 0.0
+        # 은신 및 텔레포트 관련 변수
+        self.stealth_duration = 0.0  # 은신 시간
+        self.teleport_offset = 0  # 텔레포트 거리
+        # 돌진 관련 변수
+        self.dash_dx = 0.0
+        self.dash_dy = 0.0
+        self.dash_speed = 0.0
+        self.dash_duration = 0.0
+        # 수리검 투척 관련 변수
+        self.projectile_directions = 8  # 8방향
+        self.projectile_speed = 0.0
 
     def update(self):
         """패턴 3 로직 실행"""
@@ -342,9 +358,18 @@ class AttackPattern4Action:
         self.panther = panther
         self.phase = 0
         self.timer = 0.0
-        # 텔레포트 관련 변수
-        self.teleport_delay = 0.0
-        self.attack_delay = 0.0
+        # 은신 관련 변수
+        self.stealth_duration = 0.0  # 은신 시간
+        self.is_stealthed = False  # 은신 상태
+        # 분신 소환 관련 변수
+        self.clone_count = 2  # 분신 개수
+        self.clone_positions = []  # 분신 위치 리스트
+        self.summon_time = 0.0  # 소환 시간
+        # 수리검 투척 관련 변수
+        self.shot_count = 0  # 현재 투척 횟수
+        self.max_shots = 10  # 최대 투척 횟수 (10회)
+        self.shot_interval = 0.0  # 투척 간격
+        self.projectile_speed = 0.0
 
     def update(self):
         """패턴 4 로직 실행"""
@@ -353,40 +378,67 @@ class AttackPattern4Action:
         if self.phase == 0:
             # 초기화
             self.timer = 0.0
-            self.teleport_delay = 0.3  # 텔레포트 딜레이
+            self.stealth_duration = 1.0  # 은신 지속 시간
             self.phase = 1
-            print("[Pattern4] 텔레포트 준비!")
+            print("[Pattern4] 은신 시작!")
 
         elif self.phase == 1:
-            # 텔레포트 딜레이
+            # 은신 중
             self.timer += dt
 
-            if self.timer >= self.teleport_delay:
-                # 텔레포트 실행
-                if self.panther.target:
-                    # 타겟 근처 랜덤 위치로 이동
-                    angle = random.uniform(0, 360)
-                    rad = math.radians(angle)
-                    offset = 150
-
-                    self.panther.x = self.panther.target.x + math.cos(rad) * offset
-                    self.panther.y = self.panther.target.y + math.sin(rad) * offset
-                    print(f"[Pattern4] 텔레포트 완료! ({self.panther.x:.0f}, {self.panther.y:.0f})")
-
+            if self.timer >= self.stealth_duration:
+                # 은신 종료
+                self.is_stealthed = False
                 self.timer = 0.0
-                self.attack_delay = 0.2
                 self.phase = 2
+                print("[Pattern4] 은신 종료!")
 
         elif self.phase == 2:
-            # 공격 딜레이
+            # 분신 소환
+            if len(self.clone_positions) < self.clone_count:
+                angle = random.uniform(0, 360)
+                rad = math.radians(angle)
+                offset = 100 + random.uniform(-50, 50)
+
+                clone_x = self.panther.x + math.cos(rad) * offset
+                clone_y = self.panther.y + math.sin(rad) * offset
+                self.clone_positions.append((clone_x, clone_y))
+
+                print(f"[Pattern4] 분신 소환: ({clone_x:.0f}, {clone_y:.0f})")
+                return BehaviorTree.RUNNING
+
+            # 모든 분신 소환 완료 후 수리검 투척
+            if self.timer == 0.0:
+                self.shot_count = 0
+                self.timer = 0.0
+                self.phase = 3
+                print("[Pattern4] 수리검 투척 시작!")
+
+        elif self.phase == 3:
+            # 수리검 투척
             self.timer += dt
 
-            if self.timer >= self.attack_delay:
-                # 근접 공격 (충돌 체크는 update에서 처리)
-                print("[Pattern4] 근접 공격!")
-                self.phase = 0
-                self.panther.attack_timer = self.panther.attack_cooldown
-                return BehaviorTree.SUCCESS
+            if self.timer >= self.shot_interval:
+                # 수리검 발사
+                if self.panther.target and self.panther.world:
+                    projectile = Projectile(
+                        self.panther.x, self.panther.y,
+                        self.panther.target.x, self.panther.target.y,
+                        speed=500,
+                        from_player=False
+                    )
+                    self.panther.world.get('projectiles', []).append(projectile)
+                    print(f"[Pattern4] 수리검 발사 {self.shot_count + 1}/{self.max_shots}")
+
+                self.shot_count += 1
+                self.timer = 0.0
+
+                if self.shot_count >= self.max_shots:
+                    # 모든 수리검 발사 완료
+                    self.phase = 0
+                    self.panther.attack_timer = self.panther.attack_cooldown
+                    print("[Pattern4] 수리검 투척 완료!")
+                    return BehaviorTree.SUCCESS
 
         return BehaviorTree.RUNNING
 
@@ -397,18 +449,27 @@ class AttackPattern4Action:
         Args:
             draw_x, draw_y: 보스의 현재 위치 (카메라 좌표계)
         """
-        # Pattern 4 Draw Logic: 텔레포트 후 공격 시각 효과
-        if self.phase == 1:  # 텔레포트 준비 중
-            # 텔레포트 징표 (깜빡이는 원)
-            blink = int(self.timer * 10) % 2
-            if blink == 0:
-                p2.draw_circle(draw_x, draw_y, 60)
-                p2.draw_circle(draw_x, draw_y, 40)
+        # Pattern 4 Draw Logic: 은신 및 분신 소환 시각 효과
+        if self.phase == 1:  # 은신 중일 때
+            # 은신 이펙트 원 (점점 투명해지는 원)
+            progress = self.timer / self.stealth_duration
+            effect_radius = 50 + progress * 50
+            p2.draw_circle(draw_x, draw_y, int(effect_radius), alpha=255 - int(progress * 255))
 
-        elif self.phase == 2:  # 공격 준비 중
-            # 공격 범위 표시 (확장되는 원)
-            attack_radius = 80 * (self.timer / self.attack_delay)
-            p2.draw_circle(draw_x, draw_y, int(attack_radius))
+        elif self.phase == 2:  # 분신 소환 중
+            # 소환 위치에 원 표시
+            for clone_x, clone_y in self.clone_positions:
+                p2.draw_circle(clone_x, clone_y, 10)
+
+        elif self.phase == 3:  # 수리검 투척 중
+            # 타겟 방향 조준선 표시
+            if self.panther.target:
+                p2.draw_line(draw_x, draw_y, self.panther.target.x, self.panther.target.y)
+
+            # 발사 카운트 표시 (원형 인디케이터)
+            progress = self.shot_count / self.max_shots
+            indicator_radius = 20 + progress * 30
+            p2.draw_circle(draw_x, draw_y + 60, int(indicator_radius))
 
 
 class AttackPattern5Action:
@@ -424,11 +485,16 @@ class AttackPattern5Action:
         self.panther = panther
         self.phase = 0
         self.timer = 0.0
-        # 충격파 관련 변수
-        self.charge_time = 0.0
-        self.shockwave_radius = 0.0
-        self.max_radius = 0.0
-        self.expand_speed = 0.0
+        # 분신 소환 관련 변수
+        self.clone_count = 1  # 분신 개수 (1체)
+        self.clone_position = None  # 분신 위치
+        self.summon_time = 0.0  # 소환 시간
+        # 수리검 투척 관련 변수
+        self.shot_count = 0  # 현재 투척 횟수 (1회, 2회)
+        self.max_shots = 2  # 최대 투척 횟수 (2회)
+        self.projectile_directions = 0  # 모든 방향 (360도)
+        self.first_speed = 0.0  # 첫 번째 투척 속도
+        self.second_speed = 0.0  # 두 번째 투척 속도 (첫 번째의 반)
 
     def update(self):
         """패턴 5 로직 실행"""
@@ -437,42 +503,48 @@ class AttackPattern5Action:
         if self.phase == 0:
             # 초기화
             self.timer = 0.0
-            self.charge_time = 1.0  # 차징 시간
+            self.summon_time = 0.5  # 소환 시간
             self.phase = 1
-            print("[Pattern5] 충격파 차징 시작!")
+            print("[Pattern5] 분신 소환 시작!")
 
         elif self.phase == 1:
-            # 차징 중
+            # 소환 중
             self.timer += dt
 
-            if self.timer >= self.charge_time:
-                # 충격파 발동
-                self.shockwave_radius = 0
-                self.max_radius = 500
-                self.expand_speed = 800
+            if self.timer >= self.summon_time:
+                # 분신 소환 완료
+                if self.panther.world and self.panther.target:
+                    # 분신 위치 계산
+                    offset = 200
+                    clone_positions = [
+                        (self.panther.x - offset, self.panther.y),
+                        (self.panther.x + offset, self.panther.y)
+                    ]
+
+                    # 분신에서 타겟으로 투사체 발사
+                    for clone_x, clone_y in clone_positions:
+                        projectile = Projectile(
+                            clone_x, clone_y,
+                            self.panther.target.x, self.panther.target.y,
+                            speed=450,
+                            from_player=False
+                        )
+                        self.panther.world.get('projectiles', []).append(projectile)
+
+                    print("[Pattern5] 분신 공격 발사!")
+
                 self.timer = 0.0
                 self.phase = 2
-                print("[Pattern5] 충격파 발동!")
 
         elif self.phase == 2:
-            # 충격파 확산
-            self.shockwave_radius += self.expand_speed * dt
+            # 분신 유지
+            self.timer += dt
 
-            # 타겟과의 거리 체크 (충돌 판정)
-            if self.panther.target:
-                dx = self.panther.target.x - self.panther.x
-                dy = self.panther.target.y - self.panther.y
-                dist = math.sqrt(dx**2 + dy**2)
-
-                # 충격파가 타겟을 스쳐 지나가는지 확인
-                if abs(dist - self.shockwave_radius) < 50:
-                    print(f"[Pattern5] 충격파 적중! (거리: {dist:.0f})")
-
-            if self.shockwave_radius >= self.max_radius:
-                # 충격파 완료
+            if self.timer >= self.duration:
+                # 분신 소멸
                 self.phase = 0
                 self.panther.attack_timer = self.panther.attack_cooldown
-                print("[Pattern5] 충격파 완료!")
+                print("[Pattern5] 분신 소멸!")
                 return BehaviorTree.SUCCESS
 
         return BehaviorTree.RUNNING
@@ -514,8 +586,16 @@ class AttackPattern6Action:
         self.phase = 0
         self.timer = 0.0
         # 분신 소환 관련 변수
-        self.summon_time = 0.0
-        self.duration = 0.0
+        self.clone_count = 2  # 분신 개수 (2체)
+        self.clone_positions = []  # 분신 위치 리스트
+        self.summon_time = 0.0  # 소환 시간
+        # 수리검 투척 관련 변수
+        self.current_shooter = 0  # 현재 투척하는 개체 (0: 본체, 1: 분신1, 2: 분신2)
+        self.shot_count_per_shooter = 0  # 각 개체당 투척 횟수
+        self.max_shots_per_shooter = 3  # 각 개체당 최대 투척 횟수 (3회씩)
+        self.projectiles_per_shot = 5  # 한 번에 발사하는 수리검 개수 (5개)
+        self.spread_angle = 0.0  # 방사형 각도
+        self.shot_interval = 0.0  # 투척 간격
         # 분신 이미지 시퀀스 로드
         self.img_count = 8
         # if not AttackPattern6Action.img_seq:
@@ -703,8 +783,8 @@ class PantherAssassin:
                     self.images.append(img)
 
                     # 경로 등록 후 어두운 버전 생성
-                    iam.register_image_path(img, img_path)  # 경로 등록 (반환값 없음)
-                    clone_img = iam.make_dark(img)  # 어두운 이미지 생성
+                    iam.register_image_path(img, img_path)
+                    clone_img = iam.make_dark(img, darkness=0.25)
                     if self.clone_images is None:
                         self.clone_images = []
                     self.clone_images.append(clone_img)
