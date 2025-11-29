@@ -4,6 +4,7 @@ import random
 import game_framework as framework
 from ..behavior_tree import BehaviorTree, Selector, Sequence, Action, Condition, RandomSelector
 from ..projectile import Projectile
+from .. import image_asset_manager as iam
 
 
 # ==================== BT Action Wrapper 클래스 ====================
@@ -651,9 +652,9 @@ class PantherAssassin:
         # 애니메이션
         self.frame = 0
         self.frame_timer = 0.0
-        self.frame_speed = 10.0  # 초당 프레임 수
+        self.frame_speed = 15.0  # 초당 프레임 수
         self.scale_factor = 4.0
-        self.animation_frames = 8 # 애니메이션 프레임 수
+        self.animation_frames = 11 # 애니메이션 프레임 수
 
         # 충돌 박스
         self.collision_width = 24 * self.scale_factor
@@ -690,13 +691,27 @@ class PantherAssassin:
         # 일반적으로 Idle 애니메이션 스프라이트 시트 사용
         # 사망시 Death 애니메이션 스프라이트 시트 사용
         self.images = None
+        self.clone_images = None
+
         try:
             for i in range(self.animation_frames):
                 try:
-                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character/PantherAssassin_Idle{i:02d}.png')
+                    img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character/PantherAssassin_Idle{i:02d}.png'
+                    img = p2.load_image(img_path)
                     if self.images is None:
                         self.images = []
                     self.images.append(img)
+
+                    # 경로 등록 후 어두운 버전 생성
+                    iam.register_image_path(img, img_path)  # 경로 등록 (반환값 없음)
+                    clone_img = iam.make_dark(img)  # 어두운 이미지 생성
+                    if self.clone_images is None:
+                        self.clone_images = []
+                    self.clone_images.append(clone_img)
+
+                    # DEBUG: 이미지 로드 확인
+                    print(f'[PantherAssassin] 이미지 로드 성공: PantherAssassin_Idle{i:02d}.png')
+
                 except FileNotFoundError as e:
                     print(f'\033[91m[PantherAssassin] 이미지 로드 실패: {e}\033[0m')
         except Exception as e:
@@ -815,7 +830,11 @@ class PantherAssassin:
         # 애니메이션 프레임 업데이트
         self.frame_timer += dt
         if self.frame_timer >= 1.0 / self.frame_speed:
-            self.frame = (self.frame + 1) % self.animation_frames
+            # 이미지가 로드되었을 때만 프레임 업데이트
+            if self.images and len(self.images) > 0:
+                self.frame = (self.frame + 1) % len(self.images)
+            else:
+                self.frame = 0
             self.frame_timer = 0.0
 
         # 플레이어 인식 거리 체크 (target이 None일 때 예외 처리)
@@ -859,7 +878,11 @@ class PantherAssassin:
         TODO: 1. 몬스터 사망 후 아이템 드랍 구현
         """
         # 몬스터 본체 드로잉
-        if self.images:
+        if self.images and len(self.images) > 0:
+            # 프레임 인덱스가 범위를 벗어나지 않도록 보정
+            if self.frame >= len(self.images):
+                self.frame = 0
+
             img = self.images[self.frame]
             img.draw(draw_x, draw_y, img.w * self.scale_factor, img.h * self.scale_factor)
 
@@ -894,6 +917,14 @@ class PantherAssassin:
         # 타겟 놓치는 거리
         radius = self.unrecognition_distance
         p2.draw_circle(draw_x, draw_y, int(radius), r=0, g=255, b=255)
+
+        # 분신 드로잉 (디버그용)
+        if self.clone_images:
+            offset = 200
+            self.clone_images[self.frame].draw(draw_x - offset, draw_y,
+                                               self.clone_images[self.frame].w * self.scale_factor,
+                                               self.clone_images[self.frame].h * self.scale_factor)
+
 
     def get_bb(self):
         """충돌 박스 반환 (left, bottom, right, top)"""
