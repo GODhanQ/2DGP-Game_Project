@@ -127,6 +127,10 @@ class MonsterStats:
         for k in to_remove:
             del self._mods[k]
 
+    # 유틸리티 함수
+    def is_dead(self) -> bool:
+        return self.get('health') <= 0.0
+
 
 class CatAssassinStats(MonsterStats):
     """CatAssassin 전용 스탯"""
@@ -152,4 +156,18 @@ class CatThiefStats(MonsterStats):
             'defense': 2.0,
             'attack_speed': 1.2,
             'attack_range': 400.0,
+        })
+
+
+class PantherAssassinStats(MonsterStats):
+    """PantherAssassin 전용 스탯"""
+    def __init__(self):
+        super().__init__({
+            'max_health': 500.0,
+            'health': 500.0,
+            'move_speed': 150.0,
+            'attack_damage': 20.0,
+            'defense': 5.0,
+            'attack_speed': 1.5,
+            'attack_range': 800.0,
         })

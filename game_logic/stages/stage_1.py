@@ -4,6 +4,7 @@
 from ..background import FixedBackground, StageMap
 from ..monsters.cat_assassin import CatAssassin
 from ..monsters.cat_theif import CatThief
+from ..monsters.panther_assassin import PantherAssassin
 
 # 창 크기 설정 (main.py와 동일하게 유지)
 window_scale = 8
@@ -32,8 +33,9 @@ PLAYER_START_POSITION = {
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        (CatAssassin, 300, 0),
-        (CatThief, -300, 0)
+        # (CatAssassin, 300, 0),
+        # (CatThief, -300, 0),
+        (PantherAssassin, 0, 450),
     ],
     'background': {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/badlandBG.png',
