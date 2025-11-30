@@ -6,7 +6,7 @@ from PIL import Image
 
 import game_framework
 from .player import Player
-from .ui_overlay import InventoryOverlay, HealthBar, ManaBar
+from .ui_overlay import InventoryOverlay, HealthBar, ManaBar, DashBar
 from .cursor import Cursor
 from .loading_screen import LoadingScreen
 from . import defeat_mode, victory_mode
@@ -567,6 +567,25 @@ def enter(player=None):
 
         mana_bar = _ManaBarStub(player)
     world['ui'].append(mana_bar)
+
+    print("[play_mode] Creating dash bar...")
+    # dash bar UI 생성
+    try:
+        dash_bar = DashBar(player)
+        print("[play_mode] DashBar created successfully")
+    except Exception as ex:
+        print('[play_mode] DashBar init failed, using stub:', ex)
+
+        class _DashBarStub:
+            def __init__(self, player):
+                self.player = player
+            def update(self):
+                return
+            def draw(self):
+                return
+
+        dash_bar = _DashBarStub(player)
+    world['ui'].append(dash_bar)
 
     print("[play_mode] Creating cursor...")
     # cursor on top (safe fallback)

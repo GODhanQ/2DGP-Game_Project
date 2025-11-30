@@ -1031,3 +1031,39 @@ class PantherAssassin:
     def set_target(self, target):
         """타겟 설정 (주로 플레이어)"""
         self.target = target
+
+class PantherShuriken(Projectile):
+    """
+    팬서 암살자 보스의 수리검 투사체
+    """
+
+    def __init__(self, x, y, target_x, target_y, speed=400, from_player=False):
+        """
+        PantherShuriken 초기화
+
+        Args:
+            x, y: 시작 위치
+            target_x, target_y: 목표 위치
+            speed: 투사체 속도
+            from_player: 플레이어가 발사했는지 여부
+        """
+        super().__init__(x, y, target_x, target_y, speed, from_player)
+        print(f"[PantherShuriken] 생성됨 at ({x}, {y}) towards ({target_x}, {target_y}) with speed {speed}")
+        
+class PantherThrowingStar(Projectile):
+    """
+    팬서 암살자 보스의 표창 투사체
+    """
+
+    def __init__(self, x, y, target_x, target_y, speed=500, from_player=False):
+        """
+        PantherThrowingStar 초기화
+
+        Args:
+            x, y: 시작 위치
+            target_x, target_y: 목표 위치
+            speed: 투사체 속도
+            from_player: 플레이어가 발사했는지 여부
+        """
+        super().__init__(x, y, target_x, target_y, speed, from_player)
+        print(f"[PantherThrowingStar] 생성됨 at ({x}, {y}) towards ({target_x}, {target_y}) with speed {speed}")

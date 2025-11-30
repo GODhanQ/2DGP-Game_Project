@@ -218,6 +218,25 @@ class Run:
             lower.clip_composite_draw(0, 0, lw, lh, 0, flip,draw_x, draw_y,
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
 
+class Dash:
+
+    def __init__(self, player):
+        self.player = player
+        # 대시 상태 구현 예정
+        pass
+
+    def enter(self, e):
+        pass
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self, draw_x, draw_y):
+        pass
+
 class Idle:
     def __init__(self, player):
         self.player = player
@@ -607,6 +626,10 @@ class Player:
         self.moving = False # 이동 상태 플래그
         self.particles = [] # 파티클 리스트를 Player로 이동
         self.attack_effects = [] # 공격 이펙트 리스트
+        self.dash_stack_max = 3 # 대시 최대 스택
+        self.dash_stack = self.dash_stack_max # 대시 스택 초기화
+        self.dash_recharge_time = 3.0 # 대시 재충전 시간(초당 1회 충전)
+        self.dash_recharge_timer = 0.0 # 대시 재충전 타이머
 
         # 플레이어 히트박스 변수
         self.collision_width = 15 * self.scale_factor
@@ -701,6 +724,14 @@ class Player:
             if self.invincible_timer <= 0:
                 self.invincible = False
                 self.invincible_timer = 0.0
+
+        # 대시 재충전 업데이트
+        if self.dash_stack < self.dash_stack_max:
+            self.dash_recharge_timer += dt
+            if self.dash_recharge_timer >= self.dash_recharge_time:
+                self.dash_stack += 1
+                self.dash_recharge_timer -= self.dash_recharge_time
+                print(f'\033[92m[Player] 대시 스택 충전: {self.dash_stack}/{self.dash_stack_max}\033[0m')
 
         # 아이템별 개별 쿨타임 업데이트
         # item_cooldowns 딕셔너리의 각 아이템 ID에 대해 쿨타임 감소

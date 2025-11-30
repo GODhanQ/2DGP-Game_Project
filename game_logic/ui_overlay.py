@@ -652,6 +652,56 @@ class ManaBar:
             self.font.draw(text_x - 1, text_y - 1, mana_text, (0, 0, 0))
             self.font.draw(text_x, text_y, mana_text, (255, 255, 255))
 
+class DashBar:
+    """화면 왼쪽 상단에 표시되는 대시 바 UI"""
+    def __init__(self, player):
+        self.player = player
+        # 대시 바 이미지 로드
+        img_path = 'resources/Texture_organize/UI/Dash_HUD/DashHUD_1.png'
+        img_path_bg = 'resources/Texture_organize/UI/Dash_HUD/DashHUD.png'
+        try:
+            self.image = load_image(img_path)
+            self.bg_image = load_image(img_path_bg)
+            print(f"[DashBar] 대시 바 이미지 로드 성공")
+        except Exception as ex:
+            print(f"[DashBar] 대시 바 이미지 로드 실패: {ex}")
+            self.image = None
+            self.bg_image = None
+        # UI 위치 및 크기 설정 : 마나 바 아래
+        self.x = 100  # 화면 왼쪽에서 150픽셀
+        self.y_from_top = 110  # 마나 바 아래
+        self.width_scale = 2.0
+        self.height_scale = 2.0
+        self.interval = 5  # 대시 아이콘 간격
+
+    def update(self):
+        pass
+
+    def draw(self):
+        if self.image is None:
+            return
+
+        # 배경 대쉬 아이콘 그리기
+        for i in range(self.player.dash_stack_max):
+            if self.bg_image:
+                canvas_h = get_canvas_height()
+                draw_y = canvas_h - self.y_from_top
+                draw_x = self.x + i * (self.image.w * self.width_scale + self.interval)
+                draw_width = self.bg_image.w * self.width_scale
+                draw_height = self.bg_image.h * self.height_scale
+                self.bg_image.draw(draw_x, draw_y, draw_width, draw_height)
+
+        # 채워진 대쉬 아이콘 그리기
+        for i in range(self.player.dash_stack):
+            if self.image:
+                canvas_h = get_canvas_height()
+                draw_y = canvas_h - self.y_from_top
+                draw_x = self.x + i * (self.image.w * self.width_scale + self.interval)
+                draw_width = self.image.w * self.width_scale
+                draw_height = self.image.h * self.height_scale
+                self.image.draw(draw_x, draw_y, draw_width, draw_height)
+
+
 class MonsterHealthBar:
     """ 몬스터 아래에 표시되는 체력 바 UI """
     def __init__(self, monster):
