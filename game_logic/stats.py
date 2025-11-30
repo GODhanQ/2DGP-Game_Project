@@ -164,7 +164,7 @@ class PantherAssassinStats(MonsterStats):
     def __init__(self):
         super().__init__({
             'max_health': 500.0,
-            'health': 500.0,
+            'health': 0.0,
             'move_speed': 150.0,
             'attack_damage': 20.0,
             'defense': 5.0,

@@ -1,22 +1,3 @@
-# map.py
-# Room.txt 기반 간단한 맵 로더 및 타일 엔티티 빌더
-# 작성자: 자동 생성
-# 사용 가정(중요):
-# - Room.txt 파일은 섹션 단위(예: [ground], [upper_ground], [walls], [cliff], [props])의 텍스트로 존재하며,
-#   각 섹션 밑에는 콤마(,)로 구분된 정수 타일 인덱스 행들이 있음.
-#   예:
-#   [ground]
-#   1,1,1,0,0
-#   1,2,2,0,0
-#
-# - 0은 빈 타일(배치 없음)을 의미.
-# - props 섹션은 현재 무시합니다.
-#
-# 제공하는 기능:
-# - Map.load_from_room_txt(path): Room.txt 파싱
-# - Map.build_into_world(world, tile_size=32, origin=(0,0)): world의 레이어들에 타일 엔티티를 추가
-# - TileEntity: 최소한의 update()/draw() 인터페이스(프로젝트의 실제 렌더링 파이프라인에 맞춰 확장 가능)
-
 import os
 from typing import Dict, List, Tuple, Optional
 
@@ -261,31 +242,3 @@ class Map:
                 except Exception as e:
                     print(f"\033[91mset_tile_size: rebuild failed: {e}\033[0m")
 
-
-# 간단한 자기검증 스크립트
-if __name__ == '__main__':
-    # 간단한 Room 텍스트 샘플을 메모리로 만들고 파싱 테스트
-    sample = '''
-[ground]
-1,1,1,0,0
-1,2,2,0,0
-
-[upper_ground]
-0,0,3,3,0
-
-[walls]
-0,4,0,0,0
-'''
-    import tempfile
-
-    p = tempfile.gettempdir() + os.sep + 'sample_room.txt'
-    with open(p, 'w', encoding='utf-8') as f:
-        f.write(sample)
-
-    m = Map(tile_size=128)
-    m.load_from_room_txt(p)
-    print('width,height:', m.width, m.height)
-    world = {k: [] for k in ['ground', 'upper_ground', 'walls', 'effects_back', 'effects_front', 'ui', 'cursor']}
-    m.build_into_world(world, origin=(0, 0))
-    for k in world:
-        print(k, len(world[k]))

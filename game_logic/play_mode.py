@@ -769,6 +769,7 @@ def update():
     # 충돌 검사 시스템
     from .projectile import Projectile
     from .monsters.cat_theif import CatThiefSwingEffect  # CatThiefSwingEffect import 추가
+    from .monsters.panther_assassin import PantherBladeSwingEffect  # PantherBladeSwingEffect import 추가
     player = world.get('player')
 
     # 충돌한 이펙트와 투사체를 추적하기 위한 집합
@@ -792,7 +793,7 @@ def update():
                         # 충돌 시 이펙트는 유지 (여러 적을 동시에 타격 가능)
                         pass
 
-    # 1-2. 몬스터 공격 이펙트와 플레이어 충돌 검사 (CatThiefSwingEffect 등)
+    # 1-2. 몬스터 공격 이펙트와 플레이어 충돌 검사 (CatThiefSwingEffect, PantherBladeSwingEffect 등)
     if player:
         for effect in world['effects_front']:
             # CatThiefSwingEffect 확인 (Cat Thief의 검격)
@@ -820,6 +821,32 @@ def update():
                                 if hasattr(effect, 'owner') and effect.owner:
                                     attacker_name = effect.owner.__class__.__name__
                                 print(f"[COLLISION] {attacker_name} 검격 이펙트 -> Player 피격!")
+
+            # PantherBladeSwingEffect 확인 (Panther Assassin의 검격)
+            elif isinstance(effect, PantherBladeSwingEffect):
+                # 이미 맞춘 플레이어는 다시 체크하지 않음 (중복 타격 방지)
+                if not effect.has_hit_player:
+                    # 먼저 방패로 방어할 수 있는지 체크
+                    shield_blocked = False
+                    if hasattr(player, 'shield') and player.shield:
+                        if hasattr(player.shield, 'check_effect_block'):
+                            if player.shield.check_effect_block(effect):
+                                # 방패로 막았으면 막은 것으로 판정, 이펙트는 지우지 않음
+                                effect.has_hit_player = True
+                                shield_blocked = True
+                                print(f"[COLLISION] Player가 방패로 PantherBladeSwingEffect 방어!")
+
+                    # 방패로 막지 못했을 때만 플레이어와 충돌 검사
+                    if not shield_blocked:
+                        if hasattr(player, 'check_collision_with_effect'):
+                            if player.check_collision_with_effect(effect):
+                                # 충돌 시 플레이어 타격 처리
+                                effect.has_hit_player = True
+                                # 디버그: 충돌 정보 출력
+                                attacker_name = "Unknown"
+                                if hasattr(effect, 'owner') and effect.owner:
+                                    attacker_name = effect.owner.__class__.__name__
+                                print(f"[COLLISION] {attacker_name} PantherBladeSwingEffect -> Player 피격!")
 
     # 2. 투사체와 충돌 검사 (일반화된 Projectile 기반)
     if player:
