@@ -10,7 +10,7 @@ import random
 import time
 
 from pico2d import load_image, get_canvas_height, get_canvas_width, draw_rectangle
-from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDL_GetMouseState,
+from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDLK_SPACE, SDL_GetMouseState,
                    SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT)
 
 from .equipment import EquipmentManager, Sword, Shield
@@ -38,6 +38,9 @@ def Skey_down(e):
 def Skey_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_s
 
+# 스페이스바 입력 검사용 predicate
+def Space_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
 
 # 커스텀 이벤트 정의
 def move_event(e):
@@ -45,6 +48,13 @@ def move_event(e):
 
 def stop_event(e):
     return e[0] == 'STOP'
+
+# 대시 이벤트 정의
+def dash_event(e):
+    return e[0] == 'DASH'
+
+def dash_end_event(e):
+    return e[0] == 'DASH_END'
 
 # Tab 키 입력 검사용 predicate (StateMachine 매핑용)
 def Tab_down(e):
@@ -219,23 +229,234 @@ class Run:
                                       lw * self.player.scale_factor, lh * self.player.scale_factor)
 
 class Dash:
-
+    """대시 상태: 스페이스바로 활성화, 빠른 속도로 짧은 거리 이동"""
     def __init__(self, player):
         self.player = player
-        # 대시 상태 구현 예정
-        pass
+        folder = os.path.join('resources', 'Texture_organize', 'Player_character', 'Adventurer')
+
+        def load_seq(prefix, path):
+            files = sorted([f for f in os.listdir(path)
+                           if isinstance(f, str) and f.startswith(prefix) and f.lower().endswith('.png')])
+            return [load_image(os.path.join(path, f)) for f in files]
+
+        # 대시용 애니메이션 프레임 (Run과 동일한 프레임 사용)
+        self.lower_frames = load_seq('Player_Adventurer_Move_Lower', folder)
+        self.upper_frames = load_seq('Player_Adventurer_Move_Upper', folder)
+
+        if not self.lower_frames or not self.upper_frames:
+            raise RuntimeError(f'Dash frames not found in {folder}')
+
+        self.frame = 0
+        self.frame_time_acc = 0.0
+        self.frame_duration = 0.03  # Run보다 2배 빠른 애니메이션
+
+        # 대시 설정
+        self.dash_duration = 0.15  # 대시 지속 시간 (0.15초)
+        self.dash_timer = 0.0  # 대시 경과 시간
+        self.dash_speed_multiplier = 4  # Run 속도의 4배
+
+        # 대시 방향 저장 (enter에서 설정)
+        self.dash_direction = [1, 0]  # 기본값: 오른쪽
+        self.return_to_idle = False  # Idle로 복귀할지 Run으로 복귀할지
+
+        # 잔상 이펙트 타이머
+        self.trail_timer = 0.0  # 잔상 생성 타이머
+        self.trail_interval = 0.04  # 잔상 생성 간격
 
     def enter(self, e):
-        pass
+        """대시 상태 진입"""
+        # 대시 타이머 초기화
+        self.dash_timer = 0.0
+        self.frame = 0
+        self.frame_time_acc = 0.0
+
+        # 잔상 타이머 초기화
+        self.trail_timer = 0.0
+
+        # 무적 시간 활성화 (0.15초)
+        self.player.invincible = True
+        self.player.invincible_timer = 0.15
+        print(f"[Dash] 무적 시간 활성화 (0.15초)")
+
+        # 대시 방향 결정
+        # Run 상태에서 왔으면 현재 이동 방향으로 대시
+        # Idle 상태에서 왔으면 오른쪽(face_dir)으로 대시
+        if self.player.dir[0] != 0 or self.player.dir[1] != 0:
+            # 이동 중이었으면 그 방향으로 대시
+            self.dash_direction = self.player.dir.copy()
+            self.return_to_idle = False
+            print(f"[Dash] Run에서 대시 시작 - 방향: ({self.dash_direction[0]}, {self.dash_direction[1]})")
+        else:
+            # 정지 상태였으면 face_dir 방향으로 대시
+            self.dash_direction = [self.player.face_dir, 0]
+            self.return_to_idle = True
+            print(f"[Dash] Idle에서 대시 시작 - 방향: 오른쪽({self.player.face_dir})")
 
     def exit(self, e):
+        """대시 상태 종료"""
+        print(f"[Dash] 대시 종료 - {'Idle' if self.return_to_idle else 'Run'}로 복귀")
         pass
 
     def do(self):
-        pass
+        """대시 업데이트: 빠른 속도로 이동하고 시간이 지나면 종료"""
+        dt = framework.get_delta_time()
+
+        # 대시 타이머 업데이트
+        self.dash_timer += dt
+
+        # 잔상 타이머 업데이트 및 생성
+        self.trail_timer += dt
+        if self.trail_timer >= self.trail_interval:
+            self.trail_timer -= self.trail_interval
+            # 잔상 이펙트 생성
+            self._create_trail_effect()
+
+        # 애니메이션 업데이트
+        self.frame_time_acc += dt
+        if self.frame_time_acc >= self.frame_duration:
+            self.frame_time_acc -= self.frame_duration
+            self.frame = (self.frame + 1) % len(self.lower_frames)
+
+        # 대시 이동 처리
+        # 현재 스탯 기반 이동 속도 사용
+        base_speed = self.player.stats.get('move_speed') if hasattr(self.player, 'stats') else 300
+        dash_speed = base_speed * self.dash_speed_multiplier
+
+        # 방향 정규화
+        dir_magnitude = (self.dash_direction[0] ** 2 + self.dash_direction[1] ** 2) ** 0.5
+        if dir_magnitude > 0:
+            norm_dir_x = self.dash_direction[0] / dir_magnitude
+            norm_dir_y = self.dash_direction[1] / dir_magnitude
+            new_x = self.player.x + norm_dir_x * dash_speed * dt
+            new_y = self.player.y + norm_dir_y * dash_speed * dt
+
+            # 맵 경계 체크 및 벽 충돌 체크 (Run과 동일한 로직)
+            try:
+                from game_logic.lobby_mode import world
+                if world['bg']:
+                    bg = world['bg'][0]
+                    map_width = bg.image.w * bg.scale
+                    map_height = bg.image.h * bg.scale
+                    map_left = -map_width / 2
+                    map_right = map_width / 2
+                    map_bottom = -map_height / 2
+                    map_top = map_height / 2
+
+                    if new_x < map_left:
+                        new_x = map_left
+                    elif new_x > map_right:
+                        new_x = map_right
+                    if new_y < map_bottom:
+                        new_y = map_bottom
+                    elif new_y > map_top:
+                        new_y = map_top
+            except Exception:
+                if new_x > get_canvas_width():
+                    new_x = get_canvas_width()
+                elif new_x < 0:
+                    new_x = 0
+                if new_y > get_canvas_height():
+                    new_y = get_canvas_height()
+                elif new_y < 0:
+                    new_y = 0
+
+            # 벽 충돌 체크
+            collided = False
+            try:
+                from game_logic.lobby_mode import world
+                for wall in world['walls']:
+                    if wall.check_collision(new_x - 32//2, new_y - 48//2, 32, 48):
+                        collided = True
+                        break
+            except Exception:
+                pass
+
+            if not collided:
+                self.player.x = new_x
+                self.player.y = new_y
+
+        # 대시 지속 시간이 끝나면 상태 전환
+        if self.dash_timer >= self.dash_duration:
+            # DASH_END 이벤트 발생
+            self.player.state_machine.handle_state_event(('DASH_END', None))
+
+    def _create_trail_effect(self):
+        """대시 잔상 이펙트를 생성하여 world의 effects_back 레이어에 추가"""
+        try:
+            # vfx 모듈에서 DashTrailEffect import
+            from .vfx import DashTrailEffect
+
+            # 현재 플레이어 위치에 잔상 생성
+            trail = DashTrailEffect(
+                x=self.player.x,
+                y=self.player.y,
+                face_dir=self.player.face_dir,
+                scale=self.player.scale_factor
+            )
+
+            # world의 effects_back 레이어에 추가
+            if hasattr(self.player, 'world') and self.player.world:
+                if 'effects_back' in self.player.world:
+                    self.player.world['effects_back'].append(trail)
+                    print(f"[Dash] 잔상 이펙트 생성 at ({self.player.x:.1f}, {self.player.y:.1f})")
+                else:
+                    print(f"\033[93m[Dash] world에 effects_back 레이어가 없습니다\033[0m")
+            else:
+                print(f"\033[93m[Dash] player.world가 설정되지 않았습니다\033[0m")
+        except Exception as ex:
+            print(f"\033[91m[Dash] 잔상 이펙트 생성 실패: {ex}\033[0m")
 
     def draw(self, draw_x, draw_y):
-        pass
+        """대시 상태 그리기 (Run과 동일한 스타일)"""
+        # 마우스 위치 읽기
+        mx = ctypes.c_int(0)
+        my = ctypes.c_int(0)
+        SDL_GetMouseState(ctypes.byref(mx), ctypes.byref(my))
+        canvas_w = get_canvas_width()
+        canvas_h = get_canvas_height()
+
+        # camera 가져오기
+        camera = None
+        try:
+            import game_logic.play_mode as play
+            camera = getattr(play, 'camera', None)
+            if camera is None:
+                import game_logic.lobby_mode as lobby
+                camera = getattr(lobby, 'camera', None)
+        except Exception:
+            pass
+
+        # 마우스 좌표를 월드 좌표로 변환
+        if camera is not None:
+            mouse_game_x = mx.value + (camera.x - canvas_w // 2)
+            mouse_game_y = (canvas_h - my.value) + (camera.y - canvas_h // 2)
+        else:
+            mouse_game_x = mx.value
+            mouse_game_y = canvas_h - my.value
+
+        # 마우스 x좌표 기준 face_dir 결정
+        if mouse_game_x < self.player.x:
+            self.player.face_dir = -1
+        else:
+            self.player.face_dir = 1
+        flip = '' if self.player.face_dir == 1 else 'h'
+
+        lower = self.lower_frames[self.frame]
+        upper = self.upper_frames[self.frame]
+        lw, lh = lower.w, lower.h
+        uw, uh = upper.w, upper.h
+
+        # 마우스 y좌표 기준 upper/lower 순서 결정
+        if mouse_game_y > self.player.y:
+            lower.clip_composite_draw(0, 0, lw, lh, 0, flip, draw_x, draw_y,
+                                      lw * self.player.scale_factor, lh * self.player.scale_factor)
+            upper.clip_composite_draw(0, 0, uw, uh, 0, flip, draw_x, draw_y,
+                                      uw * self.player.scale_factor, uh * self.player.scale_factor)
+        else:
+            upper.clip_composite_draw(0, 0, uw, uh, 0, flip, draw_x, draw_y,
+                                      uw * self.player.scale_factor, uh * self.player.scale_factor)
+            lower.clip_composite_draw(0, 0, lw, lh, 0, flip, draw_x, draw_y,
+                                      lw * self.player.scale_factor, lh * self.player.scale_factor)
 
 class Idle:
     def __init__(self, player):
@@ -685,6 +906,7 @@ class Player:
         # 상태 정의
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.DASH = Dash(self)  # 대시 상태 추가
         self.INVENTORY = Inventory(self)
         self.DEATH = Death(self)
 
@@ -696,8 +918,9 @@ class Player:
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: {move_event: self.RUN, Tab_down: self.INVENTORY, die: self.DEATH},
-                self.RUN: {stop_event: self.IDLE, Tab_down: self.INVENTORY, die: self.DEATH},
+                self.IDLE: {move_event: self.RUN, dash_event: self.DASH, Tab_down: self.INVENTORY, die: self.DEATH},
+                self.RUN: {stop_event: self.IDLE, dash_event: self.DASH, Tab_down: self.INVENTORY, die: self.DEATH},
+                self.DASH: {dash_end_event: None, die: self.DEATH},  # DASH_END에서 이전 상태로 복귀 (None = 동적 처리)
                 self.INVENTORY: {Tab_down: None, die: self.DEATH},
                 self.DEATH: {},  # 사망 상태에서는 전환 없음
             }
@@ -886,26 +1109,44 @@ class Player:
     # 신규: 입력 처리 - 상태머신과 장비 매니저로 이벤트 전달, 이동 벡터 관리
     def handle_event(self, event):
         try:
-            from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_w, SDLK_a, SDLK_s, SDLK_d
+            from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_SPACE
         except Exception:
             SDL_KEYDOWN = SDL_KEYUP = None
-            SDLK_w = SDLK_a = SDLK_s = SDLK_d = None
+            SDLK_w = SDLK_a = SDLK_s = SDLK_d = SDLK_SPACE = None
 
-        # 1) 장비 매니저에 항상 전달(매니저 내부에서 인벤토리 오픈시 무시 처리)
+        # 1) 스페이스바 입력 처리 - 대시 실행
+        try:
+            if SDL_KEYDOWN is not None and event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+                # 대시 스택이 있고, Dash 상태가 아닐 때만 대시 가능
+                if self.dash_stack > 0 and not isinstance(self.state_machine.cur_state, Dash):
+                    # 대시 스택 소모
+                    self.dash_stack -= 1
+                    print(f'\033[96m[Player] 대시 사용! 남은 스택: {self.dash_stack}/{self.dash_stack_max}\033[0m')
+                    # 대시 재충전 타이머 초기화
+                    self.dash_recharge_timer = 0.0
+                    # DASH 이벤트 발생
+                    if hasattr(self, 'state_machine'):
+                        self.state_machine.handle_state_event(('DASH', None))
+                elif self.dash_stack <= 0:
+                    print(f'\033[93m[Player] 대시 스택 부족! ({self.dash_stack}/{self.dash_stack_max})\033[0m')
+        except Exception as ex:
+            print('[Player] 스페이스바 입력 처리 오류:', ex)
+
+        # 2) 장비 매니저에 항상 전달(매니저 내부에서 인벤토리 오픈시 무시 처리)
         try:
             if hasattr(self, 'equipment_manager') and hasattr(self.equipment_manager, 'handle_event'):
                 self.equipment_manager.handle_event(event)
         except Exception as ex:
             print('[Player] equipment_manager.handle_event 오류:', ex)
 
-        # 2) 상태머신으로 원본 입력 이벤트 전달(Tab 매핑 등 predicates가 처리)
+        # 3) 상태머신으로 원본 입력 이벤트 전달(Tab 매핑 등 predicates가 처리)
         try:
             if hasattr(self, 'state_machine') and hasattr(self.state_machine, 'handle_state_event'):
                 self.state_machine.handle_state_event(('INPUT', event))
         except Exception as ex:
             print('[Player] state_machine 입력 이벤트 처리 오류:', ex)
 
-        # 3) WASD 이동 상태 관리 -> MOVE/STOP 이벤트 생성
+        # 4) WASD 이동 상태 관리 -> MOVE/STOP 이벤트 생성
         moved_before = any(self.keys_down.values())
         try:
             if SDL_KEYDOWN is not None and event.type == SDL_KEYDOWN:

@@ -241,3 +241,89 @@ class ShieldCrashEffect:
                     )
                 except Exception as e:
                     print(f"\033[91m[ShieldCrashEffect] back draw 에러: {e}\033[0m")
+
+
+class DashTrailEffect:
+    """대시 시 남는 잔상 이펙트 - 0.3초간 알파값이 1에서 0으로 페이드아웃"""
+    trail_image = None  # 클래스 변수로 이미지 한 번만 로드
+
+    def __init__(self, x, y, face_dir, scale=3.0):
+        """
+        대시 잔상 이펙트 생성
+        
+        Args:
+            x: 월드 X 좌표
+            y: 월드 Y 좌표
+            face_dir: 플레이어의 방향 (1: 오른쪽, -1: 왼쪽)
+            scale: 이미지 크기 배율
+        """
+        self.x = x
+        self.y = y
+        self.face_dir = face_dir
+        self.scale = scale
+        
+        # 이미지 로드 (클래스 변수로 한 번만 로드)
+        if DashTrailEffect.trail_image is None:
+            try:
+                img_path = os.path.join('resources', 'Texture_organize', 'Player_character', 'PlayerDashTrailFx0.png')
+                DashTrailEffect.trail_image = load_image(img_path)
+                print(f"[DashTrailEffect] 이미지 로드 성공: {img_path}")
+            except Exception as e:
+                print(f"\033[91m[DashTrailEffect] 이미지 로드 실패: {e}\033[0m")
+                DashTrailEffect.trail_image = None
+        
+        # 페이드아웃 설정
+        self.fade_duration = 0.3  # 0.3초간 페이드아웃
+        self.elapsed_time = 0.0
+        self.alpha = 1.0  # 초기 알파값 1.0 (완전 불투명)
+    
+    def update(self):
+        """
+        이펙트 업데이트 - 알파값을 시간에 따라 감소
+        
+        Returns:
+            bool: True면 계속 유지, False면 제거
+        """
+        dt = game_framework.get_delta_time()
+        self.elapsed_time += dt
+        
+        # 알파값 계산 (1.0 -> 0.0으로 선형 감소)
+        if self.elapsed_time < self.fade_duration:
+            self.alpha = 1.0 - (self.elapsed_time / self.fade_duration)
+        else:
+            self.alpha = 0.0
+            return False  # 알파값이 0이 되면 제거
+        
+        return True
+    
+    def draw(self, draw_x, draw_y):
+        """
+        잔상 이펙트 그리기
+        
+        Args:
+            draw_x: 카메라가 적용된 화면 X 좌표
+            draw_y: 카메라가 적용된 화면 Y 좌표
+        """
+        if not DashTrailEffect.trail_image:
+            return
+        
+        # 알파값이 0이면 그리지 않음
+        if self.alpha <= 0:
+            return
+        
+        # 방향에 따라 flip 설정
+        flip = '' if self.face_dir == 1 else 'h'
+        
+        # 알파값 설정하여 그리기
+        DashTrailEffect.trail_image.opacify(self.alpha)
+        DashTrailEffect.trail_image.clip_composite_draw(
+            0, 0, 
+            DashTrailEffect.trail_image.w, 
+            DashTrailEffect.trail_image.h,
+            0, flip,
+            draw_x, draw_y,
+            DashTrailEffect.trail_image.w * self.scale,
+            DashTrailEffect.trail_image.h * self.scale
+        )
+        # 알파값 복원 (다른 이미지에 영향 주지 않도록)
+        DashTrailEffect.trail_image.opacify(1.0)

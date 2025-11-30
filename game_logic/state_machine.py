@@ -31,6 +31,16 @@ class StateMachine:
                 if next_state is None and hasattr(self.cur_state, 'prev_state') and self.cur_state.prev_state is not None:
                     next_state = self.cur_state.prev_state
 
+                # 특수 처리: DASH 상태에서 DASH_END이면 return_to_idle에 따라 IDLE 또는 RUN으로 복귀
+                if next_state is None and hasattr(self.cur_state, 'return_to_idle'):
+                    # Dash의 return_to_idle 플래그 확인
+                    if self.cur_state.return_to_idle:
+                        # Idle로 복귀
+                        next_state = self.cur_state.player.IDLE
+                    else:
+                        # Run으로 복귀
+                        next_state = self.cur_state.player.RUN
+
                 self.cur_state.exit(state_event)
                 next_state.enter(state_event)
 
