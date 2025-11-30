@@ -1035,9 +1035,12 @@ class PantherAssassin:
 class PantherShuriken(Projectile):
     """
     팬서 암살자 보스의 수리검 투사체
+    직선으로 날아가며 타겟을 향해 발사됩니다.
     """
+    image = None
+    disappear_image_seq = []
 
-    def __init__(self, x, y, target_x, target_y, speed=400, from_player=False):
+    def __init__(self, x, y, target_x, target_y, speed=400, from_player=False, damage=15, scale=1.2):
         """
         PantherShuriken 초기화
 
@@ -1046,16 +1049,114 @@ class PantherShuriken(Projectile):
             target_x, target_y: 목표 위치
             speed: 투사체 속도
             from_player: 플레이어가 발사했는지 여부
+            damage: 투사체 피해량
+            scale: 이미지 크기 배율
         """
         super().__init__(x, y, target_x, target_y, speed, from_player)
-        print(f"[PantherShuriken] 생성됨 at ({x}, {y}) towards ({target_x}, {target_y}) with speed {speed}")
-        
+
+        # 투사체 속성
+        self.damage = damage
+        self.scale = scale
+        self.collision_width = int(30 * scale)
+        self.collision_height = int(30 * scale)
+        self.rotation_angle = math.atan2(self.dy, self.dx)  # 회전 각도 계산
+
+        # 수리검 사라짐 이펙트 관련 변수
+        self.is_disappearing = False
+        self.disappear_timer = 0.0
+        self.disappear_frame = 0
+        self.disappear_frame_duration = 0.1  # 각 프레임당 0.1초
+
+        # 이미지 로드 (클래스 레벨에서 한 번만)
+        if PantherShuriken.image is None:
+            PantherShuriken.disappear_image_seq = []
+            try:
+                img_path = 'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX/ThrowingDagger0.png'
+                PantherShuriken.image = p2.load_image(img_path)
+                for i in range(1, 5):
+                    dimg_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX/ThrowingDagger{i}.png'
+                    PantherShuriken.disappear_image_seq.append(p2.load_image(dimg_path))
+                print(f'[PantherShuriken] 이미지 로드 완료: 1개 기본 + {len(PantherShuriken.disappear_image_seq)}개 사라짐 이펙트')
+            except FileNotFoundError as e:
+                print(f'\033[91m[PantherShuriken] 이미지 로드 실패: {e}\033[0m')
+
+    def update(self):
+        """팬서 수리검 업데이트"""
+        dt = framework.get_delta_time()
+
+        if self.is_disappearing:
+            # 사라짐 이펙트 진행
+            self.disappear_timer += dt
+            self.disappear_frame = int(self.disappear_timer / self.disappear_frame_duration)
+
+            if self.disappear_frame >= len(PantherShuriken.disappear_image_seq):
+                # 사라짐 애니메이션 완료, 투사체 제거
+                return False
+            return True
+        else:
+            # 일반 이동 로직
+            self.x += self.dx * self.speed * dt
+            self.y += self.dy * self.speed * dt
+
+            # 회전 효과 (수리검이 회전하는 듯한 효과)
+            self.rotation_angle += dt * 10  # 초당 10 라디안 회전
+
+            # 화면 밖으로 나가면 제거
+            if (self.x < -1000 or self.x > 5000 or
+                self.y < -1000 or self.y > 5000):
+                return False
+
+            return True
+
+    def draw(self, draw_x, draw_y):
+        """팬서 수리검 드로잉"""
+        if self.is_disappearing and self.disappear_frame < len(PantherShuriken.disappear_image_seq):
+            # 사라짐 이펙트 렌더링
+            img = PantherShuriken.disappear_image_seq[self.disappear_frame]
+            if img:
+                img.draw(draw_x, draw_y, img.w * self.scale * 1.25, img.h * self.scale * 1.25)
+        elif PantherShuriken.image:
+            # 회전하며 날아가는 수리검 렌더링
+            PantherShuriken.image.composite_draw(
+                self.rotation_angle, '',
+                draw_x, draw_y,
+                PantherShuriken.image.w * self.scale,
+                PantherShuriken.image.h * self.scale
+            )
+        else:
+            # 디버그 렌더링 (이미지 없을 때)
+            size = int(10 * self.scale)
+            p2.draw_rectangle(
+                draw_x - size, draw_y - size,
+                draw_x + size, draw_y + size
+            )
+
+        # DEBUG: 충돌 박스 그리기
+        Left = draw_x - self.collision_width / 2
+        Right = draw_x + self.collision_width / 2
+        Bottom = draw_y - self.collision_height / 2
+        Top = draw_y + self.collision_height / 2
+        p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
+
+    def on_hit(self):
+        """투사체가 타겟에 명중했을 때 호출"""
+        if not self.is_disappearing:
+            self.is_disappearing = True
+            self.disappear_timer = 0.0
+            self.disappear_frame = 0
+
+    def get_collision_box(self):
+        """충돌 박스 반환"""
+        return (self.collision_width, self.collision_height)
+
 class PantherThrowingStar(Projectile):
     """
     팬서 암살자 보스의 표창 투사체
+    회전하는 애니메이션과 함께 날아가는 표창입니다.
     """
+    img_seq = []
 
-    def __init__(self, x, y, target_x, target_y, speed=500, from_player=False):
+    def __init__(self, x, y, target_x, target_y, speed=500, from_player=False, damage=20, scale=1.5):
         """
         PantherThrowingStar 초기화
 
@@ -1064,6 +1165,90 @@ class PantherThrowingStar(Projectile):
             target_x, target_y: 목표 위치
             speed: 투사체 속도
             from_player: 플레이어가 발사했는지 여부
+            damage: 투사체 피해량
+            scale: 이미지 크기 배율
         """
         super().__init__(x, y, target_x, target_y, speed, from_player)
-        print(f"[PantherThrowingStar] 생성됨 at ({x}, {y}) towards ({target_x}, {target_y}) with speed {speed}")
+
+        # 투사체 속성
+        self.damage = damage
+        self.scale = scale
+        self.collision_width = int(13 * scale)
+        self.collision_height = int(20 * scale)
+
+        # 애니메이션 관련
+        self.frame = 0
+        self.frame_timer = 0.0
+        self.frame_speed = 12.0  # 초당 프레임 수 (빠른 회전 효과)
+
+        # 이미지 시퀀스 로드 (클래스 레벨에서 한 번만)
+        if not PantherThrowingStar.img_seq:
+            try:
+                for i in range(4):
+                    img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX/PantherAssassin_ShurikenBullet{i:02d}.png'
+                    img = p2.load_image(img_path)
+                    PantherThrowingStar.img_seq.append(img)
+                print(f'[PantherThrowingStar] 이미지 로드 완료: {len(PantherThrowingStar.img_seq)}개 프레임')
+            except FileNotFoundError as e:
+                print(f'\033[91m[PantherThrowingStar] 이미지 로드 실패: {e}\033[0m')
+
+    def update(self):
+        """팬서 표창 업데이트"""
+        dt = framework.get_delta_time()
+
+        # 위치 업데이트
+        self.x += self.dx * self.speed * dt
+        self.y += self.dy * self.speed * dt
+
+        # 애니메이션 프레임 업데이트 (회전 효과)
+        self.frame_timer += dt
+        if self.frame_timer >= 1.0 / self.frame_speed:
+            if PantherThrowingStar.img_seq:
+                self.frame = (self.frame + 1) % len(PantherThrowingStar.img_seq)
+            self.frame_timer = 0.0
+
+        # 화면 밖으로 나가면 제거
+        if (self.x < -1000 or self.x > 5000 or
+            self.y < -1000 or self.y > 5000):
+            return False
+
+        return True
+
+    def draw(self, draw_x, draw_y):
+        """팬서 표창 드로잉"""
+        if PantherThrowingStar.img_seq and len(PantherThrowingStar.img_seq) > 0:
+            # 현재 프레임의 이미지 렌더링
+            img = PantherThrowingStar.img_seq[self.frame]
+            if img:
+                # scale에 따라 크기 조정
+                img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
+        else:
+            # 디버그 렌더링 (이미지 없을 때)
+            size = int(15 * self.scale)
+            p2.draw_rectangle(
+                draw_x - size, draw_y - size,
+                draw_x + size, draw_y + size
+            )
+            # 회전 효과를 위한 선 그리기
+            angle = self.frame * 90  # 90도씩 회전
+            rad = math.radians(angle)
+            line_length = size
+            end_x = draw_x + math.cos(rad) * line_length
+            end_y = draw_y + math.sin(rad) * line_length
+            p2.draw_line(draw_x, draw_y, end_x, end_y)
+
+        # DEBUG: 충돌 박스 그리기
+        Left = draw_x - self.collision_width / 2
+        Right = draw_x + self.collision_width / 2
+        Bottom = draw_y - self.collision_height / 2
+        Top = draw_y + self.collision_height / 2
+        p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
+
+    def on_hit(self):
+        """투사체가 타겟에 명중했을 때 호출"""
+        # 표창은 명중 시 바로 사라짐 (별도 이펙트 없음)
+        return False
+
+    def get_collision_box(self):
+        """충돌 박스 반환"""
+        return (self.collision_width, self.collision_height)
