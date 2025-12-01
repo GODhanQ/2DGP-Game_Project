@@ -711,7 +711,35 @@ class AttackPattern2Action:
 
 class AttackPattern3Action:
     """
-    BTActionWrapper: 패턴3 - 은신 후 다른 곳에서 나타나 플레이어를 향해 돌진 후 8방향 방사형으로 수리검 투척
+    패턴3 - 3단 콤보 공격
+    자세한 설명:
+    콤보 1: 1단 콤보 공격 준비 후 플레이어까지 거리의 1배 거리 만큼 0.5초만에 돌진하며 참격 (이미지상 위쪽으로 종 베기 참격 모션)
+    콤보 2: 2단 콤보 공격 준비 후 플레이어까지 거리의 1.5배 거리 만큼 0.3초만에 돌진하며 참격 (돌진 횡 베기 참격 모션)
+    콤보 3: 3단 콤보 공격 준비 후 제자리에서 원형으로 수리검 8방향 발사 (휠윈드 하며 수리검 발사 모션: Panther)
+
+    모션 경로 = resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character
+    콤보 1 공격 준비 모션 이미지 : PantherAssassin_Combo1_Ready{i:02d}.png 0 ~ 8
+    콤보 1 돌진 모션 이미지 : PantherAssassin_Combo1_Attack{i:02d}.png 0 ~ 6
+    콤보 2 공격 준비 모션 이미지 : PantherAssassin_Combo2_Ready{i:02d}.png 0 ~ 6
+    콤보 2 돌진 모션 이미지 :    Start : PantherAssassin_Combo2_Attack_Start{i:02d}.png 0 ~ 3
+                            Cycle   : PantherAssassin_Combo2_Attack_Cycle{i:02d}.png 0 ~ 3
+    콤보 3 공격 준비 모션 이미지 : PantherAssassin_Combo3_Ready{i:02d}.png 0 ~ 3
+    콤보 3 수리검 발사 모션 이미지 : PantherAssassin_Combo3_Attack{i:02d}.png 0 ~ 9
+
+    이펙트 이미지 경로: resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX
+    콤보 1 참격 이펙트 이미지 : PantherAssassin_Combo1_Attack_SwingFX{i:02d}.png 0 ~ 3 ( 대미지 있음 )
+    콤보 2 참격 이펙트 이미지 : PantherAssassin_Combo2_Attack_SwingFX{i:02d}.png 0 ~ 3 ( 대미지 있음 )
+    콥보 3 수리검 발사 이펙트 이미지 : PantherAssassin_Combo3_Attack_SwingFX{i:02d}.png 0 ~ 3 ( 대미지 없음 보여주기 용 )
+
+    주의 : - 참격 이펙트는 PantherBladeSwingEffect 클래스가 독립적으로 관리하므로
+            이 클래스 내부에서는 이펙트 리스트를 관리하지 않습니다. 하지만 수리검 발사 이펙트는 대미지가 없으므로
+            이 클래스 내부에서 관리합니다.
+
+         - 3단 콤보 공격이 모두 끝나면 패턴 종료
+
+         - 왼쪽에서 오른쪽, 오른쪽에서 왼쪽 등 돌진 방향에 따라 이미지가 좌우 반전되어야 함
+
+
     """
 
     def __init__(self, panther):
@@ -1277,6 +1305,16 @@ class PantherAssassin:
 
             # Death 애니메이션 로드 (0~15)
             self.death_images = []
+
+            for i in range(3):
+                try:
+                    Airborne_img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character/PantherAssassin_Airborne{i:02d}.png'
+                    Airborne_img = p2.load_image(Airborne_img_path)
+                    self.death_images.append(Airborne_img)
+                    print(f'[PantherAssassin] 사망 애니메이션 로드 성공: PantherAssassin_Knockback{i:02d}.png')
+                except FileNotFoundError as e:
+                    print(f'\033[91m[PantherAssassin] 사망 애니메이션 로드 실패: {e}\033[0m')
+
             for i in range(self.death_animation_frames):
                 try:
                     death_img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character/PantherAssassin_TrueDie{i:02d}.png'
@@ -1304,9 +1342,9 @@ class PantherAssassin:
         │   ├── Condition: 쿨타임 준비됨
         │   ├── Condition: 공격 범위 내
         │   └── RandomSelector: 6가지 패턴 중 랜덤 선택
-        │       ├── BTActionWrapper: 패턴1 - 90도 방사형으로 플레이어를 향해 2단 표창 투척
+        │       ├── BTActionWrapper: 패턴1 - 120도 방사형으로 플레이어를 향해 2단 표창 투척
         │       ├── BTActionWrapper: 패턴2 - 은신 후 다른 곳에서 나타나 플레이어를 향해 강한 돌진 공격 2회
-        │       ├── BTActionWrapper: 패턴3 - 은신 후 다른 곳에서 나타나 플레이어를 향해 돌 진 후 8방향 방사형으로 수리검 투척
+        │       ├── BTActionWrapper: 패턴3 - 3단 콤보 공격
         │       │   # 그림자 분신과 함게하는 패턴 4, 5, 6
         │       ├── BTActionWrapper: 패턴4 - 은신과 분신 2체를 랜덤 위치에 소환 후 플레이어를 향해 수리검 10회 연속 투척 이후 본체 은신 풀림
         │       ├── BTActionWrapper: 패턴5 - 분신 1체 랜덤 위치에 소환후 모든 방향 방사형으로 수리검 투척 2회 ( 두 번째 투척 수리검의 속도는 첫 번째 투척 속도의 반 )
@@ -1833,6 +1871,133 @@ class PantherThrowingStar(Projectile):
         """충돌 박스 반환"""
         return (self.collision_width, self.collision_height)
 
+# ==================== PantherShuriken 투사체 클래스 ====================
+class PantherShuriken(Projectile):
+    """
+    팬서 암살자 보스의 단검 투사체
+    날아가는 동안은 ThrowingDagger0.png를 표시하고,
+    소멸 시에는 ThrowingDagger1~4 애니메이션을 재생합니다.
+    """
+    flying_image = None
+    dissolve_images = []
+
+    def __init__(self, x, y, target_x, target_y, speed=400, from_player=False, damage=15, scale=1.2):
+        """
+        PantherShuriken 초기화
+
+        Args:
+            x, y: 시작 위치
+            target_x, target_y: 목표 위치
+            speed: 투사체 속도
+            from_player: 플레이어가 발사했는지 여부
+            damage: 투사체 피해량
+            scale: 이미지 크기 배율
+        """
+        super().__init__(x, y, target_x, target_y, speed, from_player)
+
+        # 투사체 속성
+        self.damage = damage
+        self.scale = scale
+        self.collision_width = int(13 * scale)
+        self.collision_height = int(41 * scale)
+
+        # 상태 관리 변수
+        self.is_dissolving = False  # 소멸 애니메이션 재생 중인지
+        self.dissolve_frame = 0  # 현재 소멸 애니메이션 프레임
+        self.dissolve_timer = 0.0  # 소멸 애니메이션 타이머
+        self.dissolve_frame_duration = 0.08  # 각 소멸 프레임당 0.08초
+
+        # 이미지 로드 (클래스 레벨에서 한 번만)
+        if PantherShuriken.flying_image is None or not PantherShuriken.dissolve_images:
+            try:
+                # 비행 중 이미지 (ThrowingDagger0.png)
+                flying_img_path = 'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX/ThrowingDagger0.png'
+                PantherShuriken.flying_image = p2.load_image(flying_img_path)
+                print(f'[PantherShuriken] 비행 이미지 로드 완료: {flying_img_path}')
+
+                # 소멸 애니메이션 이미지 (ThrowingDagger1.png ~ ThrowingDagger4.png)
+                PantherShuriken.dissolve_images = []
+                for i in range(1, 5):  # 1, 2, 3, 4
+                    dissolve_img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX/ThrowingDagger{i}.png'
+                    PantherShuriken.dissolve_images.append(p2.load_image(dissolve_img_path))
+                print(f'[PantherShuriken] 소멸 애니메이션 이미지 로드 완료: {len(PantherShuriken.dissolve_images)}개 프레임')
+            except FileNotFoundError as e:
+                print(f'\033[91m[PantherShuriken] 이미지 로드 실패: {e}\033[0m')
+
+    def update(self):
+        """단검 업데이트"""
+        dt = framework.get_delta_time()
+
+        # 소멸 애니메이션 중이면 애니메이션만 업데이트
+        if self.is_dissolving:
+            self.dissolve_timer += dt
+            if self.dissolve_timer >= self.dissolve_frame_duration:
+                self.dissolve_timer -= self.dissolve_frame_duration
+                self.dissolve_frame += 1
+
+                # 모든 소멸 프레임을 다 재생했으면 제거
+                if self.dissolve_frame >= len(PantherShuriken.dissolve_images):
+                    return False
+
+            return True
+
+        # 일반 비행 로직
+        self.x += self.dx * self.speed * dt
+        self.y += self.dy * self.speed * dt
+
+        # 화면 밖으로 나가면 소멸 애니메이션 시작
+        if (self.x < -1000 or self.x > 5000 or
+            self.y < -1000 or self.y > 5000):
+            self.start_dissolve()
+
+        return True
+
+    def draw(self, draw_x, draw_y):
+        """단검 드로잉"""
+        # 소멸 애니메이션 중이면 소멸 이미지 그리기
+        if self.is_dissolving:
+            if (PantherShuriken.dissolve_images and
+                self.dissolve_frame < len(PantherShuriken.dissolve_images)):
+                img = PantherShuriken.dissolve_images[self.dissolve_frame]
+                if img:
+                    img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
+        else:
+            # 비행 중이면 비행 이미지 그리기
+            if PantherShuriken.flying_image:
+                img = PantherShuriken.flying_image
+                img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
+            else:
+                # 디버그 렌더링 (이미지 없을 때)
+                size = int(10 * self.scale)
+                p2.draw_rectangle(
+                    draw_x - size, draw_y - size,
+                    draw_x + size, draw_y + size
+                )
+
+        # DEBUG: 충돌 박스 그리기 (필요 시 주석 해제)
+        # Left = draw_x - self.collision_width / 2
+        # Right = draw_x + self.collision_width / 2
+        # Bottom = draw_y - self.collision_height / 2
+        # Top = draw_y + self.collision_height / 2
+        # p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
+
+    def on_hit(self):
+        """투사체가 타겟에 명중했을 때 호출 - 소멸 애니메이션 시작"""
+        self.start_dissolve()
+
+    def start_dissolve(self):
+        """소멸 애니메이션 시작"""
+        if not self.is_dissolving:
+            self.is_dissolving = True
+            self.dissolve_frame = 0
+            self.dissolve_timer = 0.0
+
+    def get_collision_box(self):
+        """충돌 박스 반환"""
+        # 소멸 중일 때는 충돌 판정 없음
+        if self.is_dissolving:
+            return (0, 0)
+        return (self.collision_width, self.collision_height)
 
 # ==================== PantherBladeSwingEffect 검격 이펙트 클래스 ====================
 
@@ -1966,4 +2131,4 @@ class PantherBladeSwingEffect:
 
         except Exception as e:
             print(f"\033[91m[PantherBladeSwingEffect] draw 에러: {e}\033[0m")
-
+            
