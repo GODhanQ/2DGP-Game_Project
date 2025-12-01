@@ -346,7 +346,7 @@ class AttackPattern2Action:
             effect_angle = math.atan2(direction_y, direction_x)
 
             # PantherBladeSwingEffect 생성
-            from ..panther_assassin import PantherBladeSwingEffect
+            # from ..panther_assassin import PantherBladeSwingEffect
             blade_effect = PantherBladeSwingEffect(
                 effect_x,
                 effect_y,
@@ -437,4 +437,137 @@ class AttackPattern2Action:
                 img = AttackPattern2Action.swing_img_seq[self.swing_frame]
                 if img:
                     img.draw(draw_x, draw_y, img.w * self.panther.scale_factor, img.h * self.panther.scale_factor)
+
+# ==================== PantherBladeSwingEffect 검격 이펙트 클래스 ====================
+
+class PantherBladeSwingEffect:
+    """
+    Panther Assassin의 검격 이펙트 (PantherAssassin_BladeAttack_SwingFX 0~7)
+    패턴2의 휘두르기 공격 시 플레이어에게 피해를 주는 이펙트
+    """
+    images = None
+
+    def __init__(self, x, y, angle, owner=None, scale=4.0, damage=30.0):
+        """
+        Args:
+            x, y: 이펙트 생성 위치 (월드 좌표)
+            angle: 검격 방향 (라디안)
+            owner: 공격 주체 (PantherAssassin 객체)
+            scale: 이펙트 크기 배율
+            damage: 이펙트 데미지
+        """
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.owner = owner
+        self.scale = scale
+        self.damage = damage
+        self.from_player = False  # 보스 공격이므로 False
+
+        # 이미지 로드 (클래스 변수로 한 번만 로드)
+        if PantherBladeSwingEffect.images is None:
+            PantherBladeSwingEffect.images = []
+            try:
+                for i in range(8):  # PantherAssassin_BladeAttack_SwingFX0 ~ SwingFX7
+                    img = p2.load_image(f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/FX/PantherAssassin_BladeAttack_SwingFX{i:02d}.png')
+                    PantherBladeSwingEffect.images.append(img)
+                print(f"[PantherBladeSwingEffect] 이미지 로드 완료: {len(PantherBladeSwingEffect.images)}개")
+            except Exception as e:
+                print(f"\033[91m[PantherBladeSwingEffect] 이미지 로드 실패: {e}\033[0m")
+                PantherBladeSwingEffect.images = []
+
+        self.frame = 0
+        self.animation_time = 0
+        self.animation_speed = 20  # 빠른 애니메이션 (20 FPS)
+        self.finished = False
+
+        # 충돌 체크용 변수
+        self.has_hit_player = False  # 플레이어를 이미 맞췄는지 여부
+
+        print(f"[PantherBladeSwingEffect] 생성됨 at ({int(x)}, {int(y)}), 각도: {math.degrees(angle):.1f}도, 크기: {scale}, 데미지: {damage}")
+
+    def update(self):
+        """이펙트 애니메이션 업데이트 (충돌 체크는 play_mode에서 처리)"""
+        if self.finished:
+            return False
+
+        dt = framework.get_delta_time()
+        self.animation_time += dt
+
+        # 애니메이션 업데이트
+        if self.animation_time >= 1.0 / self.animation_speed:
+            self.frame += 1
+            self.animation_time = 0
+            print(f"[PantherBladeSwingEffect] 프레임 업데이트: {self.frame}/{len(PantherBladeSwingEffect.images) if PantherBladeSwingEffect.images else 0}")
+
+            # 애니메이션이 끝나면 제거
+            if PantherBladeSwingEffect.images and self.frame >= len(PantherBladeSwingEffect.images):
+                self.finished = True
+                print(f"[PantherBladeSwingEffect] 애니메이션 완료 - 제거")
+                return False
+
+        return True
+
+    def get_collision_box(self):
+        """충돌 박스 크기 반환 (play_mode에서 충돌 검사에 사용)
+
+        Returns:
+            tuple: (width, height) - 이펙트의 충돌 박스 크기
+        """
+        if PantherBladeSwingEffect.images and len(PantherBladeSwingEffect.images) > 0:
+            effect_img = PantherBladeSwingEffect.images[min(self.frame, len(PantherBladeSwingEffect.images) - 1)]
+            effect_width = effect_img.w * self.scale * 0.6  # 충돌 범위를 60%로 조정
+            effect_height = effect_img.h * self.scale * 0.6
+        else:
+            # 기본값
+            effect_width = 150
+            effect_height = 150
+
+        return (effect_width, effect_height)
+
+    def draw(self, draw_x, draw_y):
+        """
+        이펙트 그리기
+
+        Args:
+            draw_x: 카메라가 적용된 화면 X 좌표
+            draw_y: 카메라가 적용된 화면 Y 좌표
+        """
+        if not PantherBladeSwingEffect.images or len(PantherBladeSwingEffect.images) == 0:
+            print(f"[PantherBladeSwingEffect] 이미지 없음 - 그리기 실패")
+            return
+
+        if self.finished:
+            return
+
+        frame_idx = min(self.frame, len(PantherBladeSwingEffect.images) - 1)
+        try:
+            # 회전 각도를 degree로 변환 (pico2d는 degree 사용)
+            # 기본 이미지가 오른쪽 방향이므로 각도 보정
+            angle_deg = math.degrees(self.angle)
+
+            # 이미지 그리기 (회전 적용)
+            PantherBladeSwingEffect.images[frame_idx].composite_draw(
+                angle_deg, '',  # 각도, 플립 없음
+                draw_x, draw_y,
+                PantherBladeSwingEffect.images[frame_idx].w * self.scale,
+                PantherBladeSwingEffect.images[frame_idx].h * self.scale
+            )
+
+            # DEBUG: 검격 이펙트 그리기 확인 (첫 프레임만)
+            if self.frame == 0:
+                print(f"[PantherBladeSwingEffect] 첫 프레임 그리기: 화면좌표({int(draw_x)}, {int(draw_y)}), 월드좌표({int(self.x)}, {int(self.y)}), 각도: {angle_deg:.1f}도")
+
+            # DEBUG: 충돌 박스 그리기 (활성화)
+            effect_width, effect_height = self.get_collision_box()
+            p2.draw_rectangle(
+                draw_x - effect_width / 2,
+                draw_y - effect_height / 2,
+                draw_x + effect_width / 2,
+                draw_y + effect_height / 2,
+                r=255, g=0, b=0
+            )
+
+        except Exception as e:
+            print(f"\033[91m[PantherBladeSwingEffect] draw 에러: {e}\033[0m")
 

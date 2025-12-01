@@ -794,9 +794,10 @@ def update():
     # 피격 판정이 필요한 몬스터 공격 이펙트 클래스 리스트
     from .projectile import Projectile
     from .monsters.cat_theif import CatThiefSwingEffect  # CatThiefSwingEffect import 추가
-    from .monsters.panther_assassin import PantherBladeSwingEffect  # PantherBladeSwingEffect import 추가
+    from .monsters.Boss_Logic.panther_assassin_2pattern import PantherBladeSwingEffect  # PantherBladeSwingEffect import 추가
     from .monsters.Boss_Logic.panther_assassin_3pattern import PantherCombo1SwingEffect
     from .monsters.Boss_Logic.panther_assassin_3pattern import PantherCombo2SwingEffect
+
 
     MONSTER_ATTACK_EFFECT_TYPES = [
         CatThiefSwingEffect,
