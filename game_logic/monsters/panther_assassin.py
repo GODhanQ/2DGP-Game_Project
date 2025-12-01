@@ -1146,6 +1146,11 @@ class PantherShuriken(Projectile):
         self.collision_width = int(13 * scale)
         self.collision_height = int(41 * scale)
 
+        # 회전 각도 계산 (원본 이미지가 위쪽을 바라봄, +y 방향 기준)
+        # math.atan2를 사용하여 방향 벡터로부터 각도 계산
+        import math
+        self.rotation_angle = math.atan2(self.dy, self.dx) + math.radians(-90) # 라디안 단위
+
         # 상태 관리 변수
         self.is_dissolving = False  # 소멸 애니메이션 재생 중인지
         self.dissolve_frame = 0  # 현재 소멸 애니메이션 프레임
@@ -1198,19 +1203,21 @@ class PantherShuriken(Projectile):
         return True
 
     def draw(self, draw_x, draw_y):
-        """단검 드로잉"""
-        # 소멸 애니메이션 중이면 소멸 이미지 그리기
+        """단검 드로잉 (회전 적용)"""
+        # 소멸 애니메이션 중이면 소멸 이미지 그리기 (회전 적용)
         if self.is_dissolving:
             if (PantherShuriken.dissolve_images and
                 self.dissolve_frame < len(PantherShuriken.dissolve_images)):
                 img = PantherShuriken.dissolve_images[self.dissolve_frame]
                 if img:
-                    img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
+                    # 회전을 적용하여 그리기
+                    img.rotate_draw(self.rotation_angle, draw_x, draw_y, img.w * self.scale, img.h * self.scale)
         else:
-            # 비행 중이면 비행 이미지 그리기
+            # 비행 중이면 비행 이미지 그리기 (회전 적용)
             if PantherShuriken.flying_image:
                 img = PantherShuriken.flying_image
-                img.draw(draw_x, draw_y, img.w * self.scale, img.h * self.scale)
+                # 회전을 적용하여 그리기
+                img.rotate_draw(self.rotation_angle, draw_x, draw_y, img.w * self.scale, img.h * self.scale)
             else:
                 # 디버그 렌더링 (이미지 없을 때)
                 size = int(10 * self.scale)
@@ -1376,5 +1383,4 @@ class PantherBladeSwingEffect:
 
         except Exception as e:
             print(f"\033[91m[PantherBladeSwingEffect] draw 에러: {e}\033[0m")
-
 

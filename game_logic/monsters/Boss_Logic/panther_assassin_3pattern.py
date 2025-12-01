@@ -116,7 +116,7 @@ class AttackPattern3Action:
         self.combo3_shoot_frame = 5  # 5번 프레임에서 수리검 발사
         self.combo3_has_shot = False  # 수리검을 이미 발사했는지
         self.combo3_projectile_directions = 8  # 8방향
-        self.combo3_projectile_speed = 400  # 수리검 속도
+        self.combo3_projectile_speed = 600  # 수리검 속도
 
         # 콤보3 수리검 발사 이펙트 관련 변수
         self.combo3_fx_frame = 0
