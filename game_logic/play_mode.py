@@ -645,9 +645,11 @@ def handle_events():
     events = p2.get_events()
     for e in events:
         if e.type == SDL_QUIT:
+            print("[play_mode] SDL_QUIT event received, quitting application")
             app_framework.quit()
             return
         if e.type == SDL_KEYDOWN and getattr(e, 'key', None) == SDLK_ESCAPE:
+            print("[play_mode] ESCAPE key pressed, quitting application")
             app_framework.quit()
             return
 
@@ -763,6 +765,7 @@ def update():
                 try:
                     new_list.append(o)
                 except Exception:
+                    print(f'\033[91m[play_mode] update error in layer {layer_name} object {o.__class__.__name__}\033[0m')
                     pass
         world[layer_name][:] = new_list
 

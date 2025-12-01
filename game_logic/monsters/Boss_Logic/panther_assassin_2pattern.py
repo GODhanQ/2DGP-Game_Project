@@ -6,6 +6,7 @@ import math
 
 class AttackPattern2Action:
     """
+    panther_assassin.py의 보스 개체(PantherAssassin)의 공격패턴 2 구현 클래스
     패턴2 - 은신 후 다른 곳에서 나타나 플레이어를 향해 강한 돌진 공격 2회
     자세한 설명:
     공격 준비시 멈춘 후.

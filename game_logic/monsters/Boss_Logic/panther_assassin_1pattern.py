@@ -5,6 +5,7 @@ import math
 
 class AttackPattern1Action:
     """
+    panther_assassin.py의 보스 개체(PantherAssassin)의 공격패턴 1 구현 클래스
     패턴1 - 120도 방사형으로 플레이어를 향해 2단 표창 투척
     자세한 설명:
     공격 준비시 멈춘 후.

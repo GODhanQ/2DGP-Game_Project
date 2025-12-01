@@ -6,6 +6,7 @@ import random
 
 class AttackPattern3Action:
     """
+    panther_assassin.py의 보스 개체(PantherAssassin)의 공격패턴 3 구현 클래스
     패턴3 - 3단 콤보 공격
     자세한 설명:
     콤보 1: 1단 콤보 공격 준비 후 플레이어까지 거리의 1배 거리 만큼 0.5초만에 돌진하며 참격 (이미지상 위쪽으로 종 베기 참격 모션)

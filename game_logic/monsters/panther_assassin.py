@@ -8,10 +8,11 @@ from .. import image_asset_manager as iam
 from ..damage_indicator import DamageIndicator
 from ..ui_overlay import MonsterHealthBar
 
-# ==================== 공격 패턴 클래스 ====================
+# ==================== 공격 패턴 클래스 참조 ====================
 from .Boss_Logic.panther_assassin_1pattern import AttackPattern1Action
 from .Boss_Logic.panther_assassin_2pattern import AttackPattern2Action
 from .Boss_Logic.panther_assassin_3pattern import AttackPattern3Action
+from .Boss_Logic.panther_assassin_4pattern import AttackPattern4Action
 
 # ==================== BT Action Wrapper 클래스 ====================
 
@@ -74,133 +75,6 @@ class BTActionWrapper(Action):
 
 
 # ==================== 공격 패턴 클래스 ====================
-
-class AttackPattern4Action:
-    """
-    패턴4 - 은신과 분신 2체를 랜덤 위치에 소환 후 플레이어를 향해 수리검 10회 연속 투척 이후 본체 은신 풀림
-    """
-
-    def __init__(self, panther):
-        """
-        Args:
-            panther: PantherAssassin 인스턴스 참조
-        """
-        self.panther = panther
-        self.phase = 0
-        self.timer = 0.0
-        # 은신 관련 변수
-        self.stealth_duration = 0.0  # 은신 시간
-        self.is_stealthed = False  # 은신 상태
-        # 분신 소환 관련 변수
-        self.clone_count = 2  # 분신 개수
-        self.clone_positions = []  # 분신 위치 리스트
-        self.summon_time = 0.0  # 소환 시간
-        # 수리검 투척 관련 변수
-        self.shot_count = 0  # 현재 투척 횟수
-        self.max_shots = 10  # 최대 투척 횟수 (10회)
-        self.shot_interval = 0.0  # 투척 간격
-        self.projectile_speed = 0.0
-
-    def update(self):
-        """패턴 4 로직 실행"""
-        dt = framework.get_delta_time()
-
-        if self.phase == 0:
-            # 초기화
-            self.timer = 0.0
-            self.stealth_duration = 1.0  # 은신 지속 시간
-            self.phase = 1
-            print("[Pattern4] 은신 시작!")
-
-        elif self.phase == 1:
-            # 은신 중
-            self.timer += dt
-
-            if self.timer >= self.stealth_duration:
-                # 은신 종료
-                self.is_stealthed = False
-                self.timer = 0.0
-                self.phase = 2
-                print("[Pattern4] 은신 종료!")
-
-        elif self.phase == 2:
-            # 분신 소환
-            if len(self.clone_positions) < self.clone_count:
-                angle = random.uniform(0, 360)
-                rad = math.radians(angle)
-                offset = 100 + random.uniform(-50, 50)
-
-                clone_x = self.panther.x + math.cos(rad) * offset
-                clone_y = self.panther.y + math.sin(rad) * offset
-                self.clone_positions.append((clone_x, clone_y))
-
-                print(f"[Pattern4] 분신 소환: ({clone_x:.0f}, {clone_y:.0f})")
-                return BehaviorTree.RUNNING
-
-            # 모든 분신 소환 완료 후 수리검 투척
-            if self.timer == 0.0:
-                self.shot_count = 0
-                self.timer = 0.0
-                self.phase = 3
-                print("[Pattern4] 수리검 투척 시작!")
-
-        elif self.phase == 3:
-            # 수리검 투척
-            self.timer += dt
-
-            if self.timer >= self.shot_interval:
-                # 수리검 발사
-                if self.panther.target and self.panther.world:
-                    projectile = Projectile(
-                        self.panther.x, self.panther.y,
-                        self.panther.target.x, self.panther.target.y,
-                        speed=500,
-                        from_player=False
-                    )
-                    self.panther.world.get('projectiles', []).append(projectile)
-                    print(f"[Pattern4] 수리검 발사 {self.shot_count + 1}/{self.max_shots}")
-
-                self.shot_count += 1
-                self.timer = 0.0
-
-                if self.shot_count >= self.max_shots:
-                    # 모든 수리검 발사 완료
-                    self.phase = 0
-                    self.panther.attack_timer = self.panther.attack_cooldown
-                    print("[Pattern4] 수리검 투척 완료!")
-                    return BehaviorTree.SUCCESS
-
-        return BehaviorTree.RUNNING
-
-    def draw(self, draw_x, draw_y):
-        """
-        패턴 4 시각 효과 드로잉
-
-        Args:
-            draw_x, draw_y: 보스의 현재 위치 (카메라 좌표계)
-        """
-        # Pattern 4 Draw Logic: 은신 및 분신 소환 시각 효과
-        if self.phase == 1:  # 은신 중일 때
-            # 은신 이펙트 원 (점점 투명해지는 원)
-            progress = self.timer / self.stealth_duration
-            effect_radius = 50 + progress * 50
-            p2.draw_circle(draw_x, draw_y, int(effect_radius), alpha=255 - int(progress * 255))
-
-        elif self.phase == 2:  # 분신 소환 중
-            # 소환 위치에 원 표시
-            for clone_x, clone_y in self.clone_positions:
-                p2.draw_circle(clone_x, clone_y, 10)
-
-        elif self.phase == 3:  # 수리검 투척 중
-            # 타겟 방향 조준선 표시
-            if self.panther.target:
-                p2.draw_line(draw_x, draw_y, self.panther.target.x, self.panther.target.y)
-
-            # 발사 카운트 표시 (원형 인디케이터)
-            progress = self.shot_count / self.max_shots
-            indicator_radius = 20 + progress * 30
-            p2.draw_circle(draw_x, draw_y + 60, int(indicator_radius))
-
 
 class AttackPattern5Action:
     """
@@ -543,7 +417,7 @@ class PantherAssassin:
                     self.clone_images.append(clone_img)
 
                     # DEBUG: 이미지 로드 확인
-                    print(f'[PantherAssassin] 이미지 로드 성공: PantherAssassin_Idle{i:02d}.png')
+                    # print(f'[PantherAssassin] 이미지 로드 성공: PantherAssassin_Idle{i:02d}.png')
 
                 except FileNotFoundError as e:
                     print(f'\033[91m[PantherAssassin] 이미지 로드 실패: {e}\033[0m')
@@ -556,7 +430,7 @@ class PantherAssassin:
                     Airborne_img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character/PantherAssassin_Airborne{i:02d}.png'
                     Airborne_img = p2.load_image(Airborne_img_path)
                     self.death_images.append(Airborne_img)
-                    print(f'[PantherAssassin] 사망 애니메이션 로드 성공: PantherAssassin_Knockback{i:02d}.png')
+                    # print(f'[PantherAssassin] 사망 애니메이션 로드 성공: PantherAssassin_Knockback{i:02d}.png')
                 except FileNotFoundError as e:
                     print(f'\033[91m[PantherAssassin] 사망 애니메이션 로드 실패: {e}\033[0m')
 
@@ -565,7 +439,7 @@ class PantherAssassin:
                     death_img_path = f'resources/Texture_organize/Entity/Stage2_Forest_Boss/Panther_Assassin/Character/PantherAssassin_TrueDie{i:02d}.png'
                     death_img = p2.load_image(death_img_path)
                     self.death_images.append(death_img)
-                    print(f'[PantherAssassin] 사망 애니메이션 로드 성공: PantherAssassin_TrueDie{i:02d}.png')
+                    # print(f'[PantherAssassin] 사망 애니메이션 로드 성공: PantherAssassin_TrueDie{i:02d}.png')
                 except FileNotFoundError as e:
                     print(f'\033[91m[PantherAssassin] 사망 애니메이션 로드 실패: {e}\033[0m')
 
@@ -603,10 +477,10 @@ class PantherAssassin:
         # BTActionWrapper를 사용하여 패턴 클래스 인스턴스를 감쌈
         attack_pattern_selector = RandomSelector(
             "Random Attack Pattern",
-            # BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
-            # BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
+            BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
+            BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
             BTActionWrapper("Pattern3: ComboAttack", self.pattern3_action),
-            # BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
+            BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
             # BTActionWrapper("Pattern5: Shockwave", self.pattern5_action),
             # BTActionWrapper("Pattern6: Shadow Clone", self.pattern6_action)
         )
@@ -763,8 +637,14 @@ class PantherAssassin:
                              hasattr(self.current_action_instance, 'phase') and
                              self.current_action_instance.phase > 0)
 
-        # 패턴 공격 중이 아닐 때만 IDLE 모션 드로잉
-        if not has_active_pattern:
+        # 패턴 4 실행 중일 때는 패턴의 draw() 메서드로 본체 그리기
+        if (has_active_pattern and
+            self.current_action_instance == self.pattern4_action and
+            hasattr(self.current_action_instance, 'draw')):
+            # 패턴 4의 draw() 메서드 호출 (은신/해제 애니메이션 처리)
+            self.current_action_instance.draw(draw_x, draw_y)
+        # 패턴 공격 중이 아니거나 다른 패턴일 때 IDLE 모션 드로잉
+        elif not has_active_pattern:
             if self.images and len(self.images) > 0:
                 # 프레임 인덱스가 범위를 벗어나지 않도록 보정
                 if self.frame >= len(self.images):
@@ -816,11 +696,11 @@ class PantherAssassin:
         p2.draw_circle(draw_x, draw_y, int(radius), r=0, g=255, b=255)
 
         # 분신 드로잉 (디버그용)
-        if self.clone_images:
-            offset = 200
-            self.clone_images[self.frame].draw(draw_x - offset, draw_y,
-                                               self.clone_images[self.frame].w * self.scale_factor,
-                                               self.clone_images[self.frame].h * self.scale_factor)
+        # if self.clone_images:
+        #     offset = 200
+        #     self.clone_images[self.frame].draw(draw_x - offset, draw_y,
+        #                                        self.clone_images[self.frame].w * self.scale_factor,
+        #                                        self.clone_images[self.frame].h * self.scale_factor)
 
 
     def get_bb(self):
@@ -1144,7 +1024,7 @@ class PantherShuriken(Projectile):
         self.damage = damage
         self.scale = scale
         self.collision_width = int(13 * scale)
-        self.collision_height = int(41 * scale)
+        self.collision_height = int(41 * scale) // 2
 
         # 회전 각도 계산 (원본 이미지가 위쪽을 바라봄, +y 방향 기준)
         # math.atan2를 사용하여 방향 벡터로부터 각도 계산
@@ -1227,11 +1107,11 @@ class PantherShuriken(Projectile):
                 )
 
         # DEBUG: 충돌 박스 그리기 (필요 시 주석 해제)
-        # Left = draw_x - self.collision_width / 2
-        # Right = draw_x + self.collision_width / 2
-        # Bottom = draw_y - self.collision_height / 2
-        # Top = draw_y + self.collision_height / 2
-        # p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
+        Left = draw_x - self.collision_width / 2
+        Right = draw_x + self.collision_width / 2
+        Bottom = draw_y - self.collision_height / 2
+        Top = draw_y + self.collision_height / 2
+        p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
 
     def on_hit(self):
         """투사체가 타겟에 명중했을 때 호출 - 소멸 애니메이션 시작"""
