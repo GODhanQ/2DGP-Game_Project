@@ -435,7 +435,7 @@ class Shield(Weapon):
 
             # 막히면 투사체 데미지의 30%만큼의 수치를 마나로 소비 (투사체 막기 비용)
             if hasattr(projectile, 'damage'):
-                mana_cost = projectile.damage * 0.3
+                mana_cost = projectile.damage * 0.15
                 shield_broken = False
                 if hasattr(self.player, 'stats'):
                     current_mana = self.player.stats.get('mana')

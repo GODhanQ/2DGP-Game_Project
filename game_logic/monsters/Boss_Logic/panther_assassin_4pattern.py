@@ -4,200 +4,6 @@ import math
 import game_framework as framework
 from ...behavior_tree import BehaviorTree
 
-class Clone:
-    """
-    분신 객체 - 시각 효과 전용
-
-    주의: play_mode의 entities 레이어에서 정상 작동하려면
-          일부 더미 속성/메서드가 필요합니다.
-    """
-    def __init__(self, start_x, start_y, target_x, target_y, images, scale_factor):
-        """
-        Args:
-            start_x, start_y: 시작 위치 (본체 위치)
-            target_x, target_y: 목표 위치 (이동할 위치)
-            images: 애니메이션에 사용할 이미지 딕셔너리
-            scale_factor: 본체의 스케일 팩터
-        """
-        print(f"[Clone.__init__] 분신 생성 시작 - 시작: ({start_x:.0f}, {start_y:.0f}), 목표: ({target_x:.0f}, {target_y:.0f})")
-
-        self.start_x = start_x
-        self.start_y = start_y
-        self.x = start_x
-        self.y = start_y
-        self.target_x = target_x
-        self.target_y = target_y
-        self.images = images  # {'throw_1st': [...], 'throw_2nd': [...], 'move': [...]}
-        self.scale_factor = scale_factor  # 본체와 동일한 스케일 사용
-
-        # 이미지 딕셔너리 검증
-        print(f"[Clone.__init__] 이미지 딕셔너리 키: {list(images.keys())}")
-        for key, img_list in images.items():
-            print(f"[Clone.__init__] {key}: {len(img_list)}개 이미지")
-            if len(img_list) == 0:
-                print(f"[Clone.__init__] 경고: {key} 이미지 리스트가 비어있음!")
-
-        # 이동 관련
-        self.move_duration = 1.5  # 이동 시간 (1.5초로 변경)
-        self.move_timer = 0.0
-        self.is_moving = True
-
-        # 잔상 효과
-        self.afterimage_alpha = 1.0  # 시작 위치의 잔상 투명도
-        self.afterimage_fade_duration = 0.5  # 잔상 사라지는 시간
-
-        # 애니메이션
-        self.current_animation = 'move'
-        self.frame = 0
-        self.frame_timer = 0.0
-        self.frame_duration = 0.1  # 프레임당 시간
-
-        # 제거 플래그 (entities에서 자동 제거되도록)
-        self.to_be_removed = False
-
-        print(f"[Clone.__init__] 분신 생성 완료!")
-
-        # play_mode 호환성을 위한 더미 속성 추가
-        self.mark_for_removal = False  # play_mode의 제거 플래그
-        self.hp = 1  # 더미 체력 (충돌 검사에서 필요할 수 있음)
-        self.is_dead = False  # 더미 사망 플래그
-
-        # 디버깅: 생성 직후 첫 업데이트 강제 호출 테스트
-        print(f"[Clone.__init__] 테스트: 생성 직후 update() 호출 가능 여부 확인")
-        try:
-            # update()를 호출하지는 않고, 대신 필수 속성들이 모두 있는지만 확인
-            assert hasattr(self, 'x'), "x 속성 누락!"
-            assert hasattr(self, 'y'), "y 속성 누락!"
-            assert hasattr(self, 'images'), "images 속성 누락!"
-            assert hasattr(self, 'update'), "update 메서드 누락!"
-            assert hasattr(self, 'draw'), "draw 메서드 누락!"
-            print(f"[Clone.__init__] ✓ 필수 속성/메서드 검증 완료")
-        except AssertionError as e:
-            print(f"\033[91m[Clone.__init__] ✗ 속성 검증 실패: {e}\033[0m")
-
-    def update(self):
-        """분신 업데이트 (play_mode에서 파라미터 없이 호출됨)"""
-        try:
-            # 첫 업데이트에만 로그 출력
-            if not hasattr(self, '_update_logged'):
-                print(f"[Clone.update] 첫 업데이트 - 위치: ({self.x:.0f}, {self.y:.0f}), is_moving: {self.is_moving}")
-                self._update_logged = True
-
-            # dt는 내부에서 가져오기
-            dt = framework.get_delta_time()
-
-            if self.is_moving:
-                self.move_timer += dt
-                progress = min(1.0, self.move_timer / self.move_duration)
-
-                # 부드러운 이동 (easeOutCubic)
-                ease_progress = 1 - pow(1 - progress, 3)
-                self.x = self.start_x + (self.target_x - self.start_x) * ease_progress
-                self.y = self.start_y + (self.target_y - self.start_y) * ease_progress
-
-                # 잔상 투명도 감소
-                self.afterimage_alpha = max(0.0, 1.0 - (self.move_timer / self.afterimage_fade_duration))
-
-                if progress >= 1.0:
-                    self.is_moving = False
-                    self.current_animation = 'throw_1st'  # 이동 완료 후 투척 준비
-                    self.frame = 0
-                    print(f"[Clone.update] 이동 완료! 위치: ({self.x:.0f}, {self.y:.0f})")
-
-            # 프레임 애니메이션
-            self.frame_timer += dt
-            if self.frame_timer >= self.frame_duration:
-                self.frame_timer = 0.0
-                if self.current_animation == 'move':
-                    if len(self.images['move']) > 0:
-                        self.frame = (self.frame + 1) % len(self.images['move'])
-                    else:
-                        print(f"[Clone.update] 경고: move 이미지 리스트가 비어있음!")
-                elif self.current_animation in ['throw_1st', 'throw_2nd']:
-                    if self.current_animation in self.images:
-                        max_frame = len(self.images[self.current_animation])
-                        if max_frame > 0 and self.frame < max_frame - 1:
-                            self.frame += 1
-                    else:
-                        print(f"[Clone.update] 경고: {self.current_animation} 이미지가 없음!")
-
-            # update 메서드는 True를 반환해야 entities에서 유지됨
-            return True
-
-        except Exception as e:
-            print(f"\033[91m[Clone.update] 오류 발생: {e}\033[0m")
-            import traceback
-            traceback.print_exc()
-            return True  # 오류가 나도 객체는 유지
-
-    def switch_throw_animation(self, throw_type):
-        """투척 애니메이션 변경 (1st <-> 2nd)"""
-        try:
-            print(f"[Clone.switch_throw_animation] {self.current_animation} -> {throw_type}")
-            self.current_animation = throw_type
-            self.frame = 0
-            self.frame_timer = 0.0
-        except Exception as e:
-            print(f"\033[91m[Clone.switch_throw_animation] 오류: {e}\033[0m")
-
-    def draw(self, draw_x, draw_y):
-        """
-        분신 그리기
-        Args:
-            draw_x, draw_y: 카메라가 적용된 화면 좌표
-        """
-        try:
-            # 디버그: 첫 프레임에만 로그 출력
-            if not hasattr(self, '_draw_logged'):
-                print(f"[Clone.draw] 첫 그리기 - 화면좌표: ({draw_x:.0f}, {draw_y:.0f}), 월드좌표: ({self.x:.0f}, {self.y:.0f})")
-                print(f"[Clone.draw] 애니메이션: {self.current_animation}, 프레임: {self.frame}")
-                print(f"[Clone.draw] 이미지 개수: {len(self.images.get(self.current_animation, []))}")
-                self._draw_logged = True
-
-            if self.current_animation in self.images:
-                img_list = self.images[self.current_animation]
-                if len(img_list) == 0:
-                    print(f"[Clone.draw] 경고: {self.current_animation} 이미지 리스트가 비어있음!")
-                    return
-
-                if 0 <= self.frame < len(img_list):
-                    current_img = img_list[self.frame]
-
-                    # 현재 위치에 분신 그리기 (카메라 좌표 이미 적용됨)
-                    current_img.draw(
-                        draw_x, draw_y,
-                        current_img.w * self.scale_factor,
-                        current_img.h * self.scale_factor
-                    )
-
-                    # 이동 중일 때 잔상 효과 (시작 위치)
-                    if self.is_moving and self.afterimage_alpha > 0.0:
-                        # 잔상 위치도 카메라 좌표로 변환 필요
-                        # play_mode의 camera를 통해 변환
-                        from ... import play_mode
-                        if play_mode.camera is not None:
-                            afterimage_draw_x, afterimage_draw_y = play_mode.camera.apply(self.start_x, self.start_y)
-                        else:
-                            afterimage_draw_x, afterimage_draw_y = self.start_x, self.start_y
-
-                        current_img.opacify(self.afterimage_alpha)
-                        current_img.draw(
-                            afterimage_draw_x, afterimage_draw_y,
-                            current_img.w * self.scale_factor,
-                            current_img.h * self.scale_factor
-                        )
-                        current_img.opacify(1.0)  # 원래대로 복구
-                else:
-                    print(f"[Clone.draw] 경고: 프레임 인덱스 범위 초과 - frame={self.frame}, max={len(img_list)-1}")
-            else:
-                print(f"[Clone.draw] 경고: {self.current_animation} 키가 이미지 딕셔너리에 없음!")
-
-        except Exception as e:
-            print(f"\033[91m[Clone.draw] 오류 발생: {e}\033[0m")
-            import traceback
-            traceback.print_exc()
-
-
 class AttackPattern4Action:
     """
     panther_assassin.py의 보스 개체(PantherAssassin)의 공격패턴 4 구현 클래스
@@ -282,7 +88,8 @@ class AttackPattern4Action:
             self.clone_images = {
                 'throw_1st': [],
                 'throw_2nd': [],
-                'move': []
+                'move': [],
+                'die': []  # Die 모션 추가 (분신 사라지는 애니메이션용)
             }
 
             # Throw 1st 모션 (0~5)
@@ -339,6 +146,11 @@ class AttackPattern4Action:
                     img_path = f"{base_path}/PantherAssassin_Die{i:02d}.png"
                     img = p2.load_image(img_path)
                     self.original_images['stealth'].append(img)
+                    
+                    # 분신용 Die 애니메이션도 어두운 버전으로 생성
+                    iam.register_image_path(img, img_path)
+                    clone_die_img = iam.make_dark(img, darkness=0.25)
+                    self.clone_images['die'].append(clone_die_img)
                 except Exception as e:
                     print(f"\033[91m[Pattern4._load_images] Die{i:02d}.png (은신 모션) 로드 실패: {e}\033[0m")
                     import traceback
@@ -401,6 +213,7 @@ class AttackPattern4Action:
                             target_y = self.panther.y + math.sin(rad) * distance
 
                             # 분신 생성 (본체 위치에서 시작, 본체의 scale_factor 전달)
+                            from ..panther_assassin import Clone
                             clone = Clone(
                                 self.panther.x, self.panther.y,
                                 target_x, target_y,
@@ -538,14 +351,13 @@ class AttackPattern4Action:
                 self.panther.invincible = False
                 print("[Pattern4] 패턴 종료! (무적 해제)")
 
-                # effects_front 레이어에서 분신 제거
-                if self.panther.world and 'effects_front' in self.panther.world:
-                    for clone in self.clones:
-                        if clone in self.panther.world['effects_front']:
-                            self.panther.world['effects_front'].remove(clone)
-                            print(f"[Pattern4] 분신 effects_front 레이어에서 제거")
+                # 분신에게 사라지는 애니메이션 시작 명령
+                for clone in self.clones:
+                    clone.start_dying()
+                    print(f"[Pattern4] 분신 Die 애니메이션 시작 - 위치: ({clone.x:.0f}, {clone.y:.0f})")
 
-                self.clones = []  # 분신 리스트 비우기
+                # 분신은 자동으로 애니메이션 후 제거되므로 여기서는 리스트만 비움
+                self.clones = []
 
                 # 패턴 종료
                 self.phase = 0
