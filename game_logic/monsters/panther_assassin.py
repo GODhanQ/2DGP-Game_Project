@@ -14,6 +14,7 @@ from .Boss_Logic.panther_assassin_2pattern import AttackPattern2Action
 from .Boss_Logic.panther_assassin_3pattern import AttackPattern3Action
 from .Boss_Logic.panther_assassin_4pattern import AttackPattern4Action
 from .Boss_Logic.panther_assassin_5pattern import AttackPattern5Action
+from .Boss_Logic.panther_assassin_6pattern import AttackPattern6Action
 
 # ==================== BT Action Wrapper 클래스 ====================
 
@@ -73,137 +74,6 @@ class BTActionWrapper(Action):
 
         self.value = self.action_instance.update()
         return self.value
-
-
-# ==================== 공격 패턴 클래스 ====================
-
-class AttackPattern6Action:
-    """
-    패턴6 - 분신 2체 램덤 위치에 소환후 본체, 분신 2체 번갈아 가며 플레이어를 향해 수리검 5개 방사형으로 3회씩 투척
-    """
-    img_seq = []
-    def __init__(self, panther):
-        """
-        Args:
-            panther: PantherAssassin 인스턴스 참조
-        """
-        self.panther = panther
-        self.phase = 0
-        self.timer = 0.0
-        # 분신 소환 관련 변수
-        self.clone_count = 2  # 분신 개수 (2체)
-        self.clone_positions = []  # 분신 위치 리스트
-        self.summon_time = 0.0  # 소환 시간
-        # 수리검 투척 관련 변수
-        self.current_shooter = 0  # 현재 투척하는 개체 (0: 본체, 1: 분신1, 2: 분신2)
-        self.shot_count_per_shooter = 0  # 각 개체당 투척 횟수
-        self.max_shots_per_shooter = 3  # 각 개체당 최대 투척 횟수 (3회씩)
-        self.projectiles_per_shot = 5  # 한 번에 발사하는 수리검 개수 (5개)
-        self.spread_angle = 0.0  # 방사형 각도
-        self.shot_interval = 0.0  # 투척 간격
-        # 분신 이미지 시퀀스 로드
-        self.img_count = 8
-        # if not AttackPattern6Action.img_seq:
-        #     try:
-        #         for i in range(self.img_count):
-        #             img = p2.load_image(f'')
-        #             AttackPattern6Action.img_seq.append(img)
-        #     except FileNotFoundError as e:
-        #         print(f'\033[91m[Pattern6] 이미지 로드 실패: {e}\033[0m')
-
-    def update(self):
-        """패턴 6 로직 실행"""
-        dt = framework.get_delta_time()
-
-        if self.phase == 0:
-            # 초기화
-            self.timer = 0.0
-            self.summon_time = 0.5  # 소환 시간
-            self.phase = 1
-            print("[Pattern6] 분신 소환 시작!")
-
-        elif self.phase == 1:
-            # 소환 중
-            self.timer += dt
-
-            if self.timer >= self.summon_time:
-                # 분신 소환 완료
-                if self.panther.world and self.panther.target:
-                    # 분신 위치 계산
-                    offset = 200
-                    clone_positions = [
-                        (self.panther.x - offset, self.panther.y),
-                        (self.panther.x + offset, self.panther.y)
-                    ]
-
-                    # 분신에서 타겟으로 투사체 발사
-                    for clone_x, clone_y in clone_positions:
-                        projectile = Projectile(
-                            clone_x, clone_y,
-                            self.panther.target.x, self.panther.target.y,
-                            speed=450,
-                            from_player=False
-                        )
-                        self.panther.world.get('projectiles', []).append(projectile)
-
-                    print("[Pattern6] 분신 공격 발사!")
-
-                self.timer = 0.0
-                self.duration = 1.0  # 분신 유지 시간
-                self.phase = 2
-
-        elif self.phase == 2:
-            # 분신 유지
-            self.timer += dt
-
-            if self.timer >= self.duration:
-                # 분신 소멸
-                self.phase = 0
-                self.panther.attack_timer = self.panther.attack_cooldown
-                print("[Pattern6] 분신 소멸!")
-                return BehaviorTree.SUCCESS
-
-        return BehaviorTree.RUNNING
-
-    def draw(self, draw_x, draw_y):
-        """
-        패턴 6 시각 효과 드로잉
-
-        Args:
-            draw_x, draw_y: 보스의 현재 위치 (카메라 좌표계)
-        """
-        # 공격 패턴 전용 이미지가 있다면 사용, 없다면 기본 드로잉 사용
-
-
-        # Pattern 6 Draw Logic: 그림자 분신 소환 시각 효과
-        if self.phase == 1:  # 소환 중
-            # 소환 진행도 표시
-            progress = self.timer / self.summon_time
-            summon_radius = 40 + progress * 60
-
-            # 분신 소환 위치에 원 표시
-            offset = 200
-            clone_positions = [
-                (draw_x - offset, draw_y),
-                (draw_x + offset, draw_y)
-            ]
-
-            for clone_x, clone_y in clone_positions:
-                p2.draw_circle(clone_x, clone_y, summon_radius)
-                p2.draw_line(draw_x, draw_y, clone_x, clone_y)
-
-        elif self.phase == 2:  # 분신 유지 중
-            # 분신 위치 표시 (반투명 효과를 위한 다중 원)
-            offset = 200
-            clone_positions = [
-                (draw_x - offset, draw_y),
-                (draw_x + offset, draw_y)
-            ]
-
-            for clone_x, clone_y in clone_positions:
-                p2.draw_circle(clone_x, clone_y, 70)
-                p2.draw_circle(clone_x, clone_y, 50)
-
 
 # ==================== PantherAssassin 보스 클래스 ====================
 
@@ -378,12 +248,12 @@ class PantherAssassin:
         # BTActionWrapper를 사용하여 패턴 클래스 인스턴스를 감쌈
         attack_pattern_selector = RandomSelector(
             "Random Attack Pattern",
-            BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
-            BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
-            BTActionWrapper("Pattern3: ComboAttack", self.pattern3_action),
-            BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
-            BTActionWrapper("Pattern5: Whirlwind", self.pattern5_action),
-            # BTActionWrapper("Pattern6: Shadow Clone", self.pattern6_action)
+            # BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
+            # BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
+            # BTActionWrapper("Pattern3: ComboAttack", self.pattern3_action),
+            # BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
+            # BTActionWrapper("Pattern5: Whirlwind", self.pattern5_action),
+            BTActionWrapper("Pattern6: Shadow Clone", self.pattern6_action)
         )
 
         # 공격 시퀀스: 쿨타임 체크 -> 범위 체크 -> 패턴 실행
@@ -548,12 +418,22 @@ class PantherAssassin:
             if self.current_action_instance.phase in [1, 6]:
                 should_show_idle = True
 
+        # 패턴 6 실행 중일 때 특별 처리: Phase 1(분신 이동), Phase 4(분신 소멸)에서는 IDLE 모션 표시
+        if (has_active_pattern and
+            self.current_action_instance == self.pattern6_action and
+            hasattr(self.current_action_instance, 'phase')):
+            # Phase 1: 분신 이동 중 - IDLE 모션 표시
+            # Phase 4: 분신 소멸 중 - IDLE 모션 표시
+            if self.current_action_instance.phase in [1, 4]:
+                should_show_idle = True
+
         # 패턴 4 실행 중일 때는 패턴의 draw() 메서드로 본체 그리기
         if (has_active_pattern and
             self.current_action_instance == self.pattern4_action and
             hasattr(self.current_action_instance, 'draw')):
             # 패턴 4의 draw() 메서드 호출 (은신/해제 애니메이션 처리)
             self.current_action_instance.draw(draw_x, draw_y)
+
         # 패턴 5의 특정 phase 또는 패턴 공격 중이 아닐 때 IDLE 모션 드로잉
         elif not has_active_pattern or should_show_idle:
             if self.images and len(self.images) > 0:
