@@ -1,6 +1,6 @@
-# game_logic/stages/stage_2.py
+# game_logic/stages/stage_3.py
 
-from ..monsters.cat_theif import CatThief
+from ..monsters.panther_assassin import PantherAssassin
 from ..background import FixedBackground, StageMap
 
 # 창 크기 설정
@@ -9,7 +9,7 @@ window_width, window_height = 160 * window_scale, 90 * window_scale
 
 # 로딩 화면 정보
 LOADING_SCREEN_INFO = {
-    'stage_number': 2,
+    'stage_number': 3,
     'bg_image': 'resources/Texture_organize/UI/Stage_Loading/Stage_2/St2Loading_BG.png',
     'animation_prefix': 'resources/Texture_organize/UI/Stage_Loading/Stage_2/St2Loading_',
     'animation_count': 12,  # 0~11
@@ -22,9 +22,9 @@ LOADING_SCREEN_INFO = {
     },
     # 로딩 메시지: 제목, 부제목, 팁 순서로 표시
     'loading_message': {
-        'title': 'Stage 2: Bad Lands',
-        'subtitle': '날카로운 칼날',
-        'tip': 'Tip: 파고들어!'
+        'title': 'Stage 3: Bad Lands',
+        'subtitle': '우두머리 팬서 암살자',
+        'tip': 'Tip: 신중하게...'
     }
 }
 
@@ -37,10 +37,7 @@ PLAYER_START_POSITION = {
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        (CatThief, 500, 300),
-        (CatThief, -500, 300),
-        (CatThief, 400, 500),
-        (CatThief, -400, 500),
+        (PantherAssassin, 0, 450),
     ],
     'background': {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/badlandBG.png',
@@ -62,7 +59,7 @@ def load(world):
     Args:
         world: 게임 월드 딕셔너리 (레이어별로 객체 리스트 포함)
     """
-    print("[Stage 2] 스테이지 2 로드 시작...")
+    print("[Stage 3] 스테이지 3 로드 시작...")
 
     # 배경 이미지 로드 (선택적 - 맵 뒤에 표시될 단색 또는 고정 배경)
     bg_info = stage_data.get('background')
@@ -74,7 +71,7 @@ def load(world):
             bg_info['scale']
         )
         world['bg'].append(background)
-        print(f"[Stage 2] 배경 이미지 추가됨: {bg_info['image']}")
+        print(f"[Stage 3] 배경 이미지 추가됨: {bg_info['image']}")
 
     # 스테이지 맵 로드 (실제 플레이 맵)
     stageMap_info = stage_data.get('stage_map')
@@ -93,16 +90,16 @@ def load(world):
 
         # 맵을 ground 레이어에 추가 (리스트에 append)
         world['ground'].append(stage_map)
-        print(f"[Stage 2] 스테이지 맵 추가됨: {stageMap_info['image']}")
-        print(f"[Stage 2]   - 원본 크기: {stageMap_info['width']}x{stageMap_info['height']}")
-        print(f"[Stage 2]   - 스케일: {map_scale}")
-        print(f"[Stage 2]   - 최종 크기: {scaled_width}x{scaled_height}")
+        print(f"[Stage 3] 스테이지 맵 추가됨: {stageMap_info['image']}")
+        print(f"[Stage 3]   - 원본 크기: {stageMap_info['width']}x{stageMap_info['height']}")
+        print(f"[Stage 3]   - 스케일: {map_scale}")
+        print(f"[Stage 3]   - 최종 크기: {scaled_width}x{scaled_height}")
 
     # 몬스터 로드
     for monster_class, x, y in stage_data['monsters']:
         monster = monster_class(x, y)
         monster.world = world  # 몬스터가 월드에 접근할 수 있도록 (투사체 생성 등)
         world['entities'].append(monster)
-        print(f"[Stage 2] 몬스터 추가됨: {monster_class.__name__} at ({x}, {y})")
+        print(f"[Stage 3] 몬스터 추가됨: {monster_class.__name__} at ({x}, {y})")
 
-    print("[Stage 2] 스테이지 2 로드 완료!")
+    print("[Stage 3] 스테이지 3 로드 완료!")

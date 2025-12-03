@@ -5,46 +5,54 @@ from .inventory import Item
 
 class lantern:
     def __new__(cls):
-        return Item.from_filename('Lantern.png', '랜턴')
+        return Item.from_filename('Lantern.png', '랜턴',
+                                  description='어둠을 밝히는 낡은 랜턴')
 
 
 class magic_glasses:
     def __new__(cls):
         return Item.from_filename('MagicGlasses.png', '마법 안경',
-                                  passive={'crit_chance': 0.05})
+                                  description='치명타 확률 +20%',
+                                  passive={'crit_chance': 20.0})  # 치명타 확률 20% 증가
 
 class rabbit_guard_helm:
     def __new__(cls):
         return Item.from_filename('RabbitGuardHelm.png', '토끼 수호자 투구',
+                                  description='방어력 +5',
                                   passive={'defense': 5.0})
 
 class carrot:
     def __new__(cls):
         return Item.from_filename('Carrot.png', '당근',
+                                  description='8초간 이동속도 +50 (쿨타임 3초)',
                                   consumable={'move_speed': 50.0}, consume_duration=8.0,
                                   cooldown=3.0)  # 3초 쿨타임
 
 class amber:
     def __new__(cls):
         return Item.from_filename('Amber.png', '호박보석',
+                                  description='공격력 +2',
                                   passive={'attack_damage': 2.0})
 
 class ruby:
     def __new__(cls):
         return Item.from_filename('Ruby.png', '루비',
+                                  description='공격력 +3',
                                   passive={'attack_damage': 3.0})
 
 class white_bread:
     def __new__(cls):
         return Item.from_filename('WhiteCrustedBread.png', '하얀 빵',
-                                  consumable={'defense': 2.0}, consume_duration=10.0,
+                                  description='10초간 마나 +20 (쿨타임 5초)',
+                                  consumable={'mana': 20.0}, consume_duration=10.0,
                                   cooldown=5.0)  # 5초 쿨타임
 
 class potion_red0:
     def __new__(cls):
         item = Item.from_filename('Potion/Item_RedPotion0.png', '빨간 포션',
-                                  consumable={'attack_damage': 5.0}, consume_duration=15.0,
-                                  cooldown=2.0)  # 2초 쿨타임
+                                  description='15초간 체력 +10 회복 (쿨타임 5초)',
+                                  consumable={'health': 10.0}, consume_duration=15.0,
+                                  cooldown=5.0)  # 2초 쿨타임
 
         # VFX 리소스 경로
         item.consume_vfx_path = r'resources\Texture_organize\VFX\Potion_Common'
@@ -90,7 +98,7 @@ class potion_red0:
             frame_time = getattr(item, 'consume_vfx_frame_time', 0.06)
 
             # 가능한 파일명 접두사(백/프론트)와 프레임 수
-            back_prefixes = ['Potion_Back_FX', 'Potionl_Back_FX', 'Potion_Back_FX00', 'Potion_Back_FX0']
+            back_prefixes = ['Potionl_Back_FX', 'Potionl_Back_FX00']
             front_prefixes = ['Potion_Front_FX', 'Potion_Front_FX00', 'Potion_Front_FX0']
             back_frames = getattr(item, 'consume_vfx_back_frames', 8)
             front_frames = getattr(item, 'consume_vfx_front_frames', 4)
@@ -211,9 +219,9 @@ def sample_debug_list():
         (lantern(), 1),
         (magic_glasses(), 1),
         (rabbit_guard_helm(), 1),
-        (carrot(), 3),              # 비스택: 각 1개씩 여러 슬롯
-        (amber(), 2),
-        (ruby(), 2),
+        (carrot(), 3),
+        (amber(), 1),
+        (ruby(), 1),
         (white_bread(), 1),
-        (potion_red0(), 15),        # 스택: 한 슬롯에 누적
+        (potion_red0(), 15),
     ]

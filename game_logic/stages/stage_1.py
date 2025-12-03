@@ -1,10 +1,7 @@
 # game_logic/stages/stage_1.py
 
-# This stage will use CatAssassin monsters
 from ..background import FixedBackground, StageMap
 from ..monsters.cat_assassin import CatAssassin
-from ..monsters.cat_theif import CatThief
-from ..monsters.panther_assassin import PantherAssassin
 
 # 창 크기 설정 (main.py와 동일하게 유지)
 window_scale = 8
@@ -19,8 +16,8 @@ LOADING_SCREEN_INFO = {
     # 로딩 메시지: 제목, 부제목, 팁 순서로 표시
     'loading_message': {
         'title': 'Stage 1: Bad Lands',
-        'subtitle': 'The Forsaken Zone',
-        'tip': 'Tip: Keep your distance from agile enemies!'
+        'subtitle': '고양이의 습격',
+        'tip': 'Tip: 표창 사이로...!'
     }
 }
 
@@ -33,9 +30,13 @@ PLAYER_START_POSITION = {
 # Stage data dictionary
 stage_data = {
     'monsters': [
-        # (CatAssassin, 300, 0),
-        # (CatThief, -300, 0),
-        (PantherAssassin, 0, 450),
+        (CatAssassin, 500, 300),
+        (CatAssassin, -500, 300),
+        (CatAssassin, 400, 500),
+        (CatAssassin, -400, 500),
+        (CatAssassin, 200, 700),
+        (CatAssassin, -200, 700),
+        (CatAssassin, 0, 800),
     ],
     'background': {
         'image': 'resources/Texture_organize/Map/Stage4_Bad_Lands/badlandBG.png',

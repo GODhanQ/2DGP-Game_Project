@@ -34,10 +34,38 @@ class InventoryOverlay:
             print(f"\033[91mFailed to load inventory slot image: {slot_path}, {ex}\033[0m")
             self.slot_image = None
 
+        # 툴팁 이미지 로드
+        tooltip_path = os.path.join('resources', 'Texture_organize', 'UI', 'Charm_Tooltip', 'ItemTooltip_Base2.png')
+        try:
+            self.tooltip_image = load_image(tooltip_path)
+            print(f'[InventoryOverlay] Loaded tooltip image: {tooltip_path}')
+        except Exception as ex:
+            print(f"\033[91mFailed to load tooltip image: {tooltip_path}, {ex}\033[0m")
+            self.tooltip_image = None
+
         # 수량 텍스트용 폰트 (동적 크기 캐시)
         self._font = None
         self._font_size = None
         self._font_loaded = False
+
+        # 툴팁용 폰트 (고정 크기)
+        self._tooltip_font_name = None
+        self._tooltip_font_desc = None
+        try:
+            font_candidates = [
+                'resources/Fonts/pixelroborobo.otf',
+                os.path.join('resources', 'Fonts', 'Arial.ttf'),
+            ]
+            for font_path in font_candidates:
+                try:
+                    self._tooltip_font_name = load_font(font_path, 16)  # 아이템 이름용
+                    self._tooltip_font_desc = load_font(font_path, 12)  # 아이템 설명용
+                    print(f'[InventoryOverlay] Loaded tooltip fonts: {font_path}')
+                    break
+                except Exception:
+                    continue
+        except Exception as ex:
+            print(f"\033[91mFailed to load tooltip fonts: {ex}\033[0m")
 
         # 그리드 설정 (플레이어 인벤토리 크기에 동기화)
         self.cols = getattr(self.player.inventory, 'cols', 6)
@@ -61,6 +89,23 @@ class InventoryOverlay:
         self.drag_icon = None
         self.drag_qty = 0
         self.drag_mouse = (0, 0)
+
+        # 호버 상태 (툴팁 표시용)
+        self.hover_slot = None  # (r, c) 또는 None
+        self.hover_mouse = (0, 0)  # 현재 마우스 위치 (윈도우 좌표)
+
+        # 툴팁 위치 조정 오프셋 (사용자가 조정 가능)
+        self.tooltip_offset_x = 130
+        self.tooltip_offset_y = -60
+        self.tooltip_scale = 1.5  # 툴팁 이미지 스케일
+        # 툴팁 내부 아이템 이미지/텍스트 오프셋 (툴팁 중심 기준)
+        self.tooltip_item_icon_offset_x = 57.5
+        self.tooltip_item_icon_offset_y = 10
+        self.tooltip_item_icon_scale = 0.7
+        self.tooltip_item_name_offset_x = -50
+        self.tooltip_item_name_offset_y = 10
+        self.tooltip_item_desc_offset_x = -70
+        self.tooltip_item_desc_offset_y = -17.5
 
         # 계산 캐시
         self._last_layout = None  # (canvas_w, canvas_h, scale) -> layout dict
@@ -99,6 +144,7 @@ class InventoryOverlay:
             self.drag_from = None
             self.drag_icon = None
             self.drag_qty = 0
+            self.hover_slot = None
 
     def handle_event(self, event):
         # 인벤토리가 열려있을 때만 입력 처리
@@ -142,6 +188,15 @@ class InventoryOverlay:
                     except Exception:
                         pass
             return
+        # 마우스 모션: 드래그 중이면 위치 갱신, 아니면 호버 슬롯 갱신
+        if event.type == SDL_MOUSEMOTION:
+            self.hover_mouse = (event.x, event.y)
+            if self.dragging:
+                self.drag_mouse = (event.x, event.y)
+            else:
+                # 호버 중인 슬롯 업데이트
+                self.hover_slot = self._hit_test(event.x, event.y)
+            return
         # 좌클릭 다운: 드래그 시작 또는 슬롯 정보 출력
         if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
             hit = self._hit_test(event.x, event.y)
@@ -156,15 +211,12 @@ class InventoryOverlay:
                         self.drag_icon = slot.item.get_icon()
                         self.drag_qty = slot.quantity
                         self.drag_mouse = (event.x, event.y)
+                        # 드래그 시작 시 호버 해제
+                        self.hover_slot = None
                     else:
                         print(f"[InventoryOverlay] 클릭: ({r}, {c}) 빈 슬롯")
                 except Exception as ex:
                     print(f"\033[91m[InventoryOverlay] 슬롯 접근 오류: {ex}\033[0m")
-            return
-        # 마우스 모션: 드래그 중이면 위치 갱신
-        if event.type == SDL_MOUSEMOTION:
-            if self.dragging:
-                self.drag_mouse = (event.x, event.y)
             return
         # 좌클릭 업: 드롭 처리
         if event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_LEFT:
@@ -231,6 +283,10 @@ class InventoryOverlay:
                 self.drag_from = None
                 self.drag_icon = None
                 self.drag_qty = 0
+                # 드래그 종료 후 호버 상태 복원
+                mx, my = self._get_mouse_pos()
+                self.hover_mouse = (mx, my)
+                self.hover_slot = self._hit_test(mx, my)
             return
 
     def _compute_layout(self, canvas_w, canvas_h):
@@ -441,6 +497,87 @@ class InventoryOverlay:
                     self._font.draw(tx, ty, str(self.drag_qty), (255, 255, 255))
                 except Exception:
                     pass
+
+        # 툴팁 그리기 (드래그 중이 아니고, 호버 슬롯이 있을 때)
+        if not self.dragging and self.hover_slot is not None:
+            self._draw_tooltip()
+
+    def _draw_tooltip(self):
+        """호버 중인 아이템의 툴팁을 그린다"""
+        if self.tooltip_image is None or self.hover_slot is None:
+            return
+
+        try:
+            r, c = self.hover_slot
+            slot = self.player.inventory.get_slot(r, c)
+            if slot.is_empty():
+                return
+
+            item = slot.item
+            item_icon = item.get_icon()
+            item_name = getattr(item, 'name', 'Unknown Item')
+            item_desc = getattr(item, 'description', 'No description available.')
+
+            # 툴팁 그릴 위치 계산 (마우스 위치 + 오프셋)
+            mx, my = self.hover_mouse
+            canvas_h = get_canvas_height()
+            tooltip_x = mx + self.tooltip_offset_x
+            tooltip_y = canvas_h - my + self.tooltip_offset_y
+
+            # 툴팁 이미지 크기
+            tooltip_w = self.tooltip_image.w * self.tooltip_scale
+            tooltip_h = self.tooltip_image.h * self.tooltip_scale
+
+            # 화면 경계 체크 (툴팁이 화면 밖으로 나가지 않도록)
+            canvas_w = get_canvas_width()
+            if tooltip_x + tooltip_w / 2 > canvas_w:
+                tooltip_x = canvas_w - tooltip_w / 2
+            if tooltip_x - tooltip_w / 2 < 0:
+                tooltip_x = tooltip_w / 2
+            if tooltip_y + tooltip_h / 2 > canvas_h:
+                tooltip_y = canvas_h - tooltip_h / 2
+            if tooltip_y - tooltip_h / 2 < 0:
+                tooltip_y = tooltip_h / 2
+
+            # 툴팁 배경 그리기
+            self.tooltip_image.draw(tooltip_x, tooltip_y, tooltip_w, tooltip_h)
+
+            # 아이템 아이콘 그리기 (툴팁 상단)
+            if item_icon is not None:
+                icon_size = 40 * self.tooltip_scale  # 아이콘 크기
+                icon_scale = min(icon_size / item_icon.w, icon_size / item_icon.h)
+                icon_w = item_icon.w * icon_scale
+                icon_h = item_icon.h * icon_scale
+                icon_x = tooltip_x + self.tooltip_item_icon_offset_x * self.tooltip_scale
+                icon_y = tooltip_y + self.tooltip_item_icon_offset_y * self.tooltip_scale
+                item_icon.draw(icon_x, icon_y,
+                               icon_w * self.tooltip_item_icon_scale,
+                               icon_h * self.tooltip_item_icon_scale)
+
+            # 아이템 이름 그리기 (툴팁 중앙)
+            if self._tooltip_font_name is not None:
+                name_x = tooltip_x + self.tooltip_item_name_offset_x * self.tooltip_scale
+                name_y = tooltip_y + self.tooltip_item_name_offset_y * self.tooltip_scale
+                # 그림자 효과
+                try:
+                    self._tooltip_font_name.draw(name_x - 1, name_y - 1, item_name, (0, 0, 0))
+                    self._tooltip_font_name.draw(name_x, name_y, item_name, (255, 255, 100))
+                except Exception as ex:
+                    print(f"\033[91m[InventoryOverlay] 툴팁 이름 그리기 실패: {ex}\033[0m")
+
+            # 아이템 설명 그리기 (툴팁 하단)
+            if self._tooltip_font_desc is not None:
+                desc_x = tooltip_x + self.tooltip_item_desc_offset_x * self.tooltip_scale
+                desc_y = tooltip_y + self.tooltip_item_desc_offset_y * self.tooltip_scale
+                # 그림자 효과
+                try:
+                    self._tooltip_font_desc.draw(desc_x - 1, desc_y - 1, item_desc, (0, 0, 0))
+                    self._tooltip_font_desc.draw(desc_x, desc_y, item_desc, (200, 200, 200))
+                except Exception as ex:
+                    print(f"\033[91m[InventoryOverlay] 툴팁 설명 그리기 실패: {ex}\033[0m")
+
+        except Exception as ex:
+            print(f"\033[91m[InventoryOverlay] 툴팁 그리기 실패: {ex}\033[0m")
 
 
 class HealthBar:

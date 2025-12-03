@@ -15,6 +15,7 @@ class Item:
     """게임 아이템 단위. 동일 아이템은 stackable=True일 때 수량으로 누적.
     - id: 고유 문자열 (파일명 기반으로 기본 생성)
     - name: 표시용 이름
+    - description: 아이템 설명 (툴팁에 표시됨)
     - icon_path: 아이콘 png 경로
     - stackable: 스택 가능 여부
     - max_stack: 한 슬롯 최대 수량
@@ -24,6 +25,7 @@ class Item:
     - cooldown: 아이템 사용 후 재사용 대기 시간(초); None이면 쿨타임 없음
     """
     def __init__(self, id: str, name: str, icon_path: str,
+                 description: str = '',
                  stackable: bool = True, max_stack: int = 99,
                  passive: Optional[dict] = None,
                  consumable: Optional[dict] = None,
@@ -31,6 +33,7 @@ class Item:
                  cooldown: Optional[float] = None):
         self.id = id
         self.name = name
+        self.description = description
         self.icon_path = icon_path
         self.stackable = stackable
         self.max_stack = max_stack
@@ -50,7 +53,9 @@ class Item:
         return self._icon_image
 
     @classmethod
-    def from_filename(cls, filename: str, name: Optional[str] = None, stackable: bool = True, max_stack: int = 99,
+    def from_filename(cls, filename: str, name: Optional[str] = None,
+                      description: str = '',
+                      stackable: bool = True, max_stack: int = 99,
                       passive: Optional[dict] = None, consumable: Optional[dict] = None,
                       consume_duration: Optional[float] = None, cooldown: Optional[float] = None):
         path = os.path.join(ITEMS_BASE, filename)
@@ -65,6 +70,7 @@ class Item:
             eff_stackable = False
             eff_max_stack = 1
         return cls(item_id, name or item_id, path,
+                   description=description,
                    stackable=eff_stackable, max_stack=eff_max_stack,
                    passive=passive, consumable=consumable, consume_duration=consume_duration,
                    cooldown=cooldown)

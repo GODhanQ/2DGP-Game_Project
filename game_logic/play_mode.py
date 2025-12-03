@@ -11,7 +11,7 @@ from .cursor import Cursor
 from .loading_screen import LoadingScreen
 from . import defeat_mode, victory_mode
 # 사용할 스테이지 모듈들을 import 합니다.
-from .stages import stage_1, stage_2
+from .stages import stage_1, stage_2, stage_3
 
 # world layers: keep same keys as original main.py
 world = {
@@ -29,8 +29,7 @@ world = {
 world['bg'] = world['ground']
 
 # 스테이지 관리
-# stages = [stage_1, stage_2]
-stages = [stage_1]
+stages = [stage_1, stage_2, stage_3]
 current_stage_index = 0
 is_stage_cleared = False
 

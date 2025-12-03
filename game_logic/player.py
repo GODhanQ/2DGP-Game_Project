@@ -1071,8 +1071,36 @@ class Player:
         # 소비형 스탯 적용
         values = dict(item.consumable)
         duration = item.consume_duration
-        mod_id = f'consumable:{item.id}:{r},{c}:{int(time.time()*1000)%100000}'
-        self.stats.add_modifier(StatModifier(mod_id, values, duration=duration))
+        
+        # health와 mana는 즉시 회복 (최대값 제한)
+        instant_stats = {}
+        modifier_stats = {}
+        
+        for key, value in values.items():
+            if key == 'health':
+                # 현재 체력에 회복량을 더하되 최대 체력을 넘지 않도록
+                current_health = self.stats.base.get('health', 0.0)
+                max_health = self.stats.get('max_health')
+                new_health = min(max_health, current_health + value)
+                self.stats.base['health'] = new_health
+                instant_stats[key] = value
+                print(f'[Player] 체력 회복: {current_health:.1f} -> {new_health:.1f} (최대: {max_health:.1f})')
+            elif key == 'mana':
+                # 현재 마나에 회복량을 더하되 최대 마나를 넘지 않도록
+                current_mana = self.stats.base.get('mana', 0.0)
+                max_mana = self.stats.get('max_mana')
+                new_mana = min(max_mana, current_mana + value)
+                self.stats.base['mana'] = new_mana
+                instant_stats[key] = value
+                print(f'[Player] 마나 회복: {current_mana:.1f} -> {new_mana:.1f} (최대: {max_mana:.1f})')
+            else:
+                # 다른 스탯은 일시적 버프로 적용
+                modifier_stats[key] = value
+        
+        # 일시적 버프가 있는 경우에만 modifier 추가
+        if modifier_stats:
+            mod_id = f'consumable:{item.id}:{r},{c}:{int(time.time()*1000)%100000}'
+            self.stats.add_modifier(StatModifier(mod_id, modifier_stats, duration=duration))
 
         # 1개 소모
         self.inventory.remove_from(r, c, 1)
