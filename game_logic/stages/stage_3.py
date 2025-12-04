@@ -23,7 +23,7 @@ LOADING_SCREEN_INFO = {
     # 로딩 메시지: 제목, 부제목, 팁 순서로 표시
     'loading_message': {
         'title': 'Stage 3: Bad Lands',
-        'subtitle': '우두머리 팬서 암살자',
+        'subtitle': '우두머리 흑표범 암살자',
         'tip': 'Tip: 신중하게...'
     }
 }

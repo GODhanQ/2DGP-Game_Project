@@ -152,7 +152,7 @@ class CatThiefStats(MonsterStats):
             'max_health': 70.0,
             'health': 70.0,
             'move_speed': 120.0,
-            'attack_damage': 30.0,
+            'attack_damage': 20.0,
             'defense': 2.0,
             'attack_speed': 1.2,
             'attack_range': 400.0,
@@ -164,7 +164,7 @@ class PantherAssassinStats(MonsterStats):
     def __init__(self):
         super().__init__({
             'max_health': 500.0,
-            'health': 0.0,
+            'health': 500.0,
             'move_speed': 150.0,
             'attack_damage': 20.0,
             'defense': 5.0,

@@ -248,12 +248,12 @@ class PantherAssassin:
         # BTActionWrapper를 사용하여 패턴 클래스 인스턴스를 감쌈
         attack_pattern_selector = RandomSelector(
             "Random Attack Pattern",
-            # BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
-            # BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
-            # BTActionWrapper("Pattern3: ComboAttack", self.pattern3_action),
-            # BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
-            # BTActionWrapper("Pattern5: Whirlwind", self.pattern5_action),
-            BTActionWrapper("Pattern6: Shadow Clone", self.pattern6_action)
+            BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
+            BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
+            BTActionWrapper("Pattern3: ComboAttack", self.pattern3_action),
+            BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
+            BTActionWrapper("Pattern5: Whirlwind", self.pattern5_action),
+            BTActionWrapper("Pattern6: Shadow", self.pattern6_action)
         )
 
         # 공격 시퀀스: 쿨타임 체크 -> 범위 체크 -> 패턴 실행
