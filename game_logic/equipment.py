@@ -298,14 +298,14 @@ class Shield(Weapon):
             pass
 
         # blocking 상태가 변경되었을 때 이펙트 생성/제거
-        if self.blocking and not was_blocking:
-            # blocking 시작: 이펙트 생성
-            if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
-                self.range_effect = ShieldRangeEffect(self.player, self)
-                self.player.world['effects_front'].append(self.range_effect)
-        elif not self.blocking and was_blocking:
-            # blocking 종료: 이펙트는 자동으로 제거됨 (update에서 False 반환)
-            self.range_effect = None
+        # if self.blocking and not was_blocking:
+        #     # blocking 시작: 이펙트 생성
+        #     if hasattr(self.player, 'world') and self.player.world and 'effects_front' in self.player.world:
+        #         self.range_effect = ShieldRangeEffect(self.player, self)
+        #         self.player.world['effects_front'].append(self.range_effect)
+        # elif not self.blocking and was_blocking:
+        #     # blocking 종료: 이펙트는 자동으로 제거됨 (update에서 False 반환)
+        #     self.range_effect = None
 
         # 기존 공격 타이머 로직 유지(필요 시)
         if self.is_attacking:
@@ -912,24 +912,52 @@ class EquipmentManager:
             equipment.update()
 
     def handle_event(self, event):
-        """장비 이벤트 처리 (좌클릭: 공격, 우클릭: 방패 전개 표시)"""
-        # 마우스 좌클릭 시 공격(검)
-        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
-            for equipment in self.back_equipment:
-                equipment.attack()
+        """장비 이벤트 처리 (좌클릭: 공격, 우클릭: 방패 전개 표시)
 
-        # 마우스 우클릭: 방패 범위 표시 시작/종료
+        방어와 공격은 상호 배타적으로 작동:
+        - 방어 중일 때는 공격 불가
+        - 공격 중일 때는 방어 불가
+        """
+        # 현재 방어 중인지 확인
+        is_blocking = False
+        for equipment in self.front_equipment:
+            if isinstance(equipment, Shield) and equipment.blocking:
+                is_blocking = True
+                break
+
+        # 현재 공격 중인지 확인
+        is_attacking = False
+        for equipment in self.back_equipment:
+            if isinstance(equipment, Sword) and equipment.is_attacking:
+                is_attacking = True
+                break
+
+        # 마우스 좌클릭 시 공격(검) - 방어 중이 아닐 때만 가능
+        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
+            if is_blocking:
+                # 방어 중일 때는 공격 불가
+                print('[Equipment] 방어 중에는 공격할 수 없습니다!')
+            else:
+                # 방어 중이 아니면 공격 실행
+                for equipment in self.back_equipment:
+                    equipment.attack()
+
+        # 마우스 우클릭: 방패 범위 표시 시작 - 공격 중이 아닐 때만 가능
         if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_RIGHT:
-            # 디버그: 우클릭 다운 수신
-            try:
-                print('[Shield] RIGHT DOWN')
-            except Exception:
-                pass
-            for equipment in self.front_equipment:
-                if isinstance(equipment, Shield):
-                    equipment.start_block()
+            if is_attacking:
+                # 공격 중일 때는 방어 불가
+                print('[Equipment] 공격 중에는 방어할 수 없습니다!')
+            else:
+                # 공격 중이 아니면 방어 시작
+                try:
+                    print('[Shield] RIGHT DOWN')
+                except Exception:
+                    pass
+                for equipment in self.front_equipment:
+                    if isinstance(equipment, Shield):
+                        equipment.start_block()
         elif event.type == SDL_MOUSEBUTTONUP and event.button == SDL_BUTTON_RIGHT:
-            # 디버그: 우클릭 업 수신
+            # 우클릭 해제는 항상 처리 (방어 종료)
             try:
                 print('[Shield] RIGHT UP')
             except Exception:

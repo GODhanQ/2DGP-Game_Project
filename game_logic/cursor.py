@@ -114,6 +114,7 @@ class Cursor:
             draw_x = self.x
         if draw_y is None:
             draw_y = self.y
+
         # 방패 전개 범위 오버레이(항상 최상단). 단, 엔티티 레이어에서 그릴 경우 여기서는 생략
         right_held = False
         try:
@@ -200,14 +201,6 @@ class Cursor:
                 self.shield_range_image.w * self.shield_range_scale,
                 self.shield_range_image.h * self.shield_range_scale
             )
-            # 디버그 로그 - 카메라 정보 추가
-            # if camera is not None:
-            #     print(f'[Cursor] Drew shield range at screen ({draw_x_shield:.1f}, {draw_y_shield:.1f}), '
-            #           f'player world ({self.player.x:.1f}, {self.player.y:.1f}), '
-            #           f'player screen ({player_screen_x:.1f}, {player_screen_y:.1f}), '
-            #           f'camera ({camera.x:.1f}, {camera.y:.1f}), angle {theta:.2f}')
-            # else:
-            #     print(f'[Cursor] Drew shield range at ({draw_x_shield:.1f}, {draw_y_shield:.1f}) with angle {theta:.2f} (NO CAMERA)')
 
         # 인벤토리 열림 + 프레임 로드 성공 시 전용 커서 사용 (팁 위치를 마우스 좌표에 정렬)
         if self.player and getattr(self.player, 'inventory_open', False) and self.inv_frames:
