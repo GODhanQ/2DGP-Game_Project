@@ -918,6 +918,10 @@ class EquipmentManager:
         - 방어 중일 때는 공격 불가
         - 공격 중일 때는 방어 불가
         """
+        # 인벤토리가 열려있으면 장비 클릭 이벤트 무시
+        if getattr(self.player, 'inventory_open', False):
+            return
+
         # 현재 방어 중인지 확인
         is_blocking = False
         for equipment in self.front_equipment:

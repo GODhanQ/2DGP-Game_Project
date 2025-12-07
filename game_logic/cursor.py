@@ -115,7 +115,11 @@ class Cursor:
         if draw_y is None:
             draw_y = self.y
 
+        # 인벤토리가 열려있으면 방패 범위 표시 안 함
+        inv_open = bool(getattr(self.player, 'inventory_open', False)) if self.player else False
+
         # 방패 전개 범위 오버레이(항상 최상단). 단, 엔티티 레이어에서 그릴 경우 여기서는 생략
+        # 인벤토리가 열려있지 않을 때만 방패 범위 표시
         right_held = False
         try:
             mx = ctypes.c_int(0)
@@ -134,7 +138,8 @@ class Cursor:
 
         # 우클릭을 홀드할 때만 방패 범위 이미지를 플레이어 주변에 생성 (카메라 적용)
         # 방패가 깨진 상태(shield_available=False)이면 쉴드 이펙트를 그리지 않음
-        if right_held and self.shield_available and self.shield_range_image is not None and not draw_in_entity:
+        # 인벤토리가 열려있으면 방패 범위를 그리지 않음
+        if not inv_open and right_held and self.shield_available and self.shield_range_image is not None and not draw_in_entity:
             # 카메라 가져오기 - play_mode와 lobby_mode 모두 지원
             camera = None
             try:

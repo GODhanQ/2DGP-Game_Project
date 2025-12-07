@@ -275,8 +275,8 @@ class Dash:
 
         # 무적 시간 활성화 (0.15초)
         self.player.invincible = True
-        self.player.invincible_timer = 0.15
-        print(f"[Dash] 무적 시간 활성화 (0.15초)")
+        self.player.invincible_timer = 0.3
+        print(f"[Dash] 무적 시간 활성화 (0.3초)")
 
         # 대시 방향 결정
         # Run 상태에서 왔으면 현재 이동 방향으로 대시
