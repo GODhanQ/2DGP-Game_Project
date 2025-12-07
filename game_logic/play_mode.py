@@ -6,7 +6,7 @@ from PIL import Image
 
 import game_framework
 from .player import Player
-from .ui_overlay import InventoryOverlay, HealthBar, ManaBar, DashBar
+from .ui_overlay import InventoryOverlay, HealthBar, ManaBar, DashBar, BuffIndicatorUI
 from .cursor import Cursor
 from .loading_screen import LoadingScreen
 from . import defeat_mode, victory_mode
@@ -588,6 +588,25 @@ def enter(player=None):
 
         dash_bar = _DashBarStub(player)
     world['ui'].append(dash_bar)
+
+    print("[play_mode] Creating buff indicator...")
+    # buff indicator UI 생성
+    try:
+        buff_indicator = BuffIndicatorUI(player)
+        print("[play_mode] BuffIndicatorUI created successfully")
+    except Exception as ex:
+        print('[play_mode] BuffIndicatorUI init failed, using stub:', ex)
+
+        class _BuffIndicatorStub:
+            def __init__(self, player):
+                self.player = player
+            def update(self):
+                return
+            def draw(self):
+                return
+
+        buff_indicator = _BuffIndicatorStub(player)
+    world['ui'].append(buff_indicator)
 
     print("[play_mode] Creating cursor...")
     # cursor on top (safe fallback)

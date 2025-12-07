@@ -3,11 +3,13 @@ from typing import Dict, Optional
 import game_framework
 
 class StatModifier:
-    def __init__(self, id: str, values: Dict[str, float], duration: Optional[float] = None):
+    def __init__(self, id: str, values: Dict[str, float], duration: Optional[float] = None, item_info: Optional[dict] = None):
         self.id = id
         self.values = dict(values)
         self.duration = duration
         self.time_left = duration
+        # 아이템 정보 저장 (아이콘, 이름 등)
+        self.item_info = item_info or {}
 
     def update(self, dt: float) -> bool:
         if self.duration is None:
@@ -18,6 +20,13 @@ class StatModifier:
     @property
     def expired(self) -> bool:
         return self.duration is not None and self.time_left is not None and self.time_left <= 0
+
+    @property
+    def remaining_duration(self) -> float:
+        """남은 시간 반환"""
+        if self.time_left is not None:
+            return max(0.0, self.time_left)
+        return 0.0
 
 
 class PlayerStats:

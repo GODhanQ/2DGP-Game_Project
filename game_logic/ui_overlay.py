@@ -897,3 +897,115 @@ class MonsterHealthBar:
                 bar_y + self.height / 2,
                 *self.color, filled = True
             )
+
+class BuffIndicatorUI:
+    """화면 우측 상단에 표시되는 버프 지속시간 UI"""
+    def __init__(self, player):
+        self.player = player
+
+        # UI 위치 및 크기 설정
+        self.x_from_right = 20  # 화면 오른쪽에서 20픽셀
+        self.y_from_top = 50  # 화면 위에서 50픽셀
+        self.icon_size = 40  # 아이콘 크기
+        self.icon_gap = 10  # 아이콘 간격
+        self.max_display = 5  # 최대 표시 개수
+
+        # 배경 이미지 (옵션)
+        bg_path = os.path.join('resources', 'Texture_organize', 'UI', 'Inventory', 'InventorySlot_New0.png')
+        try:
+            self.bg_image = load_image(bg_path)
+        except Exception as ex:
+            print(f"[BuffIndicatorUI] 배경 이미지 로드 실패: {ex}")
+            self.bg_image = None
+
+        # 폰트 로드 (시간 표시용)
+        self.font = None
+        try:
+            font_candidates = [
+                'resources/Fonts/pixelroborobo.otf',
+                'C:/Windows/Fonts/arial.ttf',
+            ]
+            for font_path in font_candidates:
+                try:
+                    self.font = load_font(font_path, 14)
+                    print(f"[BuffIndicatorUI] 폰트 로드 성공: {font_path}")
+                    break
+                except Exception:
+                    continue
+        except Exception as ex:
+            print(f"[BuffIndicatorUI] 폰트 로드 실패: {ex}")
+
+    def update(self):
+        """버프 상태 업데이트"""
+        pass
+
+    def draw(self):
+        """활성화된 버프 아이콘과 남은 시간 표시"""
+        if not hasattr(self.player, 'stats') or not hasattr(self.player.stats, '_mods'):
+            return
+
+        canvas_w = get_canvas_width()
+        canvas_h = get_canvas_height()
+
+        # 소비형 아이템 버프만 필터링 (consumable:로 시작하는 modifier)
+        active_buffs = []
+        for mod_id, mod in self.player.stats._mods.items():
+            if mod_id.startswith('consumable:') and hasattr(mod, 'duration') and mod.duration is not None:
+                remaining = getattr(mod, 'remaining_duration', 0.0)
+                if remaining > 0:
+                    active_buffs.append((mod_id, mod, remaining))
+
+        # 남은 시간 순으로 정렬 (짧은 것부터)
+        active_buffs.sort(key=lambda x: x[2])
+
+        # 최대 표시 개수 제한
+        active_buffs = active_buffs[:self.max_display]
+
+        # 각 버프 그리기
+        for idx, (mod_id, mod, remaining) in enumerate(active_buffs):
+            # 위치 계산 (오른쪽에서 왼쪽으로, 위에서 아래로)
+            draw_x = canvas_w - self.x_from_right - self.icon_size / 2
+            draw_y = canvas_h - self.y_from_top - idx * (self.icon_size + self.icon_gap) - self.icon_size / 2
+
+            # 배경 그리기
+            if self.bg_image:
+                bg_scale = self.icon_size / max(self.bg_image.w, self.bg_image.h)
+                bg_w = self.bg_image.w * bg_scale
+                bg_h = self.bg_image.h * bg_scale
+                self.bg_image.draw(draw_x, draw_y, bg_w, bg_h)
+
+            # 아이템 아이콘 그리기 (modifier에 저장된 정보 사용)
+            try:
+                item_info = getattr(mod, 'item_info', {})
+                item_icon = item_info.get('icon')
+
+                # 아이콘이 없으면 icon_path에서 다시 로드 시도
+                if item_icon is None and 'icon_path' in item_info:
+                    try:
+                        item_icon = load_image(item_info['icon_path'])
+                    except Exception as ex:
+                        print(f"[BuffIndicatorUI] 아이콘 로드 실패: {ex}")
+
+                # 아이콘 그리기
+                if item_icon:
+                    icon_scale = (self.icon_size * 0.8) / max(item_icon.w, item_icon.h)
+                    icon_w = item_icon.w * icon_scale
+                    icon_h = item_icon.h * icon_scale
+                    item_icon.draw(draw_x, draw_y, icon_w, icon_h)
+            except Exception as ex:
+                print(f"[BuffIndicatorUI] 아이콘 표시 오류: {ex}")
+
+            # 남은 시간 텍스트 표시
+            if self.font:
+                # 초 단위로 표시 (소수점 1자리)
+                time_text = f"{remaining:.1f}s"
+                text_x = draw_x
+                text_y = draw_y - self.icon_size / 2 - 8
+
+                # 그림자 효과
+                try:
+                    self.font.draw(text_x - 1, text_y - 1, time_text, (0, 0, 0))
+                    self.font.draw(text_x, text_y, time_text, (255, 255, 100))
+                except Exception as ex:
+                    print(f"[BuffIndicatorUI] 텍스트 그리기 오류: {ex}")
+

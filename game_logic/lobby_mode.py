@@ -5,7 +5,7 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE
 
 import game_framework
 from .player import Player
-from .ui_overlay import InventoryOverlay, HealthBar, ManaBar
+from .ui_overlay import InventoryOverlay, HealthBar, ManaBar, BuffIndicatorUI
 from .cursor import Cursor
 from .loading_screen import LoadingScreen
 from . import defeat_mode

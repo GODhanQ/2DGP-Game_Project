@@ -1100,7 +1100,14 @@ class Player:
         # 일시적 버프가 있는 경우에만 modifier 추가
         if modifier_stats:
             mod_id = f'consumable:{item.id}:{r},{c}:{int(time.time()*1000)%100000}'
-            self.stats.add_modifier(StatModifier(mod_id, modifier_stats, duration=duration))
+            # 아이템 정보를 modifier에 저장 (아이콘, 이름 등)
+            item_info = {
+                'id': item.id,
+                'name': getattr(item, 'name', 'Unknown'),
+                'icon': item.get_icon() if hasattr(item, 'get_icon') else None,
+                'icon_path': getattr(item, 'icon_path', None)
+            }
+            self.stats.add_modifier(StatModifier(mod_id, modifier_stats, duration=duration, item_info=item_info))
 
         # 1개 소모
         self.inventory.remove_from(r, c, 1)
