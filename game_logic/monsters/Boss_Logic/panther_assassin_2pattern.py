@@ -170,9 +170,23 @@ class AttackPattern2Action:
                 self.dash_frame = min(self.dash_frame + 1, self.dash_total_frames - 1)
                 self.dash_frame_timer = 0.0
 
-            # 선형 보간으로 위치 업데이트
-            self.panther.x = self.dash_start_x + (self.dash_target_x - self.dash_start_x) * self.dash_progress
-            self.panther.y = self.dash_start_y + (self.dash_target_y - self.dash_start_y) * self.dash_progress
+            # 선형 보간으로 다음 위치 계산
+            next_x = self.dash_start_x + (self.dash_target_x - self.dash_start_x) * self.dash_progress
+            next_y = self.dash_start_y + (self.dash_target_y - self.dash_start_y) * self.dash_progress
+
+            # 벽 충돌 체크 - 다음 위치가 벽이면 돌진 즉시 종료
+            if self._is_position_on_wall(next_x, next_y, check_radius=30):
+                print(f"[Pattern2] 돌진 중 벽 충돌 감지! 위치: ({int(next_x)}, {int(next_y)}) - 돌진 강제 종료")
+                # 돌진 즉시 종료하고 휘두르기로 전환
+                self.swing_frame = 0
+                self.swing_frame_timer = 0.0
+                self.timer = 0.0
+                self.phase = 4
+                print("[Pattern2] 벽 충돌로 인한 조기 종료 - 휘두르기 시작!")
+            else:
+                # 벽이 아니면 위치 업데이트
+                self.panther.x = next_x
+                self.panther.y = next_y
 
             # 잔상 생성
             self.afterimage_spawn_timer += dt
@@ -183,8 +197,8 @@ class AttackPattern2Action:
             # 잔상 업데이트 (페이드아웃)
             self._update_afterimages(dt)
 
-            # 돌진 종료
-            if self.dash_progress >= 1.0:
+            # 돌진 종료 (정상 완료)
+            if self.dash_progress >= 1.0 and self.phase == 3:  # phase 체크 추가 (벽 충돌로 이미 종료되지 않은 경우만)
                 self.swing_frame = 0
                 self.swing_frame_timer = 0.0
                 self.timer = 0.0
@@ -238,20 +252,58 @@ class AttackPattern2Action:
         return BehaviorTree.RUNNING
 
     def _calculate_teleport_position(self):
-        """플레이어 주변 랜덤 위치 계산"""
+        """플레이어 주변 랜덤 위치 계산 (벽 체크 포함)"""
         if not self.panther.target:
             # 타겟이 없으면 현재 위치 유지
             self.teleport_x = self.panther.x
             self.teleport_y = self.panther.y
             return
 
-        # 플레이어 주변 랜덤 각도
-        angle = random.uniform(0, 360)
-        rad = math.radians(angle)
+        # 벽이 아닌 유효한 위치를 찾을 때까지 시도
+        max_attempts = 20
+        for attempt in range(max_attempts):
+            # 플레이어 주변 랜덤 각도
+            angle = random.uniform(0, 360)
+            rad = math.radians(angle)
 
-        # 플레이어로부터 일정 거리 떨어진 위치
-        self.teleport_x = self.panther.target.x + math.cos(rad) * self.teleport_distance
-        self.teleport_y = self.panther.target.y + math.sin(rad) * self.teleport_distance
+            # 플레이어로부터 일정 거리 떨어진 위치
+            teleport_x = self.panther.target.x + math.cos(rad) * self.teleport_distance
+            teleport_y = self.panther.target.y + math.sin(rad) * self.teleport_distance
+
+            # 벽이 아닌 위치를 찾으면 사용
+            if not self._is_position_on_wall(teleport_x, teleport_y):
+                self.teleport_x = teleport_x
+                self.teleport_y = teleport_y
+                return
+
+            if attempt % 5 == 0 and attempt > 0:
+                print(f"[Pattern2] 텔레포트 위치 재계산 중... (시도 {attempt + 1}/{max_attempts})")
+
+        # 유효한 위치를 찾지 못한 경우 플레이어 근처로 폴백
+        print(f"[Pattern2] 경고: 유효한 텔레포트 위치를 찾지 못함, 플레이어 근처에 텔레포트")
+        self.teleport_x = self.panther.target.x + random.uniform(-100, 100)
+        self.teleport_y = self.panther.target.y + random.uniform(-100, 100)
+
+    def _is_position_on_wall(self, x, y, check_radius=30):
+        """
+        주어진 위치가 벽 위에 있는지 확인
+        Args:
+            x: 월드 x 좌표
+            y: 월드 y 좌표
+            check_radius: 체크할 반경 (보스의 크기 고려)
+        Returns:
+            bool: 벽 위에 있으면 True, 아니면 False
+        """
+        if not self.panther.world or 'walls' not in self.panther.world:
+            return False
+
+        walls = self.panther.world['walls']
+        for wall in walls:
+            # 벽과의 충돌 체크 (보스의 크기를 고려하여 check_radius만큼 여유 공간 확보)
+            if (wall.x - wall.w/2 - check_radius < x < wall.x + wall.w/2 + check_radius and
+                wall.y - wall.h/2 - check_radius < y < wall.y + wall.h/2 + check_radius):
+                return True
+        return False
 
     def _prepare_dash(self):
         """돌진 준비: 시작 위치와 목표 위치 계산"""
@@ -571,4 +623,3 @@ class PantherBladeSwingEffect:
 
         except Exception as e:
             print(f"\033[91m[PantherBladeSwingEffect] draw 에러: {e}\033[0m")
-

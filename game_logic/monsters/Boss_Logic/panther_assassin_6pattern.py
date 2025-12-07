@@ -206,6 +206,16 @@ class AttackPattern6Action:
                             target_x = self.panther.x + math.cos(rad) * distance
                             target_y = self.panther.y + math.sin(rad) * distance
 
+                            # 벽 체크 후 유효한 위치 찾기
+                            # while self._is_position_on_wall(target_x, target_y):
+                            #     angle = random.uniform(0, 360)
+                            #     rad = math.radians(angle)
+                            #     target_x = self.panther.x + math.cos(rad) * distance
+                            #     target_y = self.panther.y + math.sin(rad) * distance
+
+                            # 유효한 위치 찾기 시도
+                            target_x, target_y = self._find_valid_clone_position()
+
                             # 분신 생성 (본체 위치에서 시작)
                             from ..panther_assassin import Clone
                             clone = Clone(
@@ -442,3 +452,52 @@ class AttackPattern6Action:
 
         except Exception as e:
             print(f"\033[91m[Pattern6.draw] 그리기 오류: {e}\033[0m")
+
+    def _is_position_on_wall(self, x, y, check_radius=20):
+        """
+        주어진 위치가 벽 위에 있는지 확인
+        Args:
+            x: 월드 x 좌표
+            y: 월드 y 좌표
+            check_radius: 체크할 반경 (클론의 크기 고려)
+        Returns:
+            bool: 벽 위에 있으면 True, 아니면 False
+        """
+        if not self.panther.world or 'walls' not in self.panther.world:
+            return False
+
+        walls = self.panther.world['walls']
+        for wall in walls:
+            # 벽과의 충돌 체크 (클론의 크기를 고려하여 check_radius만큼 여유 공간 확보)
+            if (wall.x - wall.w/2 - check_radius < x < wall.x + wall.w/2 + check_radius and
+                wall.y - wall.h/2 - check_radius < y < wall.y + wall.h/2 + check_radius):
+                return True
+        return False
+
+    def _find_valid_clone_position(self, max_attempts=20):
+        """
+        벽이 아닌 유효한 클론 소환 위치를 찾음
+        Args:
+            max_attempts: 최대 시도 횟수
+        Returns:
+            tuple: (target_x, target_y)
+        """
+        for attempt in range(max_attempts):
+            # 랜덤 위치 계산
+            angle = random.uniform(0, 360)
+            rad = math.radians(angle)
+            distance = random.uniform(200, 300)  # 본체로부터 거리
+
+            target_x = self.panther.x + math.cos(rad) * distance
+            target_y = self.panther.y + math.sin(rad) * distance
+
+            # 벽이 아닌 위치를 찾으면 반환
+            if not self._is_position_on_wall(target_x, target_y):
+                return (target_x, target_y)
+
+            if attempt % 5 == 0 and attempt > 0:
+                print(f"[Pattern6] 클론 소환 위치 재계산 중... (시도 {attempt + 1}/{max_attempts})")
+
+        # 유효한 위치를 찾지 못한 경우 본체 위치 반환 (폴백)
+        print(f"[Pattern6] 경고: 유효한 클론 소환 위치를 찾지 못함, 본체 근처에 소환")
+        return (self.panther.x + random.uniform(-50, 50), self.panther.y + random.uniform(-50, 50))

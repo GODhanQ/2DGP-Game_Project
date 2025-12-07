@@ -114,6 +114,7 @@ class AttackPattern3Action:
         self.combo3_attack_frame_timer = 0.0
         self.combo3_attack_frame_speed = 20.0
         self.combo3_attack_total_frames = 10  # 0~9
+        self.combo3_shuriken_thrown = False  # 수리검 발사 완료 플래그
         self.combo3_shoot_frame = 5  # 5번 프레임에서 수리검 발사
         self.combo3_has_shot = False  # 수리검을 이미 발사했는지
         self.combo3_projectile_directions = 8  # 8방향
@@ -233,11 +234,33 @@ class AttackPattern3Action:
                     self._spawn_combo1_blade_swing_effect()
                     self.combo1_blade_effect_spawned = True
 
-            # 선형 보간으로 위치 업데이트
-            self.panther.x = self.combo1_dash_start_x + (self.combo1_dash_target_x - self.combo1_dash_start_x) * self.combo1_dash_progress
-            self.panther.y = self.combo1_dash_start_y + (self.combo1_dash_target_y - self.combo1_dash_start_y) * self.combo1_dash_progress
+            # 선형 보간으로 다음 위치 계산
+            next_x = self.combo1_dash_start_x + (self.combo1_dash_target_x - self.combo1_dash_start_x) * self.combo1_dash_progress
+            next_y = self.combo1_dash_start_y + (self.combo1_dash_target_y - self.combo1_dash_start_y) * self.combo1_dash_progress
 
-            # 돌진 종료
+            # 벽 충돌 체크 - 다음 위치가 벽이면 돌진 즉시 종료
+            if self._is_position_on_wall(next_x, next_y, check_radius=30):
+                print(f"[Pattern3] 콤보1 돌진 중 벽 충돌 감지! 위치: ({int(next_x)}, {int(next_y)}) - 돌진 강제 종료")
+                # 현재 위치 유지 (next_x, next_y로 이동하지 않음)
+
+                # combo1_blade_effect_spawned 플래그 초기화
+                if hasattr(self, 'combo1_blade_effect_spawned'):
+                    delattr(self, 'combo1_blade_effect_spawned')
+
+                # 콤보2 준비로 전환
+                self.current_combo = 2
+                self.combo2_ready_frame = 0
+                self.combo2_ready_frame_timer = 0.0
+                self.timer = 0.0
+                self.phase = 3
+                print("[Pattern3] 벽 충돌로 인한 조기 종료 - 콤보2 준비 시작!")
+                return BehaviorTree.RUNNING
+            else:
+                # 벽이 아니면 위치 업데이트
+                self.panther.x = next_x
+                self.panther.y = next_y
+
+            # 돌진 종료 (정상 완료)
             if self.combo1_dash_progress >= 1.0:
                 # combo1_blade_effect_spawned 플래그 초기화
                 if hasattr(self, 'combo1_blade_effect_spawned'):
@@ -294,12 +317,32 @@ class AttackPattern3Action:
                     self._spawn_combo2_blade_swing_effect()
                     self.combo2_blade_effect_spawned = True
 
-            # 선형 보간으로 위치 업데이트
-            self.panther.x = self.combo2_dash_start_x + (self.combo2_dash_target_x - self.combo2_dash_start_x) * self.combo2_dash_progress
-            self.panther.y = self.combo2_dash_start_y + (self.combo2_dash_target_y - self.combo2_dash_start_y) * self.combo2_dash_progress
+            # 선형 보간으로 다음 위치 계산
+            next_x = self.combo2_dash_start_x + (self.combo2_dash_target_x - self.combo2_dash_start_x) * self.combo2_dash_progress
+            next_y = self.combo2_dash_start_y + (self.combo2_dash_target_y - self.combo2_dash_start_y) * self.combo2_dash_progress
 
-            # 돌진 종료
-            if self.combo2_dash_progress >= 1.0:
+            # 벽 충돌 체크 - 다음 위치가 벽이면 돌진 즉시 종료
+            if self._is_position_on_wall(next_x, next_y, check_radius=30):
+                print(f"[Pattern3] 콤보2 돌진 중 벽 충돌 감지! 위치: ({int(next_x)}, {int(next_y)}) - 돌진 강제 종료")
+                # combo2_blade_effect_spawned 플래그 초기화
+                if hasattr(self, 'combo2_blade_effect_spawned'):
+                    delattr(self, 'combo2_blade_effect_spawned')
+
+                # 콤보3 준비로 전환
+                self.current_combo = 3
+                self.combo3_ready_frame = 0
+                self.combo3_ready_frame_timer = 0.0
+                self.combo2_in_cycle = False  # Cycle 플래그 초기화
+                self.timer = 0.0
+                self.phase = 5
+                print("[Pattern3] 벽 충돌로 인한 조기 종료 - 콤보3 준비 시작!")
+            else:
+                # 벽이 아니면 위치 업데이트
+                self.panther.x = next_x
+                self.panther.y = next_y
+
+            # 돌진 종료 (정상 완료)
+            if self.combo2_dash_progress >= 1.0 and self.phase == 4:  # phase 체크 추가 (벽 충돌로 이미 종료되지 않은 경우만)
                 # combo2_blade_effect_spawned 플래그 초기화
                 if hasattr(self, 'combo2_blade_effect_spawned'):
                     delattr(self, 'combo2_blade_effect_spawned')
@@ -578,6 +621,27 @@ class AttackPattern3Action:
             # world의 effects_front 레이어에 추가
             self.panther.world['effects_front'].append(shuriken)
             print(f"[Pattern3] 콤보3 수리검 발사: 각도 {angle:.0f}도")
+
+    def _is_position_on_wall(self, x, y, check_radius=30):
+        """
+        주어진 위치가 벽 위에 있는지 확인
+        Args:
+            x: 월드 x 좌표
+            y: 월드 y 좌표
+            check_radius: 체크할 반경 (보스의 크기 고려)
+        Returns:
+            bool: 벽 위에 있으면 True, 아니면 False
+        """
+        if not self.panther.world or 'walls' not in self.panther.world:
+            return False
+
+        walls = self.panther.world['walls']
+        for wall in walls:
+            # 벽과의 충돌 체크 (보스의 크기를 고려하여 check_radius만큼 여유 공간 확보)
+            if (wall.x - wall.w/2 - check_radius < x < wall.x + wall.w/2 + check_radius and
+                wall.y - wall.h/2 - check_radius < y < wall.y + wall.h/2 + check_radius):
+                return True
+        return False
 
     def draw(self, draw_x, draw_y):
         """
