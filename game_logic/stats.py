@@ -20,7 +20,7 @@ class StatModifier:
     @property
     def expired(self) -> bool:
         return self.duration is not None and self.time_left is not None and self.time_left <= 0
-
+    
     @property
     def remaining_duration(self) -> float:
         """남은 시간 반환"""
