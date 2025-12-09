@@ -3,6 +3,11 @@ from .inventory import Item
 
 # 개별 아이템 팩토리 (파일 경로는 Item 폴더 상대 경로)
 
+class Crown:
+    def __new__(cls):
+        return Item.from_filename('Crown_of_Pride/CrownOfPride.png', '왕관',
+                                  description='최고의 자에게 어울리는 왕관')
+
 class lantern:
     def __new__(cls):
         return Item.from_filename('Lantern.png', '랜턴',
@@ -223,5 +228,49 @@ def sample_debug_list():
         (amber(), 1),
         (ruby(), 1),
         (white_bread(), 1),
-        (potion_red0(), 15),
+        (potion_red0(), 3),
     ]
+
+
+# 몬스터 아이템 드롭 시스템
+
+def drop_item(world, item_factory, qty, x, y, drop_chance=1.0):
+    """
+    몬스터가 아이템을 드롭하는 헬퍼 함수
+
+    Args:
+        world: 게임 월드 딕셔너리
+        item_factory: 아이템 팩토리 클래스 (예: potion_red0)
+        qty: 드롭할 아이템 수량
+        x, y: 드롭 위치 (픽셀 좌표)
+        drop_chance: 드롭 확률 (0.0 ~ 1.0, 기본값 1.0 = 100%)
+
+    Returns:
+        bool: 아이템이 드롭되었으면 True, 아니면 False
+    """
+    import random
+    from .item_entity import WorldItem
+
+    # 확률 체크
+    if random.random() > drop_chance:
+        return False
+
+    try:
+        # 아이템 생성
+        item = item_factory()
+
+        # WorldItem 엔티티 생성
+        world_item = WorldItem(item, qty, x, y, scale=2.5, world=world, pickup_radius=60)
+
+        # 월드의 entities 리스트에 추가
+        if 'entities' in world and isinstance(world['entities'], list):
+            world['entities'].append(world_item)
+            print(f"[ItemDrop] {getattr(item, 'name', 'Unknown')} x{qty} 드롭 성공 at ({x}, {y})")
+            return True
+        else:
+            print(f"\033[91m[ItemDrop] world에 entities 리스트가 없습니다\033[0m")
+            return False
+
+    except Exception as e:
+        print(f"\033[91m[ItemDrop] 아이템 드롭 실패: {e}\033[0m")
+        return False

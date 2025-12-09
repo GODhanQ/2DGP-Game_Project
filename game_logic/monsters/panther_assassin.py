@@ -248,12 +248,12 @@ class PantherAssassin:
         # BTActionWrapper를 사용하여 패턴 클래스 인스턴스를 감쌈
         attack_pattern_selector = RandomSelector(
             "Random Attack Pattern",
-            # BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
-            # BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
+            BTActionWrapper("Pattern1: ThrowingStars", self.pattern1_action),
+            BTActionWrapper("Pattern2: DashAttack", self.pattern2_action),
             BTActionWrapper("Pattern3: ComboAttack", self.pattern3_action),
-            # BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
-            # BTActionWrapper("Pattern5: Whirlwind", self.pattern5_action),
-            # BTActionWrapper("Pattern6: Shadow", self.pattern6_action)
+            BTActionWrapper("Pattern4: Teleport", self.pattern4_action),
+            BTActionWrapper("Pattern5: Whirlwind", self.pattern5_action),
+            BTActionWrapper("Pattern6: Shadow", self.pattern6_action)
         )
 
         # 공격 시퀀스: 쿨타임 체크 -> 범위 체크 -> 패턴 실행
@@ -468,25 +468,25 @@ class PantherAssassin:
             projectile.draw(proj_draw_x, proj_draw_y)
 
         # 체력바 렌더링 (카메라 좌표 적용)
-        self.health_bar.draw(draw_x, draw_y - 70)
+        self.health_bar.draw(draw_x + 15, draw_y - 70)
 
         # DEBUG : 충돌 박스 및 플레이어 인식 범위 그리기
         # 충돌 박스 : 카메라 좌표계로 변환 후 그리기
-        Left, Bottom, Right, Top = self.get_bb()
-        Left -= self.x - draw_x
-        Right -= self.x - draw_x
-        Bottom -= self.y - draw_y
-        Top -= self.y - draw_y
-        p2.draw_rectangle(Left, Bottom, Right, Top, r=255, g=0, b=0)
-
-        # 공격 범위
-        radius = self.recognition_distance
-        p2.draw_circle(draw_x, draw_y, int(radius), r=255, g=255, b=0)
-
-        # 타겟 놓치는 거리
-        radius = self.unrecognition_distance
-        p2.draw_circle(draw_x, draw_y, int(radius), r=0, g=255, b=255)
-
+        # Left, Bottom, Right, Top = self.get_bb()
+        # Left -= self.x - draw_x
+        # Right -= self.x - draw_x
+        # Bottom -= self.y - draw_y
+        # Top -= self.y - draw_y
+        # p2.draw_rectangle(Left, Bottom, Right, Top, r=255, g=0, b=0)
+        #
+        # # 공격 범위
+        # radius = self.recognition_distance
+        # p2.draw_circle(draw_x, draw_y, int(radius), r=255, g=255, b=0)
+        #
+        # # 타겟 놓치는 거리
+        # radius = self.unrecognition_distance
+        # p2.draw_circle(draw_x, draw_y, int(radius), r=0, g=255, b=255)
+        #
         # 분신 드로잉 (디버그용)
         # if self.clone_images:
         #     offset = 200
@@ -685,6 +685,15 @@ class PantherAssassin:
             print(f"  >>> PantherAssassin 체력 0 - 사망 애니메이션 시작!")
             print(f"{'=' * 60}\n")
             # 사망 애니메이션 플래그 설정
+
+            # 아이템 드롭 처리
+            try:
+                from ..items import drop_item, Crown
+                if self.world:
+                    drop_item(self.world, Crown, 1, self.x, self.y, drop_chance=1.0)
+            except Exception as e:
+                print(f"\033[91m[PantherAssassin Death] 아이템 드롭 중 오류: {e}\033[0m")
+
             self.is_dead = True
             self.death_frame = 0
             self.death_frame_timer = 0.0

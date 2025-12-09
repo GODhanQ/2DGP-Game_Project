@@ -172,8 +172,8 @@ class PantherAssassinStats(MonsterStats):
     """PantherAssassin 전용 스탯"""
     def __init__(self):
         super().__init__({
-            'max_health': 500.0,
-            'health': 500.0,
+            'max_health': 350.0,
+            'health': 350.0,
             'move_speed': 150.0,
             'attack_damage': 20.0,
             'defense': 5.0,

@@ -910,6 +910,17 @@ class Death:
             self.knockback_dx = 1.0
             self.knockback_dy = 0.0
 
+        # 아이템 드롭 처리
+        try:
+            from ..items import drop_item, potion_red0, carrot, ruby
+            if self.cat.world:
+                drop_item(self.cat.world, ruby, 1, self.cat.x, self.cat.y, drop_chance=0.1)
+                drop_item(self.cat.world, carrot, 1, self.cat.x, self.cat.y, drop_chance=0.1)
+                drop_item(self.cat.world, potion_red0, 1, self.cat.x, self.cat.y, drop_chance=0.3)
+        except Exception as e:
+            print(f"\033[91m[CatThief Death] 아이템 드롭 중 오류: {e}\033[0m")
+
+
         print(f"[CatThief Death State] 사망 상태 시작 (3초 후 제거) - 넉백 적용")
 
     def exit(self, e):

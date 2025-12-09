@@ -3,6 +3,7 @@ import random
 import math
 
 import game_framework as framework
+from ..items import carrot
 from ..state_machine import StateMachine
 from ..projectile import Projectile
 from ..stats import CatAssassinStats
@@ -612,6 +613,17 @@ class Death:
             self.knockback_dy = 0.0
 
         print(f"[CatAssassin Death State] 사망 상태 시작 (3초 후 제거) - 넉백 적용")
+
+        # 아이템 드롭 처리
+        try:
+            from ..items import drop_item, potion_red0, carrot, amber
+            if self.cat.world:
+                drop_item(self.cat.world, amber, 1, self.cat.x, self.cat.y, drop_chance=0.1)
+                drop_item(self.cat.world, carrot, 1, self.cat.x, self.cat.y, drop_chance=0.1)
+                drop_item(self.cat.world, potion_red0, 1, self.cat.x, self.cat.y, drop_chance=0.3)
+
+        except Exception as e:
+            print(f"\033[91m[CatAssassin Death] 아이템 드롭 중 오류: {e}\033[0m")
 
     def exit(self, e):
         pass

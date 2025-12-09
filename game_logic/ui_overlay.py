@@ -461,7 +461,7 @@ class InventoryOverlay:
                 if getattr(slot, 'quantity', 1) > 1 and self._font is not None:
                     txt = str(slot.quantity)
                     # 우하단 여백 약간 띄워서 그림
-                    tx = cx + (slot_draw_w * 0.5) - 4
+                    tx = cx + (slot_draw_w * 0.3) - 4
                     ty = cy - (slot_draw_h * 0.5) + 4
                     # 그림자
                     try:
