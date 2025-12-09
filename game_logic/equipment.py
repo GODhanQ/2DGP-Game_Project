@@ -712,6 +712,11 @@ class Sword(Weapon):
             self._apply_speed(1)
             print(f"{self.weapon_type} 공격! (stage 1)")
 
+            # 콤보 1 사운드 재생
+            if hasattr(self.player, 'attack1_sound') and self.player.attack1_sound:
+                self.player.attack1_sound.play()
+                print("[Sword] 콤보 1 사운드 재생 (Sword_Attack_1.wav)")
+
             # 공격 이펙트 생성
             from .player import VFX_Tier1_Sword_Swing
 
@@ -752,6 +757,11 @@ class Sword(Weapon):
                 self.combo_queued = True
                 print(f"{self.weapon_type} 콤보! (stage 2)")
 
+                # 콤보 2 사운드 재생
+                if hasattr(self.player, 'attack2_sound') and self.player.attack2_sound:
+                    self.player.attack2_sound.play()
+                    print("[Sword] 콤보 2 사운드 재생 (Sword_Attack_2.wav)")
+
                 # 콤보용 이펙트 생성
                 from .player import VFX_Tier1_Sword_Swing
 
@@ -784,6 +794,11 @@ class Sword(Weapon):
                 self._apply_speed(3)
                 self.combo_queued = True
                 print(f"{self.weapon_type} 헤비 스윙! (stage 3)")
+
+                # 콤보 3 사운드 재생
+                if hasattr(self.player, 'attack3_sound') and self.player.attack3_sound:
+                    self.player.attack3_sound.play()
+                    print("[Sword] 콤보 3 사운드 재생 (Sword_Attack_3.wav)")
 
                 # 3스테이지 전용 이펙트 생성 (variant=3)
                 from .player import VFX_Tier1_Sword_Swing

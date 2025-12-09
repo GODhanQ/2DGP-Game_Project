@@ -40,6 +40,10 @@ class AttackPattern2Action:
     dash_img_seq = []     # BladeAttack 0~7 (돌진)
     swing_img_seq = []    # BladeAttack 8~17 (휘두르기)
 
+    # 클래스 레벨 사운드
+    dash_sound_1 = None
+    dash_sound_2 = None
+
     def __init__(self, panther):
         """
         Args:
@@ -120,6 +124,17 @@ class AttackPattern2Action:
 
             except FileNotFoundError as e:
                 print(f'\033[91m[Pattern2] 이미지 로드 실패: {e}\033[0m')
+
+        # 사운드 로드 (클래스 레벨에서 한 번만)
+        if AttackPattern2Action.dash_sound_1 is None:
+            try:
+                AttackPattern2Action.dash_sound_1 = p2.load_wav('resources/Sounds/Dash_Attack_1.wav')
+                AttackPattern2Action.dash_sound_1.set_volume(64)
+                AttackPattern2Action.dash_sound_2 = p2.load_wav('resources/Sounds/Dash_Attack_2.wav')
+                AttackPattern2Action.dash_sound_2.set_volume(64)
+                print(f'[Pattern2] 돌진 사운드 로드 완료 (Dash_Attack_1~2.wav)')
+            except Exception as e:
+                print(f'\033[91m[Pattern2] 사운드 로드 실패: {e}\033[0m')
 
     def update(self):
         """패턴 2 로직 실행"""
@@ -338,6 +353,12 @@ class AttackPattern2Action:
                 rad = math.radians(angle)
                 self.dash_target_x = self.panther.x + math.cos(rad) * 300
                 self.dash_target_y = self.panther.y + math.sin(rad) * 300
+
+        # 돌진 사운드 재생 (랜덤으로 1 또는 2)
+        if AttackPattern2Action.dash_sound_1 and AttackPattern2Action.dash_sound_2:
+            dash_sound = random.choice([AttackPattern2Action.dash_sound_1, AttackPattern2Action.dash_sound_2])
+            dash_sound.play()
+            print(f"[Pattern2] 돌진 사운드 재생")
 
         # 돌진 변수 초기화
         self.dash_progress = 0.0

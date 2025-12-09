@@ -67,6 +67,15 @@ class AttackPattern5Action:
         self.withdraw_frame_speed = 15.0  # 초당 프레임 수
         self.withdraw_total_frames = 10  # 0~9 (총 10프레임)
 
+        # 사운드 로드
+        try:
+            self.throw_shuriken_sound = p2.load_wav('resources/Sounds/Throw_Shuriken.wav')
+            self.throw_shuriken_sound.set_volume(32)  # 볼륨 설정 (0~128)
+            print("[Pattern5] Throw_Shuriken.wav 사운드 로드 완료")
+        except Exception as e:
+            print(f"\033[91m[Pattern5] 사운드 로드 실패: {e}\033[0m")
+            self.throw_shuriken_sound = None
+
         # 이미지 로드
         self._load_images()
 
@@ -363,6 +372,10 @@ class AttackPattern5Action:
             return
 
         try:
+            # 수리검 투척 사운드 재생
+            if self.throw_shuriken_sound:
+                self.throw_shuriken_sound.play()
+
             # 허용된 각도 범위 계산
             excluded_angle = 20
             allowed_ranges = [

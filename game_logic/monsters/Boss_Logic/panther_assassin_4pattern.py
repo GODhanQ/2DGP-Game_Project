@@ -66,6 +66,15 @@ class AttackPattern4Action:
         self.teleport_target_x = 0  # 텔레포트 목표 위치 X
         self.teleport_target_y = 0  # 텔레포트 목표 위치 Y
 
+        # 사운드 로드
+        try:
+            self.throw_shuriken_sound = p2.load_wav('resources/Sounds/Throw_Shuriken.wav')
+            self.throw_shuriken_sound.set_volume(32)  # 볼륨 설정 (0~128)
+            print("[Pattern4] Throw_Shuriken.wav 사운드 로드 완료")
+        except Exception as e:
+            print(f"\033[91m[Pattern4] 사운드 로드 실패: {e}\033[0m")
+            self.throw_shuriken_sound = None
+
         # 이미지 로드
         self._load_images()
 
@@ -274,6 +283,10 @@ class AttackPattern4Action:
                 if self.timer >= self.shot_interval:
                     if self.shot_count < self.max_shots:
                         try:
+                            # 수리검 투척 사운드 재생
+                            if self.throw_shuriken_sound:
+                                self.throw_shuriken_sound.play()
+
                             # 각 분신에서 수리검 발사
                             for clone in self.clones:
                                 if self.panther.target and self.panther.world and 'effects_front' in self.panther.world:

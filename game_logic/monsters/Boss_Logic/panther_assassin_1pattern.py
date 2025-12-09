@@ -42,6 +42,15 @@ class AttackPattern1Action:
         self.throw_frame = 9  # 9번 프레임에서 표창 발사
         self.has_thrown = False  # 현재 애니메이션에서 이미 던졌는지 체크
 
+        # 사운드 로드
+        try:
+            self.throw_shuriken_sound = p2.load_wav('resources/Sounds/Throw_Shuriken.wav')
+            self.throw_shuriken_sound.set_volume(32)  # 볼륨 설정 (0~128)
+            print("[Pattern1] Throw_Shuriken.wav 사운드 로드 완료")
+        except Exception as e:
+            print(f"\033[91m[Pattern1] 사운드 로드 실패: {e}\033[0m")
+            self.throw_shuriken_sound = None
+
         # 이미지 로드 (클래스 레벨에서 한 번만)
         if not AttackPattern1Action.motion_img_seq:
             try:
@@ -142,6 +151,10 @@ class AttackPattern1Action:
         if not self.panther.target:
             return
 
+        # 수리검 투척 사운드 재생
+        if self.throw_shuriken_sound:
+            self.throw_shuriken_sound.play()
+
         # 플레이어를 향한 기본 각도 계산
         dx = self.panther.target.x - self.panther.x
         dy = self.panther.target.y - self.panther.y
@@ -207,4 +220,3 @@ class AttackPattern1Action:
                 img = AttackPattern1Action.motion_img_seq[last_frame_idx]
                 if img:
                     img.draw(draw_x, draw_y, img.w * self.panther.scale_factor, img.h * self.panther.scale_factor)
-

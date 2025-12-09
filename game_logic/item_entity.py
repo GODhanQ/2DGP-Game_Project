@@ -1,4 +1,6 @@
 # Simple world item entity used when dropping items from inventory
+import random
+from pico2d import load_wav
 
 class WorldItem:
     """월드에 떨어진 아이템 엔티티(간단한 표시용)
@@ -7,6 +9,10 @@ class WorldItem:
     - x, y: 게임 좌표(픽셀)
     - world: (optional) reference to the main world's dict so the item can remove itself and find the player
     """
+    # 클래스 레벨 사운드 (한 번만 로드)
+    pickup_sound_1 = None
+    pickup_sound_2 = None
+
     def __init__(self, item, qty, x, y, scale=0.5, world=None, pickup_radius=60):
         self.item = item
         self.qty = qty
@@ -17,6 +23,17 @@ class WorldItem:
         self.world = world
         # 픽업 가능 반경(픽셀)
         self.pickup_radius = pickup_radius
+
+        # 사운드 로드 (클래스 레벨에서 한 번만)
+        if WorldItem.pickup_sound_1 is None:
+            try:
+                WorldItem.pickup_sound_1 = load_wav('resources/Sounds/Pick_Item_1.wav')
+                WorldItem.pickup_sound_1.set_volume(64)
+                WorldItem.pickup_sound_2 = load_wav('resources/Sounds/Pick_Item_2.wav')
+                WorldItem.pickup_sound_2.set_volume(64)
+                print('[WorldItem] 아이템 습득 사운드 로드 완료 (Pick_Item_1~2.wav)')
+            except Exception as e:
+                print(f'\033[91m[WorldItem] 아이템 습득 사운드 로드 실패: {e}\033[0m')
 
     @property
     def icon(self):
@@ -76,6 +93,13 @@ class WorldItem:
                 added = self.qty - leftover
                 if added > 0:
                     print(f"[WorldItem] picked up {getattr(self.item, 'name', 'Unknown')} x{added} by player")
+
+                    # 아이템 습득 사운드 재생 (랜덤으로 1 또는 2)
+                    if WorldItem.pickup_sound_1 and WorldItem.pickup_sound_2:
+                        pickup_sound = random.choice([WorldItem.pickup_sound_1, WorldItem.pickup_sound_2])
+                        pickup_sound.play()
+                        print(f"[WorldItem] 아이템 습득 사운드 재생")
+
                     self.qty = leftover
                 # 완전히 주웠으면 월드에서 제거
                 if self.qty <= 0:

@@ -9,7 +9,7 @@ import os
 import random
 import time
 
-from pico2d import load_image, get_canvas_height, get_canvas_width, draw_rectangle
+from pico2d import load_image, get_canvas_height, get_canvas_width, draw_rectangle, load_wav
 from sdl2 import (SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_TAB, SDLK_SPACE, SDL_GetMouseState,
                    SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT)
 
@@ -834,6 +834,10 @@ def die(e):
 
 
 class Player:
+    attack1_sound = None
+    attack2_sound = None
+    attack3_sound = None
+
     def __init__(self):
         self.x = get_canvas_width() // 2
         self.y = get_canvas_height() // 2
@@ -902,6 +906,12 @@ class Player:
 
         self.equipment_manager.equip(self.sword)
         self.equipment_manager.equip(self.shield)
+
+        if Player.attack1_sound is None:
+            Player.attack1_sound = load_wav('resources/Sounds/Sword_Attack_1.wav')
+            Player.attack2_sound = load_wav('resources/Sounds/Sword_Attack_2.wav')
+            Player.attack3_sound = load_wav('resources/Sounds/Sword_Attack_3.wav')
+            print('[Player] 검 공격 사운드 로드 완료 (Sword_Attack_1~3.wav)')
 
         # 상태 정의
         self.IDLE = Idle(self)

@@ -20,6 +20,9 @@ world_layers = ['backgrounds', 'extras', 'entities', 'ui', 'cursor']
 # 생존 시간 저장 변수
 elapsed_time = 0.0
 
+# 승리 사운드
+win_sound = None
+
 def enter(player, survival_time=0.0):
     """승리 모드 진입. 기존 player 객체와 생존 시간을 전달받음."""
     print(f"[victory_mode] enter() - player 객체 및 생존 시간({survival_time:.2f}초) 전달받음")
@@ -27,6 +30,18 @@ def enter(player, survival_time=0.0):
     # 생존 시간을 전역 변수에 저장
     global elapsed_time
     elapsed_time = survival_time
+
+    # 승리 사운드 로드 및 재생
+    global win_sound
+    try:
+        if win_sound is None:
+            win_sound = p2.load_wav('resources/Sounds/Win_Sound.wav')
+            win_sound.set_volume(64)  # 볼륨 설정 (0~128)
+            print("[victory_mode] Win_Sound.wav 로드 완료")
+        win_sound.play()
+        print("[victory_mode] Win_Sound.wav 재생 시작")
+    except Exception as e:
+        print(f"\033[91m[victory_mode] Win_Sound.wav 로드/재생 실패: {e}\033[0m")
 
     # world 레이어 초기화
     world['backgrounds'].clear()

@@ -48,6 +48,11 @@ class AttackPattern3Action:
     combo3_attack_img_seq = []   # Combo3_Attack 0~9 (10프레임)
     combo3_swing_fx_img_seq = []  # Combo3 수리검 발사 이펙트 0~3 (4프레임) - 대미지 없음
 
+    # 클래스 레벨 사운드
+    combo1_sound = None  # Dash_Attack_1.wav
+    combo2_sound = None  # Dash_Attack_2.wav
+    combo3_sound = None  # Throw_Shuriken.wav
+
     def __init__(self, panther):
         """
         Args:
@@ -189,6 +194,24 @@ class AttackPattern3Action:
             except FileNotFoundError as e:
                 print(f'\033[91m[Pattern3] 이미지 로드 실패: {e}\033[0m')
 
+        # 사운드 로드 (클래스 레벨에서 한 번만)
+        if AttackPattern3Action.combo1_sound is None:
+            try:
+                AttackPattern3Action.combo1_sound = p2.load_wav('resources/Sounds/Dash_Attack_1.wav')
+                AttackPattern3Action.combo1_sound.set_volume(64)  # 볼륨 조절 (0~128)
+                print(f'[Pattern3] 콤보1 사운드 로드 완료')
+
+                AttackPattern3Action.combo2_sound = p2.load_wav('resources/Sound/Dash_Attack_2.wav')
+                AttackPattern3Action.combo2_sound.set_volume(64)
+                print(f'[Pattern3] 콤보2 사운드 로드 완료')
+
+                AttackPattern3Action.combo3_sound = p2.load_wav('resources/Sound/Throw_Shuriken.wav')
+                AttackPattern3Action.combo3_sound.set_volume(64)
+                print(f'[Pattern3] 콤보3 사운드 로드 완료')
+
+            except Exception as e:
+                print(f'\033[91m[Pattern3] 사운드 로드 실패: {e}\033[0m')
+
     def update(self):
         """패턴 3 로직 실행"""
         dt = framework.get_delta_time()
@@ -215,6 +238,10 @@ class AttackPattern3Action:
                 if self.combo1_ready_frame >= self.combo1_ready_total_frames:
                     # 돌진 준비
                     self._prepare_combo1_dash()
+                    # 콤보1 사운드 재생
+                    if AttackPattern3Action.combo1_sound:
+                        AttackPattern3Action.combo1_sound.play()
+                        print("[Pattern3] 콤보1 사운드 재생 (Dash_Attack_1.wav)")
                     self.phase = 2
                     print("[Pattern3] 콤보1 준비 완료 - 돌진 시작!")
 
@@ -287,6 +314,10 @@ class AttackPattern3Action:
                 if self.combo2_ready_frame >= self.combo2_ready_total_frames:
                     # 돌진 준비
                     self._prepare_combo2_dash()
+                    # 콤보2 사운드 재생
+                    if AttackPattern3Action.combo2_sound:
+                        AttackPattern3Action.combo2_sound.play()
+                        print("[Pattern3] 콤보2 사운드 재생 (Dash_Attack_2.wav)")
                     self.phase = 4
                     print("[Pattern3] 콤보2 준비 완료 - 돌진 시작!")
 
@@ -388,6 +419,10 @@ class AttackPattern3Action:
                 # 5번 프레임에서 수리검 발사
                 if self.combo3_attack_frame == self.combo3_shoot_frame and not self.combo3_has_shot:
                     self._shoot_combo3_shurikens()
+                    # 콤보3 사운드 재생
+                    if AttackPattern3Action.combo3_sound:
+                        AttackPattern3Action.combo3_sound.play()
+                        print("[Pattern3] 콤보3 사운드 재생 (Throw_Shuriken.wav)")
                     self.combo3_has_shot = True
                     self.combo3_show_fx = True  # 이펙트 표시 시작
                     print("[Pattern3] 콤보3 수리검 8방향 발사!")
