@@ -908,11 +908,11 @@ class PantherShuriken(Projectile):
                 )
 
         # DEBUG: 충돌 박스 그리기 (필요 시 주석 해제)
-        Left = draw_x - self.collision_width / 2
-        Right = draw_x + self.collision_width / 2
-        Bottom = draw_y - self.collision_height / 2
-        Top = draw_y + self.collision_height / 2
-        p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
+        # Left = draw_x - self.collision_width / 2
+        # Right = draw_x + self.collision_width / 2
+        # Bottom = draw_y - self.collision_height / 2
+        # Top = draw_y + self.collision_height / 2
+        # p2.draw_rectangle(Left, Bottom, Right, Top, r=0, g=255, b=0)
 
     def on_hit(self):
         """투사체가 타겟에 명중했을 때 호출 - 소멸 애니메이션 시작"""

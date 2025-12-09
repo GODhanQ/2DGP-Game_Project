@@ -1,0 +1,3597 @@
+('E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\build\\target\\PYZ-00.pyz',
+ [('PIL',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\__init__.py',
+   'PYMODULE'),
+  ('PIL.AvifImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\AvifImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.BdfFontFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\BdfFontFile.py',
+   'PYMODULE'),
+  ('PIL.BlpImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\BlpImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.BmpImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\BmpImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.BufrStubImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\BufrStubImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.ContainerIO',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ContainerIO.py',
+   'PYMODULE'),
+  ('PIL.CurImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\CurImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.DcxImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\DcxImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.DdsImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\DdsImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.EpsImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\EpsImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.ExifTags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ExifTags.py',
+   'PYMODULE'),
+  ('PIL.FitsImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\FitsImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.FliImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\FliImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.FontFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\FontFile.py',
+   'PYMODULE'),
+  ('PIL.FpxImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\FpxImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.FtexImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\FtexImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.GbrImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\GbrImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.GdImageFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\GdImageFile.py',
+   'PYMODULE'),
+  ('PIL.GifImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\GifImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.GimpGradientFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\GimpGradientFile.py',
+   'PYMODULE'),
+  ('PIL.GimpPaletteFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\GimpPaletteFile.py',
+   'PYMODULE'),
+  ('PIL.GribStubImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\GribStubImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.Hdf5StubImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\Hdf5StubImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.IcnsImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\IcnsImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.IcoImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\IcoImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.ImImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.Image',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\Image.py',
+   'PYMODULE'),
+  ('PIL.ImageChops',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageChops.py',
+   'PYMODULE'),
+  ('PIL.ImageCms',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageCms.py',
+   'PYMODULE'),
+  ('PIL.ImageColor',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageColor.py',
+   'PYMODULE'),
+  ('PIL.ImageDraw',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageDraw.py',
+   'PYMODULE'),
+  ('PIL.ImageDraw2',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageDraw2.py',
+   'PYMODULE'),
+  ('PIL.ImageEnhance',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageEnhance.py',
+   'PYMODULE'),
+  ('PIL.ImageFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageFile.py',
+   'PYMODULE'),
+  ('PIL.ImageFilter',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageFilter.py',
+   'PYMODULE'),
+  ('PIL.ImageFont',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageFont.py',
+   'PYMODULE'),
+  ('PIL.ImageGrab',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageGrab.py',
+   'PYMODULE'),
+  ('PIL.ImageMath',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageMath.py',
+   'PYMODULE'),
+  ('PIL.ImageMode',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageMode.py',
+   'PYMODULE'),
+  ('PIL.ImageMorph',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageMorph.py',
+   'PYMODULE'),
+  ('PIL.ImageOps',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageOps.py',
+   'PYMODULE'),
+  ('PIL.ImagePalette',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImagePalette.py',
+   'PYMODULE'),
+  ('PIL.ImagePath',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImagePath.py',
+   'PYMODULE'),
+  ('PIL.ImageQt',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageQt.py',
+   'PYMODULE'),
+  ('PIL.ImageSequence',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageSequence.py',
+   'PYMODULE'),
+  ('PIL.ImageShow',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageShow.py',
+   'PYMODULE'),
+  ('PIL.ImageStat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageStat.py',
+   'PYMODULE'),
+  ('PIL.ImageText',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageText.py',
+   'PYMODULE'),
+  ('PIL.ImageTk',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageTk.py',
+   'PYMODULE'),
+  ('PIL.ImageTransform',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageTransform.py',
+   'PYMODULE'),
+  ('PIL.ImageWin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImageWin.py',
+   'PYMODULE'),
+  ('PIL.ImtImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\ImtImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.IptcImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\IptcImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.Jpeg2KImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\Jpeg2KImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.JpegImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\JpegImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.JpegPresets',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\JpegPresets.py',
+   'PYMODULE'),
+  ('PIL.McIdasImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\McIdasImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.MicImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\MicImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.MpegImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\MpegImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.MpoImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\MpoImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.MspImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\MspImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PSDraw',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PSDraw.py',
+   'PYMODULE'),
+  ('PIL.PaletteFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PaletteFile.py',
+   'PYMODULE'),
+  ('PIL.PalmImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PalmImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PcdImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PcdImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PcfFontFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PcfFontFile.py',
+   'PYMODULE'),
+  ('PIL.PcxImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PcxImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PdfImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PdfImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PdfParser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PdfParser.py',
+   'PYMODULE'),
+  ('PIL.PixarImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PixarImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PngImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PngImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PpmImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PpmImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.PsdImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\PsdImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.QoiImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\QoiImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.SgiImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\SgiImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.SpiderImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\SpiderImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.SunImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\SunImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.TarIO',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\TarIO.py',
+   'PYMODULE'),
+  ('PIL.TgaImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\TgaImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.TiffImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\TiffImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.TiffTags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\TiffTags.py',
+   'PYMODULE'),
+  ('PIL.WalImageFile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\WalImageFile.py',
+   'PYMODULE'),
+  ('PIL.WebPImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\WebPImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.WmfImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\WmfImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.XVThumbImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\XVThumbImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.XbmImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\XbmImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.XpmImagePlugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\XpmImagePlugin.py',
+   'PYMODULE'),
+  ('PIL.__main__',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\__main__.py',
+   'PYMODULE'),
+  ('PIL._binary',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\_binary.py',
+   'PYMODULE'),
+  ('PIL._deprecate',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\_deprecate.py',
+   'PYMODULE'),
+  ('PIL._tkinter_finder',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\_tkinter_finder.py',
+   'PYMODULE'),
+  ('PIL._typing',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\_typing.py',
+   'PYMODULE'),
+  ('PIL._util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\_util.py',
+   'PYMODULE'),
+  ('PIL._version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\_version.py',
+   'PYMODULE'),
+  ('PIL.features',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\features.py',
+   'PYMODULE'),
+  ('PIL.report',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\PIL\\report.py',
+   'PYMODULE'),
+  ('__future__', 'C:\\Python\\Python313\\Lib\\__future__.py', 'PYMODULE'),
+  ('_aix_support', 'C:\\Python\\Python313\\Lib\\_aix_support.py', 'PYMODULE'),
+  ('_colorize', 'C:\\Python\\Python313\\Lib\\_colorize.py', 'PYMODULE'),
+  ('_compat_pickle',
+   'C:\\Python\\Python313\\Lib\\_compat_pickle.py',
+   'PYMODULE'),
+  ('_compression', 'C:\\Python\\Python313\\Lib\\_compression.py', 'PYMODULE'),
+  ('_distutils_hack',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\_distutils_hack\\__init__.py',
+   'PYMODULE'),
+  ('_distutils_hack.override',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\_distutils_hack\\override.py',
+   'PYMODULE'),
+  ('_ios_support', 'C:\\Python\\Python313\\Lib\\_ios_support.py', 'PYMODULE'),
+  ('_markupbase', 'C:\\Python\\Python313\\Lib\\_markupbase.py', 'PYMODULE'),
+  ('_opcode_metadata',
+   'C:\\Python\\Python313\\Lib\\_opcode_metadata.py',
+   'PYMODULE'),
+  ('_osx_support', 'C:\\Python\\Python313\\Lib\\_osx_support.py', 'PYMODULE'),
+  ('_py_abc', 'C:\\Python\\Python313\\Lib\\_py_abc.py', 'PYMODULE'),
+  ('_pydatetime', 'C:\\Python\\Python313\\Lib\\_pydatetime.py', 'PYMODULE'),
+  ('_pydecimal', 'C:\\Python\\Python313\\Lib\\_pydecimal.py', 'PYMODULE'),
+  ('_pyrepl', 'C:\\Python\\Python313\\Lib\\_pyrepl\\__init__.py', 'PYMODULE'),
+  ('_pyrepl._minimal_curses',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\_minimal_curses.py',
+   'PYMODULE'),
+  ('_pyrepl._threading_handler',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\_threading_handler.py',
+   'PYMODULE'),
+  ('_pyrepl.base_eventqueue',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\base_eventqueue.py',
+   'PYMODULE'),
+  ('_pyrepl.commands',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\commands.py',
+   'PYMODULE'),
+  ('_pyrepl.completing_reader',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\completing_reader.py',
+   'PYMODULE'),
+  ('_pyrepl.console',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\console.py',
+   'PYMODULE'),
+  ('_pyrepl.curses',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\curses.py',
+   'PYMODULE'),
+  ('_pyrepl.fancy_termios',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\fancy_termios.py',
+   'PYMODULE'),
+  ('_pyrepl.historical_reader',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\historical_reader.py',
+   'PYMODULE'),
+  ('_pyrepl.input',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\input.py',
+   'PYMODULE'),
+  ('_pyrepl.keymap',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\keymap.py',
+   'PYMODULE'),
+  ('_pyrepl.main', 'C:\\Python\\Python313\\Lib\\_pyrepl\\main.py', 'PYMODULE'),
+  ('_pyrepl.pager',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\pager.py',
+   'PYMODULE'),
+  ('_pyrepl.reader',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\reader.py',
+   'PYMODULE'),
+  ('_pyrepl.readline',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\readline.py',
+   'PYMODULE'),
+  ('_pyrepl.simple_interact',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\simple_interact.py',
+   'PYMODULE'),
+  ('_pyrepl.trace',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\trace.py',
+   'PYMODULE'),
+  ('_pyrepl.types',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\types.py',
+   'PYMODULE'),
+  ('_pyrepl.unix_console',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\unix_console.py',
+   'PYMODULE'),
+  ('_pyrepl.unix_eventqueue',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\unix_eventqueue.py',
+   'PYMODULE'),
+  ('_pyrepl.utils',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\utils.py',
+   'PYMODULE'),
+  ('_pyrepl.windows_console',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\windows_console.py',
+   'PYMODULE'),
+  ('_pyrepl.windows_eventqueue',
+   'C:\\Python\\Python313\\Lib\\_pyrepl\\windows_eventqueue.py',
+   'PYMODULE'),
+  ('_sitebuiltins', 'C:\\Python\\Python313\\Lib\\_sitebuiltins.py', 'PYMODULE'),
+  ('_strptime', 'C:\\Python\\Python313\\Lib\\_strptime.py', 'PYMODULE'),
+  ('_threading_local',
+   'C:\\Python\\Python313\\Lib\\_threading_local.py',
+   'PYMODULE'),
+  ('argparse', 'C:\\Python\\Python313\\Lib\\argparse.py', 'PYMODULE'),
+  ('ast', 'C:\\Python\\Python313\\Lib\\ast.py', 'PYMODULE'),
+  ('asyncio', 'C:\\Python\\Python313\\Lib\\asyncio\\__init__.py', 'PYMODULE'),
+  ('asyncio.base_events',
+   'C:\\Python\\Python313\\Lib\\asyncio\\base_events.py',
+   'PYMODULE'),
+  ('asyncio.base_futures',
+   'C:\\Python\\Python313\\Lib\\asyncio\\base_futures.py',
+   'PYMODULE'),
+  ('asyncio.base_subprocess',
+   'C:\\Python\\Python313\\Lib\\asyncio\\base_subprocess.py',
+   'PYMODULE'),
+  ('asyncio.base_tasks',
+   'C:\\Python\\Python313\\Lib\\asyncio\\base_tasks.py',
+   'PYMODULE'),
+  ('asyncio.constants',
+   'C:\\Python\\Python313\\Lib\\asyncio\\constants.py',
+   'PYMODULE'),
+  ('asyncio.coroutines',
+   'C:\\Python\\Python313\\Lib\\asyncio\\coroutines.py',
+   'PYMODULE'),
+  ('asyncio.events',
+   'C:\\Python\\Python313\\Lib\\asyncio\\events.py',
+   'PYMODULE'),
+  ('asyncio.exceptions',
+   'C:\\Python\\Python313\\Lib\\asyncio\\exceptions.py',
+   'PYMODULE'),
+  ('asyncio.format_helpers',
+   'C:\\Python\\Python313\\Lib\\asyncio\\format_helpers.py',
+   'PYMODULE'),
+  ('asyncio.futures',
+   'C:\\Python\\Python313\\Lib\\asyncio\\futures.py',
+   'PYMODULE'),
+  ('asyncio.locks',
+   'C:\\Python\\Python313\\Lib\\asyncio\\locks.py',
+   'PYMODULE'),
+  ('asyncio.log', 'C:\\Python\\Python313\\Lib\\asyncio\\log.py', 'PYMODULE'),
+  ('asyncio.mixins',
+   'C:\\Python\\Python313\\Lib\\asyncio\\mixins.py',
+   'PYMODULE'),
+  ('asyncio.proactor_events',
+   'C:\\Python\\Python313\\Lib\\asyncio\\proactor_events.py',
+   'PYMODULE'),
+  ('asyncio.protocols',
+   'C:\\Python\\Python313\\Lib\\asyncio\\protocols.py',
+   'PYMODULE'),
+  ('asyncio.queues',
+   'C:\\Python\\Python313\\Lib\\asyncio\\queues.py',
+   'PYMODULE'),
+  ('asyncio.runners',
+   'C:\\Python\\Python313\\Lib\\asyncio\\runners.py',
+   'PYMODULE'),
+  ('asyncio.selector_events',
+   'C:\\Python\\Python313\\Lib\\asyncio\\selector_events.py',
+   'PYMODULE'),
+  ('asyncio.sslproto',
+   'C:\\Python\\Python313\\Lib\\asyncio\\sslproto.py',
+   'PYMODULE'),
+  ('asyncio.staggered',
+   'C:\\Python\\Python313\\Lib\\asyncio\\staggered.py',
+   'PYMODULE'),
+  ('asyncio.streams',
+   'C:\\Python\\Python313\\Lib\\asyncio\\streams.py',
+   'PYMODULE'),
+  ('asyncio.subprocess',
+   'C:\\Python\\Python313\\Lib\\asyncio\\subprocess.py',
+   'PYMODULE'),
+  ('asyncio.taskgroups',
+   'C:\\Python\\Python313\\Lib\\asyncio\\taskgroups.py',
+   'PYMODULE'),
+  ('asyncio.tasks',
+   'C:\\Python\\Python313\\Lib\\asyncio\\tasks.py',
+   'PYMODULE'),
+  ('asyncio.threads',
+   'C:\\Python\\Python313\\Lib\\asyncio\\threads.py',
+   'PYMODULE'),
+  ('asyncio.timeouts',
+   'C:\\Python\\Python313\\Lib\\asyncio\\timeouts.py',
+   'PYMODULE'),
+  ('asyncio.transports',
+   'C:\\Python\\Python313\\Lib\\asyncio\\transports.py',
+   'PYMODULE'),
+  ('asyncio.trsock',
+   'C:\\Python\\Python313\\Lib\\asyncio\\trsock.py',
+   'PYMODULE'),
+  ('asyncio.unix_events',
+   'C:\\Python\\Python313\\Lib\\asyncio\\unix_events.py',
+   'PYMODULE'),
+  ('asyncio.windows_events',
+   'C:\\Python\\Python313\\Lib\\asyncio\\windows_events.py',
+   'PYMODULE'),
+  ('asyncio.windows_utils',
+   'C:\\Python\\Python313\\Lib\\asyncio\\windows_utils.py',
+   'PYMODULE'),
+  ('base64', 'C:\\Python\\Python313\\Lib\\base64.py', 'PYMODULE'),
+  ('bisect', 'C:\\Python\\Python313\\Lib\\bisect.py', 'PYMODULE'),
+  ('bz2', 'C:\\Python\\Python313\\Lib\\bz2.py', 'PYMODULE'),
+  ('calendar', 'C:\\Python\\Python313\\Lib\\calendar.py', 'PYMODULE'),
+  ('code', 'C:\\Python\\Python313\\Lib\\code.py', 'PYMODULE'),
+  ('codeop', 'C:\\Python\\Python313\\Lib\\codeop.py', 'PYMODULE'),
+  ('colorsys', 'C:\\Python\\Python313\\Lib\\colorsys.py', 'PYMODULE'),
+  ('compileall', 'C:\\Python\\Python313\\Lib\\compileall.py', 'PYMODULE'),
+  ('concurrent',
+   'C:\\Python\\Python313\\Lib\\concurrent\\__init__.py',
+   'PYMODULE'),
+  ('concurrent.futures',
+   'C:\\Python\\Python313\\Lib\\concurrent\\futures\\__init__.py',
+   'PYMODULE'),
+  ('concurrent.futures._base',
+   'C:\\Python\\Python313\\Lib\\concurrent\\futures\\_base.py',
+   'PYMODULE'),
+  ('concurrent.futures.process',
+   'C:\\Python\\Python313\\Lib\\concurrent\\futures\\process.py',
+   'PYMODULE'),
+  ('concurrent.futures.thread',
+   'C:\\Python\\Python313\\Lib\\concurrent\\futures\\thread.py',
+   'PYMODULE'),
+  ('configparser', 'C:\\Python\\Python313\\Lib\\configparser.py', 'PYMODULE'),
+  ('contextlib', 'C:\\Python\\Python313\\Lib\\contextlib.py', 'PYMODULE'),
+  ('contextvars', 'C:\\Python\\Python313\\Lib\\contextvars.py', 'PYMODULE'),
+  ('copy', 'C:\\Python\\Python313\\Lib\\copy.py', 'PYMODULE'),
+  ('csv', 'C:\\Python\\Python313\\Lib\\csv.py', 'PYMODULE'),
+  ('ctypes', 'C:\\Python\\Python313\\Lib\\ctypes\\__init__.py', 'PYMODULE'),
+  ('ctypes._aix', 'C:\\Python\\Python313\\Lib\\ctypes\\_aix.py', 'PYMODULE'),
+  ('ctypes._endian',
+   'C:\\Python\\Python313\\Lib\\ctypes\\_endian.py',
+   'PYMODULE'),
+  ('ctypes.macholib',
+   'C:\\Python\\Python313\\Lib\\ctypes\\macholib\\__init__.py',
+   'PYMODULE'),
+  ('ctypes.macholib.dyld',
+   'C:\\Python\\Python313\\Lib\\ctypes\\macholib\\dyld.py',
+   'PYMODULE'),
+  ('ctypes.macholib.dylib',
+   'C:\\Python\\Python313\\Lib\\ctypes\\macholib\\dylib.py',
+   'PYMODULE'),
+  ('ctypes.macholib.framework',
+   'C:\\Python\\Python313\\Lib\\ctypes\\macholib\\framework.py',
+   'PYMODULE'),
+  ('ctypes.util', 'C:\\Python\\Python313\\Lib\\ctypes\\util.py', 'PYMODULE'),
+  ('ctypes.wintypes',
+   'C:\\Python\\Python313\\Lib\\ctypes\\wintypes.py',
+   'PYMODULE'),
+  ('curses', 'C:\\Python\\Python313\\Lib\\curses\\__init__.py', 'PYMODULE'),
+  ('curses.has_key',
+   'C:\\Python\\Python313\\Lib\\curses\\has_key.py',
+   'PYMODULE'),
+  ('dataclasses', 'C:\\Python\\Python313\\Lib\\dataclasses.py', 'PYMODULE'),
+  ('datetime', 'C:\\Python\\Python313\\Lib\\datetime.py', 'PYMODULE'),
+  ('decimal', 'C:\\Python\\Python313\\Lib\\decimal.py', 'PYMODULE'),
+  ('difflib', 'C:\\Python\\Python313\\Lib\\difflib.py', 'PYMODULE'),
+  ('dis', 'C:\\Python\\Python313\\Lib\\dis.py', 'PYMODULE'),
+  ('email', 'C:\\Python\\Python313\\Lib\\email\\__init__.py', 'PYMODULE'),
+  ('email._encoded_words',
+   'C:\\Python\\Python313\\Lib\\email\\_encoded_words.py',
+   'PYMODULE'),
+  ('email._header_value_parser',
+   'C:\\Python\\Python313\\Lib\\email\\_header_value_parser.py',
+   'PYMODULE'),
+  ('email._parseaddr',
+   'C:\\Python\\Python313\\Lib\\email\\_parseaddr.py',
+   'PYMODULE'),
+  ('email._policybase',
+   'C:\\Python\\Python313\\Lib\\email\\_policybase.py',
+   'PYMODULE'),
+  ('email.base64mime',
+   'C:\\Python\\Python313\\Lib\\email\\base64mime.py',
+   'PYMODULE'),
+  ('email.charset',
+   'C:\\Python\\Python313\\Lib\\email\\charset.py',
+   'PYMODULE'),
+  ('email.contentmanager',
+   'C:\\Python\\Python313\\Lib\\email\\contentmanager.py',
+   'PYMODULE'),
+  ('email.encoders',
+   'C:\\Python\\Python313\\Lib\\email\\encoders.py',
+   'PYMODULE'),
+  ('email.errors', 'C:\\Python\\Python313\\Lib\\email\\errors.py', 'PYMODULE'),
+  ('email.feedparser',
+   'C:\\Python\\Python313\\Lib\\email\\feedparser.py',
+   'PYMODULE'),
+  ('email.generator',
+   'C:\\Python\\Python313\\Lib\\email\\generator.py',
+   'PYMODULE'),
+  ('email.header', 'C:\\Python\\Python313\\Lib\\email\\header.py', 'PYMODULE'),
+  ('email.headerregistry',
+   'C:\\Python\\Python313\\Lib\\email\\headerregistry.py',
+   'PYMODULE'),
+  ('email.iterators',
+   'C:\\Python\\Python313\\Lib\\email\\iterators.py',
+   'PYMODULE'),
+  ('email.message',
+   'C:\\Python\\Python313\\Lib\\email\\message.py',
+   'PYMODULE'),
+  ('email.parser', 'C:\\Python\\Python313\\Lib\\email\\parser.py', 'PYMODULE'),
+  ('email.policy', 'C:\\Python\\Python313\\Lib\\email\\policy.py', 'PYMODULE'),
+  ('email.quoprimime',
+   'C:\\Python\\Python313\\Lib\\email\\quoprimime.py',
+   'PYMODULE'),
+  ('email.utils', 'C:\\Python\\Python313\\Lib\\email\\utils.py', 'PYMODULE'),
+  ('filecmp', 'C:\\Python\\Python313\\Lib\\filecmp.py', 'PYMODULE'),
+  ('fnmatch', 'C:\\Python\\Python313\\Lib\\fnmatch.py', 'PYMODULE'),
+  ('fractions', 'C:\\Python\\Python313\\Lib\\fractions.py', 'PYMODULE'),
+  ('ftplib', 'C:\\Python\\Python313\\Lib\\ftplib.py', 'PYMODULE'),
+  ('game_framework',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_framework.py',
+   'PYMODULE'),
+  ('game_logic',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\__init__.py',
+   'PYMODULE'),
+  ('game_logic.background',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\background.py',
+   'PYMODULE'),
+  ('game_logic.behavior_tree',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\behavior_tree.py',
+   'PYMODULE'),
+  ('game_logic.cursor',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\cursor.py',
+   'PYMODULE'),
+  ('game_logic.damage_indicator',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\damage_indicator.py',
+   'PYMODULE'),
+  ('game_logic.defeat_mode',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\defeat_mode.py',
+   'PYMODULE'),
+  ('game_logic.equipment',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\equipment.py',
+   'PYMODULE'),
+  ('game_logic.event_to_string',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\event_to_string.py',
+   'PYMODULE'),
+  ('game_logic.image_asset_manager',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\image_asset_manager.py',
+   'PYMODULE'),
+  ('game_logic.inventory',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\inventory.py',
+   'PYMODULE'),
+  ('game_logic.item_entity',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\item_entity.py',
+   'PYMODULE'),
+  ('game_logic.items',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\items.py',
+   'PYMODULE'),
+  ('game_logic.loading_screen',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\loading_screen.py',
+   'PYMODULE'),
+  ('game_logic.lobby_mode',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\lobby_mode.py',
+   'PYMODULE'),
+  ('game_logic.map',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\map.py',
+   'PYMODULE'),
+  ('game_logic.monsters',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\__init__.py',
+   'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic', '-', 'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic.panther_assassin_1pattern',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\Boss_Logic\\panther_assassin_1pattern.py',
+   'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic.panther_assassin_2pattern',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\Boss_Logic\\panther_assassin_2pattern.py',
+   'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic.panther_assassin_3pattern',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\Boss_Logic\\panther_assassin_3pattern.py',
+   'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic.panther_assassin_4pattern',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\Boss_Logic\\panther_assassin_4pattern.py',
+   'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic.panther_assassin_5pattern',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\Boss_Logic\\panther_assassin_5pattern.py',
+   'PYMODULE'),
+  ('game_logic.monsters.Boss_Logic.panther_assassin_6pattern',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\Boss_Logic\\panther_assassin_6pattern.py',
+   'PYMODULE'),
+  ('game_logic.monsters.cat_assassin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\cat_assassin.py',
+   'PYMODULE'),
+  ('game_logic.monsters.cat_theif',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\cat_theif.py',
+   'PYMODULE'),
+  ('game_logic.monsters.panther_assassin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\monsters\\panther_assassin.py',
+   'PYMODULE'),
+  ('game_logic.play_mode',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\play_mode.py',
+   'PYMODULE'),
+  ('game_logic.player',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\player.py',
+   'PYMODULE'),
+  ('game_logic.projectile',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\projectile.py',
+   'PYMODULE'),
+  ('game_logic.stages',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\stages\\__init__.py',
+   'PYMODULE'),
+  ('game_logic.stages.stage_1',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\stages\\stage_1.py',
+   'PYMODULE'),
+  ('game_logic.stages.stage_2',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\stages\\stage_2.py',
+   'PYMODULE'),
+  ('game_logic.stages.stage_3',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\game_logic\\stages\\stage_3.py',
+   'PYMODULE'),
+  ('game_logic.state_machine',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\state_machine.py',
+   'PYMODULE'),
+  ('game_logic.stats',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\stats.py',
+   'PYMODULE'),
+  ('game_logic.title_mode',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\title_mode.py',
+   'PYMODULE'),
+  ('game_logic.ui_overlay',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\ui_overlay.py',
+   'PYMODULE'),
+  ('game_logic.vfx',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\vfx.py',
+   'PYMODULE'),
+  ('game_logic.victory_mode',
+   'E:\\대학 2학년 파일\\2D 게임프로그래밍\\2DGP-Game_Project\\game_logic\\victory_mode.py',
+   'PYMODULE'),
+  ('getopt', 'C:\\Python\\Python313\\Lib\\getopt.py', 'PYMODULE'),
+  ('getpass', 'C:\\Python\\Python313\\Lib\\getpass.py', 'PYMODULE'),
+  ('gettext', 'C:\\Python\\Python313\\Lib\\gettext.py', 'PYMODULE'),
+  ('glob', 'C:\\Python\\Python313\\Lib\\glob.py', 'PYMODULE'),
+  ('gzip', 'C:\\Python\\Python313\\Lib\\gzip.py', 'PYMODULE'),
+  ('hashlib', 'C:\\Python\\Python313\\Lib\\hashlib.py', 'PYMODULE'),
+  ('hmac', 'C:\\Python\\Python313\\Lib\\hmac.py', 'PYMODULE'),
+  ('html', 'C:\\Python\\Python313\\Lib\\html\\__init__.py', 'PYMODULE'),
+  ('html.entities',
+   'C:\\Python\\Python313\\Lib\\html\\entities.py',
+   'PYMODULE'),
+  ('html.parser', 'C:\\Python\\Python313\\Lib\\html\\parser.py', 'PYMODULE'),
+  ('http', 'C:\\Python\\Python313\\Lib\\http\\__init__.py', 'PYMODULE'),
+  ('http.client', 'C:\\Python\\Python313\\Lib\\http\\client.py', 'PYMODULE'),
+  ('http.cookiejar',
+   'C:\\Python\\Python313\\Lib\\http\\cookiejar.py',
+   'PYMODULE'),
+  ('http.cookies', 'C:\\Python\\Python313\\Lib\\http\\cookies.py', 'PYMODULE'),
+  ('http.server', 'C:\\Python\\Python313\\Lib\\http\\server.py', 'PYMODULE'),
+  ('importlib',
+   'C:\\Python\\Python313\\Lib\\importlib\\__init__.py',
+   'PYMODULE'),
+  ('importlib._abc',
+   'C:\\Python\\Python313\\Lib\\importlib\\_abc.py',
+   'PYMODULE'),
+  ('importlib._bootstrap',
+   'C:\\Python\\Python313\\Lib\\importlib\\_bootstrap.py',
+   'PYMODULE'),
+  ('importlib._bootstrap_external',
+   'C:\\Python\\Python313\\Lib\\importlib\\_bootstrap_external.py',
+   'PYMODULE'),
+  ('importlib.abc',
+   'C:\\Python\\Python313\\Lib\\importlib\\abc.py',
+   'PYMODULE'),
+  ('importlib.machinery',
+   'C:\\Python\\Python313\\Lib\\importlib\\machinery.py',
+   'PYMODULE'),
+  ('importlib.metadata',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\__init__.py',
+   'PYMODULE'),
+  ('importlib.metadata._adapters',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\_adapters.py',
+   'PYMODULE'),
+  ('importlib.metadata._collections',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\_collections.py',
+   'PYMODULE'),
+  ('importlib.metadata._functools',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\_functools.py',
+   'PYMODULE'),
+  ('importlib.metadata._itertools',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\_itertools.py',
+   'PYMODULE'),
+  ('importlib.metadata._meta',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\_meta.py',
+   'PYMODULE'),
+  ('importlib.metadata._text',
+   'C:\\Python\\Python313\\Lib\\importlib\\metadata\\_text.py',
+   'PYMODULE'),
+  ('importlib.readers',
+   'C:\\Python\\Python313\\Lib\\importlib\\readers.py',
+   'PYMODULE'),
+  ('importlib.resources',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\__init__.py',
+   'PYMODULE'),
+  ('importlib.resources._adapters',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\_adapters.py',
+   'PYMODULE'),
+  ('importlib.resources._common',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\_common.py',
+   'PYMODULE'),
+  ('importlib.resources._functional',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\_functional.py',
+   'PYMODULE'),
+  ('importlib.resources._itertools',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\_itertools.py',
+   'PYMODULE'),
+  ('importlib.resources.abc',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\abc.py',
+   'PYMODULE'),
+  ('importlib.resources.readers',
+   'C:\\Python\\Python313\\Lib\\importlib\\resources\\readers.py',
+   'PYMODULE'),
+  ('importlib.util',
+   'C:\\Python\\Python313\\Lib\\importlib\\util.py',
+   'PYMODULE'),
+  ('inspect', 'C:\\Python\\Python313\\Lib\\inspect.py', 'PYMODULE'),
+  ('ipaddress', 'C:\\Python\\Python313\\Lib\\ipaddress.py', 'PYMODULE'),
+  ('json', 'C:\\Python\\Python313\\Lib\\json\\__init__.py', 'PYMODULE'),
+  ('json.decoder', 'C:\\Python\\Python313\\Lib\\json\\decoder.py', 'PYMODULE'),
+  ('json.encoder', 'C:\\Python\\Python313\\Lib\\json\\encoder.py', 'PYMODULE'),
+  ('json.scanner', 'C:\\Python\\Python313\\Lib\\json\\scanner.py', 'PYMODULE'),
+  ('logging', 'C:\\Python\\Python313\\Lib\\logging\\__init__.py', 'PYMODULE'),
+  ('logging.config',
+   'C:\\Python\\Python313\\Lib\\logging\\config.py',
+   'PYMODULE'),
+  ('logging.handlers',
+   'C:\\Python\\Python313\\Lib\\logging\\handlers.py',
+   'PYMODULE'),
+  ('lzma', 'C:\\Python\\Python313\\Lib\\lzma.py', 'PYMODULE'),
+  ('mimetypes', 'C:\\Python\\Python313\\Lib\\mimetypes.py', 'PYMODULE'),
+  ('multiprocessing',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\__init__.py',
+   'PYMODULE'),
+  ('multiprocessing.connection',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\connection.py',
+   'PYMODULE'),
+  ('multiprocessing.context',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\context.py',
+   'PYMODULE'),
+  ('multiprocessing.dummy',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\dummy\\__init__.py',
+   'PYMODULE'),
+  ('multiprocessing.dummy.connection',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\dummy\\connection.py',
+   'PYMODULE'),
+  ('multiprocessing.forkserver',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\forkserver.py',
+   'PYMODULE'),
+  ('multiprocessing.heap',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\heap.py',
+   'PYMODULE'),
+  ('multiprocessing.managers',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\managers.py',
+   'PYMODULE'),
+  ('multiprocessing.pool',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\pool.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_fork',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\popen_fork.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_forkserver',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\popen_forkserver.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_spawn_posix',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\popen_spawn_posix.py',
+   'PYMODULE'),
+  ('multiprocessing.popen_spawn_win32',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\popen_spawn_win32.py',
+   'PYMODULE'),
+  ('multiprocessing.process',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\process.py',
+   'PYMODULE'),
+  ('multiprocessing.queues',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\queues.py',
+   'PYMODULE'),
+  ('multiprocessing.reduction',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\reduction.py',
+   'PYMODULE'),
+  ('multiprocessing.resource_sharer',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\resource_sharer.py',
+   'PYMODULE'),
+  ('multiprocessing.resource_tracker',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\resource_tracker.py',
+   'PYMODULE'),
+  ('multiprocessing.shared_memory',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\shared_memory.py',
+   'PYMODULE'),
+  ('multiprocessing.sharedctypes',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\sharedctypes.py',
+   'PYMODULE'),
+  ('multiprocessing.spawn',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\spawn.py',
+   'PYMODULE'),
+  ('multiprocessing.synchronize',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\synchronize.py',
+   'PYMODULE'),
+  ('multiprocessing.util',
+   'C:\\Python\\Python313\\Lib\\multiprocessing\\util.py',
+   'PYMODULE'),
+  ('netrc', 'C:\\Python\\Python313\\Lib\\netrc.py', 'PYMODULE'),
+  ('nturl2path', 'C:\\Python\\Python313\\Lib\\nturl2path.py', 'PYMODULE'),
+  ('numbers', 'C:\\Python\\Python313\\Lib\\numbers.py', 'PYMODULE'),
+  ('opcode', 'C:\\Python\\Python313\\Lib\\opcode.py', 'PYMODULE'),
+  ('optparse', 'C:\\Python\\Python313\\Lib\\optparse.py', 'PYMODULE'),
+  ('packaging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('packaging._elffile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('packaging._manylinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('packaging._musllinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('packaging._parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('packaging._structures',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('packaging._tokenizer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('packaging.licenses',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\licenses\\__init__.py',
+   'PYMODULE'),
+  ('packaging.licenses._spdx',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\licenses\\_spdx.py',
+   'PYMODULE'),
+  ('packaging.markers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\markers.py',
+   'PYMODULE'),
+  ('packaging.requirements',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('packaging.specifiers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('packaging.tags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\tags.py',
+   'PYMODULE'),
+  ('packaging.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\utils.py',
+   'PYMODULE'),
+  ('packaging.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\packaging\\version.py',
+   'PYMODULE'),
+  ('pathlib', 'C:\\Python\\Python313\\Lib\\pathlib\\__init__.py', 'PYMODULE'),
+  ('pathlib._abc', 'C:\\Python\\Python313\\Lib\\pathlib\\_abc.py', 'PYMODULE'),
+  ('pathlib._local',
+   'C:\\Python\\Python313\\Lib\\pathlib\\_local.py',
+   'PYMODULE'),
+  ('pickle', 'C:\\Python\\Python313\\Lib\\pickle.py', 'PYMODULE'),
+  ('pico2d',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pico2d\\__init__.py',
+   'PYMODULE'),
+  ('pico2d.pico2d',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pico2d\\pico2d.py',
+   'PYMODULE'),
+  ('pip',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.build_env',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\build_env.py',
+   'PYMODULE'),
+  ('pip._internal.cli',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.cli.autocompletion',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\autocompletion.py',
+   'PYMODULE'),
+  ('pip._internal.cli.base_command',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\base_command.py',
+   'PYMODULE'),
+  ('pip._internal.cli.cmdoptions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\cmdoptions.py',
+   'PYMODULE'),
+  ('pip._internal.cli.command_context',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\command_context.py',
+   'PYMODULE'),
+  ('pip._internal.cli.main',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\main.py',
+   'PYMODULE'),
+  ('pip._internal.cli.main_parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\main_parser.py',
+   'PYMODULE'),
+  ('pip._internal.cli.parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\parser.py',
+   'PYMODULE'),
+  ('pip._internal.cli.progress_bars',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\progress_bars.py',
+   'PYMODULE'),
+  ('pip._internal.cli.spinners',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\spinners.py',
+   'PYMODULE'),
+  ('pip._internal.cli.status_codes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\cli\\status_codes.py',
+   'PYMODULE'),
+  ('pip._internal.commands',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\commands\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.configuration',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\configuration.py',
+   'PYMODULE'),
+  ('pip._internal.exceptions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\exceptions.py',
+   'PYMODULE'),
+  ('pip._internal.index',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\index\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.index.collector',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\index\\collector.py',
+   'PYMODULE'),
+  ('pip._internal.index.package_finder',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\index\\package_finder.py',
+   'PYMODULE'),
+  ('pip._internal.index.sources',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\index\\sources.py',
+   'PYMODULE'),
+  ('pip._internal.locations',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\locations\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.locations._distutils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\locations\\_distutils.py',
+   'PYMODULE'),
+  ('pip._internal.locations._sysconfig',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\locations\\_sysconfig.py',
+   'PYMODULE'),
+  ('pip._internal.locations.base',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\locations\\base.py',
+   'PYMODULE'),
+  ('pip._internal.metadata',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.metadata._json',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\_json.py',
+   'PYMODULE'),
+  ('pip._internal.metadata.base',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\base.py',
+   'PYMODULE'),
+  ('pip._internal.metadata.importlib',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\importlib\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.metadata.importlib._compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\importlib\\_compat.py',
+   'PYMODULE'),
+  ('pip._internal.metadata.importlib._dists',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\importlib\\_dists.py',
+   'PYMODULE'),
+  ('pip._internal.metadata.importlib._envs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\importlib\\_envs.py',
+   'PYMODULE'),
+  ('pip._internal.metadata.pkg_resources',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\metadata\\pkg_resources.py',
+   'PYMODULE'),
+  ('pip._internal.models',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.models.candidate',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\candidate.py',
+   'PYMODULE'),
+  ('pip._internal.models.direct_url',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\direct_url.py',
+   'PYMODULE'),
+  ('pip._internal.models.format_control',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\format_control.py',
+   'PYMODULE'),
+  ('pip._internal.models.index',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\index.py',
+   'PYMODULE'),
+  ('pip._internal.models.link',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\link.py',
+   'PYMODULE'),
+  ('pip._internal.models.scheme',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\scheme.py',
+   'PYMODULE'),
+  ('pip._internal.models.search_scope',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\search_scope.py',
+   'PYMODULE'),
+  ('pip._internal.models.selection_prefs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\selection_prefs.py',
+   'PYMODULE'),
+  ('pip._internal.models.target_python',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\target_python.py',
+   'PYMODULE'),
+  ('pip._internal.models.wheel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\models\\wheel.py',
+   'PYMODULE'),
+  ('pip._internal.network',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\network\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.network.auth',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\network\\auth.py',
+   'PYMODULE'),
+  ('pip._internal.network.cache',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\network\\cache.py',
+   'PYMODULE'),
+  ('pip._internal.network.download',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\network\\download.py',
+   'PYMODULE'),
+  ('pip._internal.network.session',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\network\\session.py',
+   'PYMODULE'),
+  ('pip._internal.network.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\network\\utils.py',
+   'PYMODULE'),
+  ('pip._internal.operations',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\operations\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.operations.build',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\operations\\build\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.operations.build.metadata',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\operations\\build\\metadata.py',
+   'PYMODULE'),
+  ('pip._internal.operations.build.metadata_editable',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\operations\\build\\metadata_editable.py',
+   'PYMODULE'),
+  ('pip._internal.operations.install',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\operations\\install\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.operations.install.wheel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\operations\\install\\wheel.py',
+   'PYMODULE'),
+  ('pip._internal.pyproject',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\pyproject.py',
+   'PYMODULE'),
+  ('pip._internal.req',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\req\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.req.req_file',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\req\\req_file.py',
+   'PYMODULE'),
+  ('pip._internal.req.req_install',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\req\\req_install.py',
+   'PYMODULE'),
+  ('pip._internal.req.req_set',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\req\\req_set.py',
+   'PYMODULE'),
+  ('pip._internal.req.req_uninstall',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\req\\req_uninstall.py',
+   'PYMODULE'),
+  ('pip._internal.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.utils._jaraco_text',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\_jaraco_text.py',
+   'PYMODULE'),
+  ('pip._internal.utils._log',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\_log.py',
+   'PYMODULE'),
+  ('pip._internal.utils.appdirs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\appdirs.py',
+   'PYMODULE'),
+  ('pip._internal.utils.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\compat.py',
+   'PYMODULE'),
+  ('pip._internal.utils.compatibility_tags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\compatibility_tags.py',
+   'PYMODULE'),
+  ('pip._internal.utils.deprecation',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\deprecation.py',
+   'PYMODULE'),
+  ('pip._internal.utils.egg_link',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\egg_link.py',
+   'PYMODULE'),
+  ('pip._internal.utils.entrypoints',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\entrypoints.py',
+   'PYMODULE'),
+  ('pip._internal.utils.filesystem',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\filesystem.py',
+   'PYMODULE'),
+  ('pip._internal.utils.filetypes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\filetypes.py',
+   'PYMODULE'),
+  ('pip._internal.utils.glibc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\glibc.py',
+   'PYMODULE'),
+  ('pip._internal.utils.hashes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\hashes.py',
+   'PYMODULE'),
+  ('pip._internal.utils.logging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\logging.py',
+   'PYMODULE'),
+  ('pip._internal.utils.misc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\misc.py',
+   'PYMODULE'),
+  ('pip._internal.utils.packaging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\packaging.py',
+   'PYMODULE'),
+  ('pip._internal.utils.retry',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\retry.py',
+   'PYMODULE'),
+  ('pip._internal.utils.subprocess',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\subprocess.py',
+   'PYMODULE'),
+  ('pip._internal.utils.temp_dir',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\temp_dir.py',
+   'PYMODULE'),
+  ('pip._internal.utils.unpacking',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\unpacking.py',
+   'PYMODULE'),
+  ('pip._internal.utils.urls',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\urls.py',
+   'PYMODULE'),
+  ('pip._internal.utils.virtualenv',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\virtualenv.py',
+   'PYMODULE'),
+  ('pip._internal.utils.wheel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\utils\\wheel.py',
+   'PYMODULE'),
+  ('pip._internal.vcs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\vcs\\__init__.py',
+   'PYMODULE'),
+  ('pip._internal.vcs.bazaar',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\vcs\\bazaar.py',
+   'PYMODULE'),
+  ('pip._internal.vcs.git',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\vcs\\git.py',
+   'PYMODULE'),
+  ('pip._internal.vcs.mercurial',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\vcs\\mercurial.py',
+   'PYMODULE'),
+  ('pip._internal.vcs.subversion',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\vcs\\subversion.py',
+   'PYMODULE'),
+  ('pip._internal.vcs.versioncontrol',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_internal\\vcs\\versioncontrol.py',
+   'PYMODULE'),
+  ('pip._vendor',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.adapter',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\adapter.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.cache',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\cache.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.caches',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\caches\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.caches.file_cache',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\caches\\file_cache.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.caches.redis_cache',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\caches\\redis_cache.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.controller',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\controller.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.filewrapper',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\filewrapper.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.heuristics',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\heuristics.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.serialize',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\serialize.py',
+   'PYMODULE'),
+  ('pip._vendor.cachecontrol.wrapper',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\cachecontrol\\wrapper.py',
+   'PYMODULE'),
+  ('pip._vendor.certifi',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\certifi\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.certifi.core',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\certifi\\core.py',
+   'PYMODULE'),
+  ('pip._vendor.distlib',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distlib\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.distlib.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distlib\\compat.py',
+   'PYMODULE'),
+  ('pip._vendor.distlib.resources',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distlib\\resources.py',
+   'PYMODULE'),
+  ('pip._vendor.distlib.scripts',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distlib\\scripts.py',
+   'PYMODULE'),
+  ('pip._vendor.distlib.util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distlib\\util.py',
+   'PYMODULE'),
+  ('pip._vendor.distro',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distro\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.distro.distro',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\distro\\distro.py',
+   'PYMODULE'),
+  ('pip._vendor.idna',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\idna\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.idna.core',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\idna\\core.py',
+   'PYMODULE'),
+  ('pip._vendor.idna.idnadata',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\idna\\idnadata.py',
+   'PYMODULE'),
+  ('pip._vendor.idna.intranges',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\idna\\intranges.py',
+   'PYMODULE'),
+  ('pip._vendor.idna.package_data',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\idna\\package_data.py',
+   'PYMODULE'),
+  ('pip._vendor.idna.uts46data',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\idna\\uts46data.py',
+   'PYMODULE'),
+  ('pip._vendor.msgpack',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\msgpack\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.msgpack.exceptions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\msgpack\\exceptions.py',
+   'PYMODULE'),
+  ('pip._vendor.msgpack.ext',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\msgpack\\ext.py',
+   'PYMODULE'),
+  ('pip._vendor.msgpack.fallback',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\msgpack\\fallback.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging._elffile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging._manylinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging._musllinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging._parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging._structures',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging._tokenizer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging.markers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\markers.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging.requirements',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging.specifiers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging.tags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\tags.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\utils.py',
+   'PYMODULE'),
+  ('pip._vendor.packaging.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\packaging\\version.py',
+   'PYMODULE'),
+  ('pip._vendor.pkg_resources',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pkg_resources\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs.android',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\android.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs.api',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\api.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs.macos',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\macos.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs.unix',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\unix.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\version.py',
+   'PYMODULE'),
+  ('pip._vendor.platformdirs.windows',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\platformdirs\\windows.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.filter',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\filter.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.filters',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\filters\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.formatter',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\formatter.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.lexer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\lexer.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.lexers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\lexers\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.lexers._mapping',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\lexers\\_mapping.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.modeline',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\modeline.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.plugin',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\plugin.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.regexopt',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\regexopt.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.style',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\style.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.styles',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\styles\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.styles._mapping',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\styles\\_mapping.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.token',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\token.py',
+   'PYMODULE'),
+  ('pip._vendor.pygments.util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pygments\\util.py',
+   'PYMODULE'),
+  ('pip._vendor.pyproject_hooks',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pyproject_hooks\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.pyproject_hooks._impl',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pyproject_hooks\\_impl.py',
+   'PYMODULE'),
+  ('pip._vendor.pyproject_hooks._in_process',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\pyproject_hooks\\_in_process\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.requests',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.__version__',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\__version__.py',
+   'PYMODULE'),
+  ('pip._vendor.requests._internal_utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\_internal_utils.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.adapters',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\adapters.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.api',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\api.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.auth',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\auth.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.certs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\certs.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\compat.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.cookies',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\cookies.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.exceptions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\exceptions.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.hooks',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\hooks.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.models',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\models.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.packages',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\packages.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.sessions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\sessions.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.status_codes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\status_codes.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.structures',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\structures.py',
+   'PYMODULE'),
+  ('pip._vendor.requests.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\requests\\utils.py',
+   'PYMODULE'),
+  ('pip._vendor.rich',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.__main__',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\__main__.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._cell_widths',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_cell_widths.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._emoji_codes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_emoji_codes.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._emoji_replace',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_emoji_replace.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._export_format',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_export_format.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._extension',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_extension.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._fileno',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_fileno.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._inspect',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_inspect.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._log_render',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_log_render.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._loop',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_loop.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._null_file',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_null_file.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._palettes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_palettes.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._pick',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_pick.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._ratio',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_ratio.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._spinners',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_spinners.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._timer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_timer.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._win32_console',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_win32_console.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._windows',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_windows.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._windows_renderer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_windows_renderer.py',
+   'PYMODULE'),
+  ('pip._vendor.rich._wrap',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\_wrap.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.abc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\abc.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.align',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\align.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.ansi',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\ansi.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.box',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\box.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.cells',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\cells.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.color',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\color.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.color_triplet',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\color_triplet.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.columns',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\columns.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.console',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\console.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.constrain',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\constrain.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.containers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\containers.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.control',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\control.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.default_styles',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\default_styles.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.emoji',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\emoji.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.errors',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\errors.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.file_proxy',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\file_proxy.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.filesize',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\filesize.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.highlighter',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\highlighter.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.json',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\json.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.jupyter',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\jupyter.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.live',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\live.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.live_render',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\live_render.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.logging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\logging.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.markup',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\markup.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.measure',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\measure.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.padding',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\padding.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.pager',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\pager.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.palette',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\palette.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.panel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\panel.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.pretty',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\pretty.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.progress',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\progress.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.progress_bar',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\progress_bar.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.protocol',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\protocol.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.region',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\region.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.repr',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\repr.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.rule',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\rule.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.scope',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\scope.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.screen',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\screen.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.segment',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\segment.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.spinner',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\spinner.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.status',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\status.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.style',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\style.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.styled',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\styled.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.syntax',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\syntax.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.table',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\table.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.terminal_theme',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\terminal_theme.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.text',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\text.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.theme',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\theme.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.themes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\themes.py',
+   'PYMODULE'),
+  ('pip._vendor.rich.traceback',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\rich\\traceback.py',
+   'PYMODULE'),
+  ('pip._vendor.tomli',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\tomli\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.tomli._parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\tomli\\_parser.py',
+   'PYMODULE'),
+  ('pip._vendor.tomli._re',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\tomli\\_re.py',
+   'PYMODULE'),
+  ('pip._vendor.tomli._types',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\tomli\\_types.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3._collections',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\_collections.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3._version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\_version.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.connection',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\connection.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.connectionpool',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\connectionpool.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.contrib',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\contrib\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.contrib._appengine_environ',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\contrib\\_appengine_environ.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.contrib.pyopenssl',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\contrib\\pyopenssl.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.contrib.socks',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\contrib\\socks.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.exceptions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\exceptions.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.fields',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\fields.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.filepost',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\filepost.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.packages',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\packages\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.packages.backports',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\packages\\backports\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.packages.backports.makefile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\packages\\backports\\makefile.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.packages.backports.weakref_finalize',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\packages\\backports\\weakref_finalize.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.packages.six',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\packages\\six.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.poolmanager',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\poolmanager.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.request',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\request.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.response',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\response.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\__init__.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.connection',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\connection.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.proxy',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\proxy.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.queue',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\queue.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.request',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\request.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.response',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\response.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.retry',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\retry.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.ssl_',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\ssl_.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.ssl_match_hostname',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\ssl_match_hostname.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.ssltransport',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\ssltransport.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.timeout',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\timeout.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.url',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\url.py',
+   'PYMODULE'),
+  ('pip._vendor.urllib3.util.wait',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\pip\\_vendor\\urllib3\\util\\wait.py',
+   'PYMODULE'),
+  ('pkgutil', 'C:\\Python\\Python313\\Lib\\pkgutil.py', 'PYMODULE'),
+  ('platform', 'C:\\Python\\Python313\\Lib\\platform.py', 'PYMODULE'),
+  ('plistlib', 'C:\\Python\\Python313\\Lib\\plistlib.py', 'PYMODULE'),
+  ('pprint', 'C:\\Python\\Python313\\Lib\\pprint.py', 'PYMODULE'),
+  ('pty', 'C:\\Python\\Python313\\Lib\\pty.py', 'PYMODULE'),
+  ('py_compile', 'C:\\Python\\Python313\\Lib\\py_compile.py', 'PYMODULE'),
+  ('pydoc', 'C:\\Python\\Python313\\Lib\\pydoc.py', 'PYMODULE'),
+  ('pydoc_data',
+   'C:\\Python\\Python313\\Lib\\pydoc_data\\__init__.py',
+   'PYMODULE'),
+  ('pydoc_data.topics',
+   'C:\\Python\\Python313\\Lib\\pydoc_data\\topics.py',
+   'PYMODULE'),
+  ('queue', 'C:\\Python\\Python313\\Lib\\queue.py', 'PYMODULE'),
+  ('quopri', 'C:\\Python\\Python313\\Lib\\quopri.py', 'PYMODULE'),
+  ('random', 'C:\\Python\\Python313\\Lib\\random.py', 'PYMODULE'),
+  ('rlcompleter', 'C:\\Python\\Python313\\Lib\\rlcompleter.py', 'PYMODULE'),
+  ('runpy', 'C:\\Python\\Python313\\Lib\\runpy.py', 'PYMODULE'),
+  ('sdl2',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\__init__.py',
+   'PYMODULE'),
+  ('sdl2._internal',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\_internal.py',
+   'PYMODULE'),
+  ('sdl2._sdl_init',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\_sdl_init.py',
+   'PYMODULE'),
+  ('sdl2.audio',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\audio.py',
+   'PYMODULE'),
+  ('sdl2.blendmode',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\blendmode.py',
+   'PYMODULE'),
+  ('sdl2.clipboard',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\clipboard.py',
+   'PYMODULE'),
+  ('sdl2.cpuinfo',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\cpuinfo.py',
+   'PYMODULE'),
+  ('sdl2.dll',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\dll.py',
+   'PYMODULE'),
+  ('sdl2.endian',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\endian.py',
+   'PYMODULE'),
+  ('sdl2.error',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\error.py',
+   'PYMODULE'),
+  ('sdl2.events',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\events.py',
+   'PYMODULE'),
+  ('sdl2.examples',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\__init__.py',
+   'PYMODULE'),
+  ('sdl2.examples.colorpalettes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\colorpalettes.py',
+   'PYMODULE'),
+  ('sdl2.examples.draw',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\draw.py',
+   'PYMODULE'),
+  ('sdl2.examples.gfxdrawing',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\gfxdrawing.py',
+   'PYMODULE'),
+  ('sdl2.examples.gui',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\gui.py',
+   'PYMODULE'),
+  ('sdl2.examples.helloworld',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\helloworld.py',
+   'PYMODULE'),
+  ('sdl2.examples.opengl',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\opengl.py',
+   'PYMODULE'),
+  ('sdl2.examples.particles',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\particles.py',
+   'PYMODULE'),
+  ('sdl2.examples.pixelaccess',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\pixelaccess.py',
+   'PYMODULE'),
+  ('sdl2.examples.pong',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\pong.py',
+   'PYMODULE'),
+  ('sdl2.examples.sdl2hello',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\sdl2hello.py',
+   'PYMODULE'),
+  ('sdl2.examples.transfomations',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\transfomations.py',
+   'PYMODULE'),
+  ('sdl2.examples.ttf',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\examples\\ttf.py',
+   'PYMODULE'),
+  ('sdl2.ext',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\__init__.py',
+   'PYMODULE'),
+  ('sdl2.ext.algorithms',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\algorithms.py',
+   'PYMODULE'),
+  ('sdl2.ext.array',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\array.py',
+   'PYMODULE'),
+  ('sdl2.ext.bitmapfont',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\bitmapfont.py',
+   'PYMODULE'),
+  ('sdl2.ext.color',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\color.py',
+   'PYMODULE'),
+  ('sdl2.ext.colorpalettes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\colorpalettes.py',
+   'PYMODULE'),
+  ('sdl2.ext.common',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\common.py',
+   'PYMODULE'),
+  ('sdl2.ext.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\compat.py',
+   'PYMODULE'),
+  ('sdl2.ext.displays',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\displays.py',
+   'PYMODULE'),
+  ('sdl2.ext.draw',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\draw.py',
+   'PYMODULE'),
+  ('sdl2.ext.ebs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\ebs.py',
+   'PYMODULE'),
+  ('sdl2.ext.err',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\err.py',
+   'PYMODULE'),
+  ('sdl2.ext.events',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\events.py',
+   'PYMODULE'),
+  ('sdl2.ext.image',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\image.py',
+   'PYMODULE'),
+  ('sdl2.ext.input',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\input.py',
+   'PYMODULE'),
+  ('sdl2.ext.mouse',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\mouse.py',
+   'PYMODULE'),
+  ('sdl2.ext.msgbox',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\msgbox.py',
+   'PYMODULE'),
+  ('sdl2.ext.particles',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\particles.py',
+   'PYMODULE'),
+  ('sdl2.ext.pixelaccess',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\pixelaccess.py',
+   'PYMODULE'),
+  ('sdl2.ext.renderer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\renderer.py',
+   'PYMODULE'),
+  ('sdl2.ext.resources',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\resources.py',
+   'PYMODULE'),
+  ('sdl2.ext.sprite',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\sprite.py',
+   'PYMODULE'),
+  ('sdl2.ext.spritesystem',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\spritesystem.py',
+   'PYMODULE'),
+  ('sdl2.ext.surface',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\surface.py',
+   'PYMODULE'),
+  ('sdl2.ext.ttf',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\ttf.py',
+   'PYMODULE'),
+  ('sdl2.ext.uisystem',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\uisystem.py',
+   'PYMODULE'),
+  ('sdl2.ext.window',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\ext\\window.py',
+   'PYMODULE'),
+  ('sdl2.filesystem',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\filesystem.py',
+   'PYMODULE'),
+  ('sdl2.gamecontroller',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\gamecontroller.py',
+   'PYMODULE'),
+  ('sdl2.gesture',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\gesture.py',
+   'PYMODULE'),
+  ('sdl2.guid',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\guid.py',
+   'PYMODULE'),
+  ('sdl2.haptic',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\haptic.py',
+   'PYMODULE'),
+  ('sdl2.hidapi',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\hidapi.py',
+   'PYMODULE'),
+  ('sdl2.hints',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\hints.py',
+   'PYMODULE'),
+  ('sdl2.joystick',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\joystick.py',
+   'PYMODULE'),
+  ('sdl2.keyboard',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\keyboard.py',
+   'PYMODULE'),
+  ('sdl2.keycode',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\keycode.py',
+   'PYMODULE'),
+  ('sdl2.loadso',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\loadso.py',
+   'PYMODULE'),
+  ('sdl2.locale',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\locale.py',
+   'PYMODULE'),
+  ('sdl2.log',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\log.py',
+   'PYMODULE'),
+  ('sdl2.messagebox',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\messagebox.py',
+   'PYMODULE'),
+  ('sdl2.metal',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\metal.py',
+   'PYMODULE'),
+  ('sdl2.misc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\misc.py',
+   'PYMODULE'),
+  ('sdl2.mouse',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\mouse.py',
+   'PYMODULE'),
+  ('sdl2.pixels',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\pixels.py',
+   'PYMODULE'),
+  ('sdl2.platform',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\platform.py',
+   'PYMODULE'),
+  ('sdl2.power',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\power.py',
+   'PYMODULE'),
+  ('sdl2.rect',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\rect.py',
+   'PYMODULE'),
+  ('sdl2.render',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\render.py',
+   'PYMODULE'),
+  ('sdl2.rwops',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\rwops.py',
+   'PYMODULE'),
+  ('sdl2.scancode',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\scancode.py',
+   'PYMODULE'),
+  ('sdl2.sdlgfx',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\sdlgfx.py',
+   'PYMODULE'),
+  ('sdl2.sdlimage',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\sdlimage.py',
+   'PYMODULE'),
+  ('sdl2.sdlmixer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\sdlmixer.py',
+   'PYMODULE'),
+  ('sdl2.sdlttf',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\sdlttf.py',
+   'PYMODULE'),
+  ('sdl2.sensor',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\sensor.py',
+   'PYMODULE'),
+  ('sdl2.shape',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\shape.py',
+   'PYMODULE'),
+  ('sdl2.stdinc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\stdinc.py',
+   'PYMODULE'),
+  ('sdl2.surface',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\surface.py',
+   'PYMODULE'),
+  ('sdl2.syswm',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\syswm.py',
+   'PYMODULE'),
+  ('sdl2.test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\__init__.py',
+   'PYMODULE'),
+  ('sdl2.test.audio_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\audio_test.py',
+   'PYMODULE'),
+  ('sdl2.test.blendmode_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\blendmode_test.py',
+   'PYMODULE'),
+  ('sdl2.test.clipboard_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\clipboard_test.py',
+   'PYMODULE'),
+  ('sdl2.test.conftest',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\conftest.py',
+   'PYMODULE'),
+  ('sdl2.test.cpuinfo_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\cpuinfo_test.py',
+   'PYMODULE'),
+  ('sdl2.test.endian_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\endian_test.py',
+   'PYMODULE'),
+  ('sdl2.test.error_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\error_test.py',
+   'PYMODULE'),
+  ('sdl2.test.events_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\events_test.py',
+   'PYMODULE'),
+  ('sdl2.test.filesystem_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\filesystem_test.py',
+   'PYMODULE'),
+  ('sdl2.test.gamecontroller_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\gamecontroller_test.py',
+   'PYMODULE'),
+  ('sdl2.test.guid_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\guid_test.py',
+   'PYMODULE'),
+  ('sdl2.test.hidapi_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\hidapi_test.py',
+   'PYMODULE'),
+  ('sdl2.test.hints_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\hints_test.py',
+   'PYMODULE'),
+  ('sdl2.test.joystick_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\joystick_test.py',
+   'PYMODULE'),
+  ('sdl2.test.keyboard_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\keyboard_test.py',
+   'PYMODULE'),
+  ('sdl2.test.locale_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\locale_test.py',
+   'PYMODULE'),
+  ('sdl2.test.log_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\log_test.py',
+   'PYMODULE'),
+  ('sdl2.test.metal_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\metal_test.py',
+   'PYMODULE'),
+  ('sdl2.test.mouse_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\mouse_test.py',
+   'PYMODULE'),
+  ('sdl2.test.pixels_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\pixels_test.py',
+   'PYMODULE'),
+  ('sdl2.test.platform_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\platform_test.py',
+   'PYMODULE'),
+  ('sdl2.test.power_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\power_test.py',
+   'PYMODULE'),
+  ('sdl2.test.rect_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\rect_test.py',
+   'PYMODULE'),
+  ('sdl2.test.render_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\render_test.py',
+   'PYMODULE'),
+  ('sdl2.test.rwops_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\rwops_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_algorithms_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_algorithms_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_array_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_array_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_color_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_color_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_displays_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_displays_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_draw_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_draw_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_ebs_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_ebs_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_events_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_events_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_font_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_font_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_image_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_image_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_input_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_input_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_mouse_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_mouse_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_msgbox_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_msgbox_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_particles_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_particles_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_pixelaccess_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_pixelaccess_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_renderer_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_renderer_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_resources_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_resources_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_sprite_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_sprite_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_spritesystem_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_spritesystem_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_surface_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_surface_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_uisystem_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_uisystem_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl2ext_window_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl2ext_window_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdl_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdl_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdlgfx_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdlgfx_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdlimage_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdlimage_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdlmixer_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdlmixer_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sdlttf_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sdlttf_test.py',
+   'PYMODULE'),
+  ('sdl2.test.sensor_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\sensor_test.py',
+   'PYMODULE'),
+  ('sdl2.test.shape_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\shape_test.py',
+   'PYMODULE'),
+  ('sdl2.test.surface_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\surface_test.py',
+   'PYMODULE'),
+  ('sdl2.test.syswm_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\syswm_test.py',
+   'PYMODULE'),
+  ('sdl2.test.timer_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\timer_test.py',
+   'PYMODULE'),
+  ('sdl2.test.touch_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\touch_test.py',
+   'PYMODULE'),
+  ('sdl2.test.version_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\version_test.py',
+   'PYMODULE'),
+  ('sdl2.test.video_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\video_test.py',
+   'PYMODULE'),
+  ('sdl2.test.vulkan_test',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\test\\vulkan_test.py',
+   'PYMODULE'),
+  ('sdl2.timer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\timer.py',
+   'PYMODULE'),
+  ('sdl2.touch',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\touch.py',
+   'PYMODULE'),
+  ('sdl2.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\version.py',
+   'PYMODULE'),
+  ('sdl2.video',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\video.py',
+   'PYMODULE'),
+  ('sdl2.vulkan',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2\\vulkan.py',
+   'PYMODULE'),
+  ('sdl2dll',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2dll\\__init__.py',
+   'PYMODULE'),
+  ('sdl2dll.initcheck',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\sdl2dll\\initcheck.py',
+   'PYMODULE'),
+  ('secrets', 'C:\\Python\\Python313\\Lib\\secrets.py', 'PYMODULE'),
+  ('selectors', 'C:\\Python\\Python313\\Lib\\selectors.py', 'PYMODULE'),
+  ('setuptools',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._core_metadata',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_core_metadata.py',
+   'PYMODULE'),
+  ('setuptools._discovery',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_discovery.py',
+   'PYMODULE'),
+  ('setuptools._distutils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._distutils._log',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\_log.py',
+   'PYMODULE'),
+  ('setuptools._distutils._modified',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\_modified.py',
+   'PYMODULE'),
+  ('setuptools._distutils._msvccompiler',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\_msvccompiler.py',
+   'PYMODULE'),
+  ('setuptools._distutils.archive_util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\archive_util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.ccompiler',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\ccompiler.py',
+   'PYMODULE'),
+  ('setuptools._distutils.cmd',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\cmd.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command._framework_compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\_framework_compat.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.bdist',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\bdist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.build',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\build.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.build_ext',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\build_ext.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.install',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\install.py',
+   'PYMODULE'),
+  ('setuptools._distutils.command.sdist',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\sdist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compat.numpy',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\numpy.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compat.py39',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\py39.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compilers', '-', 'PYMODULE'),
+  ('setuptools._distutils.compilers.C', '-', 'PYMODULE'),
+  ('setuptools._distutils.compilers.C.base',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\base.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compilers.C.errors',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\errors.py',
+   'PYMODULE'),
+  ('setuptools._distutils.compilers.C.msvc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\msvc.py',
+   'PYMODULE'),
+  ('setuptools._distutils.core',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\core.py',
+   'PYMODULE'),
+  ('setuptools._distutils.debug',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\debug.py',
+   'PYMODULE'),
+  ('setuptools._distutils.dir_util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\dir_util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.dist',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\dist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.errors',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\errors.py',
+   'PYMODULE'),
+  ('setuptools._distutils.extension',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\extension.py',
+   'PYMODULE'),
+  ('setuptools._distutils.fancy_getopt',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\fancy_getopt.py',
+   'PYMODULE'),
+  ('setuptools._distutils.file_util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\file_util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.filelist',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\filelist.py',
+   'PYMODULE'),
+  ('setuptools._distutils.log',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\log.py',
+   'PYMODULE'),
+  ('setuptools._distutils.spawn',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\spawn.py',
+   'PYMODULE'),
+  ('setuptools._distutils.sysconfig',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\sysconfig.py',
+   'PYMODULE'),
+  ('setuptools._distutils.text_file',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\text_file.py',
+   'PYMODULE'),
+  ('setuptools._distutils.util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\util.py',
+   'PYMODULE'),
+  ('setuptools._distutils.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\version.py',
+   'PYMODULE'),
+  ('setuptools._distutils.versionpredicate',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_distutils\\versionpredicate.py',
+   'PYMODULE'),
+  ('setuptools._entry_points',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_entry_points.py',
+   'PYMODULE'),
+  ('setuptools._imp',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_imp.py',
+   'PYMODULE'),
+  ('setuptools._importlib',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_importlib.py',
+   'PYMODULE'),
+  ('setuptools._itertools',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_itertools.py',
+   'PYMODULE'),
+  ('setuptools._normalization',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_normalization.py',
+   'PYMODULE'),
+  ('setuptools._path',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_path.py',
+   'PYMODULE'),
+  ('setuptools._reqs',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_reqs.py',
+   'PYMODULE'),
+  ('setuptools._shutil',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_shutil.py',
+   'PYMODULE'),
+  ('setuptools._static',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_static.py',
+   'PYMODULE'),
+  ('setuptools._vendor', '-', 'PYMODULE'),
+  ('setuptools._vendor.backports',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.backports.tarfile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.backports.tarfile.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.backports.tarfile.compat.py38',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\py38.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._adapters',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_adapters.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._collections',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_collections.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_compat.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._functools',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_functools.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._itertools',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_itertools.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._meta',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_meta.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata._text',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_text.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata.compat.py311',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py311.py',
+   'PYMODULE'),
+  ('setuptools._vendor.importlib_metadata.compat.py39',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py39.py',
+   'PYMODULE'),
+  ('setuptools._vendor.jaraco', '-', 'PYMODULE'),
+  ('setuptools._vendor.jaraco.context',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\context.py',
+   'PYMODULE'),
+  ('setuptools._vendor.jaraco.functools',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\functools\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.jaraco.text',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.more_itertools',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.more_itertools.more',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\more.py',
+   'PYMODULE'),
+  ('setuptools._vendor.more_itertools.recipes',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\recipes.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._elffile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._manylinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._musllinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._structures',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging._tokenizer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.markers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\markers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.requirements',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.specifiers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.tags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\utils.py',
+   'PYMODULE'),
+  ('setuptools._vendor.packaging.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\version.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli._parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_parser.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli._re',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_re.py',
+   'PYMODULE'),
+  ('setuptools._vendor.tomli._types',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_types.py',
+   'PYMODULE'),
+  ('setuptools._vendor.typing_extensions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\typing_extensions.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.convert',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\convert.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.pack',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\pack.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.tags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.cli.unpack',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\cli\\unpack.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.macosx_libfile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\macosx_libfile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.metadata',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\metadata.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\util.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._elffile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_elffile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._manylinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_manylinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._musllinux',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_musllinux.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._parser',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._structures',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_structures.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging._tokenizer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\_tokenizer.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.markers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\markers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.requirements',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\requirements.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.specifiers',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\specifiers.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.tags',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\tags.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\utils.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.vendored.packaging.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\vendored\\packaging\\version.py',
+   'PYMODULE'),
+  ('setuptools._vendor.wheel.wheelfile',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\wheelfile.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp.compat.py310',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\py310.py',
+   'PYMODULE'),
+  ('setuptools._vendor.zipp.glob',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\glob.py',
+   'PYMODULE'),
+  ('setuptools.archive_util',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\archive_util.py',
+   'PYMODULE'),
+  ('setuptools.command',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.command._requirestxt',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\_requirestxt.py',
+   'PYMODULE'),
+  ('setuptools.command.bdist_egg',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\bdist_egg.py',
+   'PYMODULE'),
+  ('setuptools.command.bdist_wheel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\bdist_wheel.py',
+   'PYMODULE'),
+  ('setuptools.command.build',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\build.py',
+   'PYMODULE'),
+  ('setuptools.command.egg_info',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\egg_info.py',
+   'PYMODULE'),
+  ('setuptools.command.sdist',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\sdist.py',
+   'PYMODULE'),
+  ('setuptools.command.setopt',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\command\\setopt.py',
+   'PYMODULE'),
+  ('setuptools.compat',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\compat\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.compat.py310',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\compat\\py310.py',
+   'PYMODULE'),
+  ('setuptools.compat.py311',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\compat\\py311.py',
+   'PYMODULE'),
+  ('setuptools.compat.py39',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\compat\\py39.py',
+   'PYMODULE'),
+  ('setuptools.config',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.config._apply_pyprojecttoml',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_apply_pyprojecttoml.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\__init__.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.error_reporting',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\error_reporting.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.extra_validations',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\extra_validations.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.fastjsonschema_exceptions',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_exceptions.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.fastjsonschema_validations',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_validations.py',
+   'PYMODULE'),
+  ('setuptools.config._validate_pyproject.formats',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\formats.py',
+   'PYMODULE'),
+  ('setuptools.config.expand',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\expand.py',
+   'PYMODULE'),
+  ('setuptools.config.pyprojecttoml',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\pyprojecttoml.py',
+   'PYMODULE'),
+  ('setuptools.config.setupcfg',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\config\\setupcfg.py',
+   'PYMODULE'),
+  ('setuptools.depends',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\depends.py',
+   'PYMODULE'),
+  ('setuptools.discovery',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\discovery.py',
+   'PYMODULE'),
+  ('setuptools.dist',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\dist.py',
+   'PYMODULE'),
+  ('setuptools.errors',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\errors.py',
+   'PYMODULE'),
+  ('setuptools.extension',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\extension.py',
+   'PYMODULE'),
+  ('setuptools.glob',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\glob.py',
+   'PYMODULE'),
+  ('setuptools.installer',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\installer.py',
+   'PYMODULE'),
+  ('setuptools.logging',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\logging.py',
+   'PYMODULE'),
+  ('setuptools.monkey',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\monkey.py',
+   'PYMODULE'),
+  ('setuptools.msvc',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\msvc.py',
+   'PYMODULE'),
+  ('setuptools.unicode_utils',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\unicode_utils.py',
+   'PYMODULE'),
+  ('setuptools.version',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\version.py',
+   'PYMODULE'),
+  ('setuptools.warnings',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\warnings.py',
+   'PYMODULE'),
+  ('setuptools.wheel',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\wheel.py',
+   'PYMODULE'),
+  ('setuptools.windows_support',
+   'E:\\대학 2학년 파일\\2D '
+   '게임프로그래밍\\2DGP-Game_Project\\.venv\\Lib\\site-packages\\setuptools\\windows_support.py',
+   'PYMODULE'),
+  ('shlex', 'C:\\Python\\Python313\\Lib\\shlex.py', 'PYMODULE'),
+  ('shutil', 'C:\\Python\\Python313\\Lib\\shutil.py', 'PYMODULE'),
+  ('signal', 'C:\\Python\\Python313\\Lib\\signal.py', 'PYMODULE'),
+  ('site', 'C:\\Python\\Python313\\Lib\\site.py', 'PYMODULE'),
+  ('smtplib', 'C:\\Python\\Python313\\Lib\\smtplib.py', 'PYMODULE'),
+  ('socket', 'C:\\Python\\Python313\\Lib\\socket.py', 'PYMODULE'),
+  ('socketserver', 'C:\\Python\\Python313\\Lib\\socketserver.py', 'PYMODULE'),
+  ('ssl', 'C:\\Python\\Python313\\Lib\\ssl.py', 'PYMODULE'),
+  ('statistics', 'C:\\Python\\Python313\\Lib\\statistics.py', 'PYMODULE'),
+  ('string', 'C:\\Python\\Python313\\Lib\\string.py', 'PYMODULE'),
+  ('stringprep', 'C:\\Python\\Python313\\Lib\\stringprep.py', 'PYMODULE'),
+  ('subprocess', 'C:\\Python\\Python313\\Lib\\subprocess.py', 'PYMODULE'),
+  ('sysconfig',
+   'C:\\Python\\Python313\\Lib\\sysconfig\\__init__.py',
+   'PYMODULE'),
+  ('tarfile', 'C:\\Python\\Python313\\Lib\\tarfile.py', 'PYMODULE'),
+  ('tempfile', 'C:\\Python\\Python313\\Lib\\tempfile.py', 'PYMODULE'),
+  ('textwrap', 'C:\\Python\\Python313\\Lib\\textwrap.py', 'PYMODULE'),
+  ('threading', 'C:\\Python\\Python313\\Lib\\threading.py', 'PYMODULE'),
+  ('token', 'C:\\Python\\Python313\\Lib\\token.py', 'PYMODULE'),
+  ('tokenize', 'C:\\Python\\Python313\\Lib\\tokenize.py', 'PYMODULE'),
+  ('tomllib', 'C:\\Python\\Python313\\Lib\\tomllib\\__init__.py', 'PYMODULE'),
+  ('tomllib._parser',
+   'C:\\Python\\Python313\\Lib\\tomllib\\_parser.py',
+   'PYMODULE'),
+  ('tomllib._re', 'C:\\Python\\Python313\\Lib\\tomllib\\_re.py', 'PYMODULE'),
+  ('tomllib._types',
+   'C:\\Python\\Python313\\Lib\\tomllib\\_types.py',
+   'PYMODULE'),
+  ('tracemalloc', 'C:\\Python\\Python313\\Lib\\tracemalloc.py', 'PYMODULE'),
+  ('tty', 'C:\\Python\\Python313\\Lib\\tty.py', 'PYMODULE'),
+  ('typing', 'C:\\Python\\Python313\\Lib\\typing.py', 'PYMODULE'),
+  ('unittest', 'C:\\Python\\Python313\\Lib\\unittest\\__init__.py', 'PYMODULE'),
+  ('unittest._log',
+   'C:\\Python\\Python313\\Lib\\unittest\\_log.py',
+   'PYMODULE'),
+  ('unittest.async_case',
+   'C:\\Python\\Python313\\Lib\\unittest\\async_case.py',
+   'PYMODULE'),
+  ('unittest.case',
+   'C:\\Python\\Python313\\Lib\\unittest\\case.py',
+   'PYMODULE'),
+  ('unittest.loader',
+   'C:\\Python\\Python313\\Lib\\unittest\\loader.py',
+   'PYMODULE'),
+  ('unittest.main',
+   'C:\\Python\\Python313\\Lib\\unittest\\main.py',
+   'PYMODULE'),
+  ('unittest.mock',
+   'C:\\Python\\Python313\\Lib\\unittest\\mock.py',
+   'PYMODULE'),
+  ('unittest.result',
+   'C:\\Python\\Python313\\Lib\\unittest\\result.py',
+   'PYMODULE'),
+  ('unittest.runner',
+   'C:\\Python\\Python313\\Lib\\unittest\\runner.py',
+   'PYMODULE'),
+  ('unittest.signals',
+   'C:\\Python\\Python313\\Lib\\unittest\\signals.py',
+   'PYMODULE'),
+  ('unittest.suite',
+   'C:\\Python\\Python313\\Lib\\unittest\\suite.py',
+   'PYMODULE'),
+  ('unittest.util',
+   'C:\\Python\\Python313\\Lib\\unittest\\util.py',
+   'PYMODULE'),
+  ('urllib', 'C:\\Python\\Python313\\Lib\\urllib\\__init__.py', 'PYMODULE'),
+  ('urllib.error', 'C:\\Python\\Python313\\Lib\\urllib\\error.py', 'PYMODULE'),
+  ('urllib.parse', 'C:\\Python\\Python313\\Lib\\urllib\\parse.py', 'PYMODULE'),
+  ('urllib.request',
+   'C:\\Python\\Python313\\Lib\\urllib\\request.py',
+   'PYMODULE'),
+  ('urllib.response',
+   'C:\\Python\\Python313\\Lib\\urllib\\response.py',
+   'PYMODULE'),
+  ('uuid', 'C:\\Python\\Python313\\Lib\\uuid.py', 'PYMODULE'),
+  ('webbrowser', 'C:\\Python\\Python313\\Lib\\webbrowser.py', 'PYMODULE'),
+  ('xml', 'C:\\Python\\Python313\\Lib\\xml\\__init__.py', 'PYMODULE'),
+  ('xml.etree',
+   'C:\\Python\\Python313\\Lib\\xml\\etree\\__init__.py',
+   'PYMODULE'),
+  ('xml.etree.ElementInclude',
+   'C:\\Python\\Python313\\Lib\\xml\\etree\\ElementInclude.py',
+   'PYMODULE'),
+  ('xml.etree.ElementPath',
+   'C:\\Python\\Python313\\Lib\\xml\\etree\\ElementPath.py',
+   'PYMODULE'),
+  ('xml.etree.ElementTree',
+   'C:\\Python\\Python313\\Lib\\xml\\etree\\ElementTree.py',
+   'PYMODULE'),
+  ('xml.etree.cElementTree',
+   'C:\\Python\\Python313\\Lib\\xml\\etree\\cElementTree.py',
+   'PYMODULE'),
+  ('xml.parsers',
+   'C:\\Python\\Python313\\Lib\\xml\\parsers\\__init__.py',
+   'PYMODULE'),
+  ('xml.parsers.expat',
+   'C:\\Python\\Python313\\Lib\\xml\\parsers\\expat.py',
+   'PYMODULE'),
+  ('xml.sax', 'C:\\Python\\Python313\\Lib\\xml\\sax\\__init__.py', 'PYMODULE'),
+  ('xml.sax._exceptions',
+   'C:\\Python\\Python313\\Lib\\xml\\sax\\_exceptions.py',
+   'PYMODULE'),
+  ('xml.sax.expatreader',
+   'C:\\Python\\Python313\\Lib\\xml\\sax\\expatreader.py',
+   'PYMODULE'),
+  ('xml.sax.handler',
+   'C:\\Python\\Python313\\Lib\\xml\\sax\\handler.py',
+   'PYMODULE'),
+  ('xml.sax.saxutils',
+   'C:\\Python\\Python313\\Lib\\xml\\sax\\saxutils.py',
+   'PYMODULE'),
+  ('xml.sax.xmlreader',
+   'C:\\Python\\Python313\\Lib\\xml\\sax\\xmlreader.py',
+   'PYMODULE'),
+  ('xmlrpc', 'C:\\Python\\Python313\\Lib\\xmlrpc\\__init__.py', 'PYMODULE'),
+  ('xmlrpc.client',
+   'C:\\Python\\Python313\\Lib\\xmlrpc\\client.py',
+   'PYMODULE'),
+  ('zipfile', 'C:\\Python\\Python313\\Lib\\zipfile\\__init__.py', 'PYMODULE'),
+  ('zipfile._path',
+   'C:\\Python\\Python313\\Lib\\zipfile\\_path\\__init__.py',
+   'PYMODULE'),
+  ('zipfile._path.glob',
+   'C:\\Python\\Python313\\Lib\\zipfile\\_path\\glob.py',
+   'PYMODULE'),
+  ('zipimport', 'C:\\Python\\Python313\\Lib\\zipimport.py', 'PYMODULE')])
